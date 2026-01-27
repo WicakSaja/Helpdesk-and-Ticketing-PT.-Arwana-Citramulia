@@ -11,18 +11,20 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users',
             'phone' => 'required|string|max:20|unique:users',
+            'department_id' => 'nullable|exists:departments,id',
             'password' => 'required|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'department_id' => $validated['department_id'] ?? null,
+            'password' => Hash::make($validated['password']),
         ]);
 
         // default role
@@ -73,7 +75,7 @@ class AuthController extends Controller
     }
     public function logout(Request $request)
     {
-         $request->user()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'message' => 'Logout success'
