@@ -1,135 +1,150 @@
+/* 1. RESET & FONT */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
-/* 1. BACKGROUND KREM (Nuansa Arna) */
 body {
-    background-color: #FDFBF7; /* Warna Krem lembut modern */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f9;
+    /* Abu-abu bersih (bukan krem lagi biar modern) */
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    margin: 0;
 }
 
-/* 2. KARTU LOGIN (Nuansa Asri/Bersih) */
+/* 2. WRAPPER UTAMA */
+.main-wrapper {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* 3. KARTU LOGIN (Style Arwana Clean) */
 .auth-card {
     background: white;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(211, 47, 47, 0.05); /* Bayangan merah sangat tipis */
+    padding: 40px;
+    border-radius: 16px;
+    /* Sudut membulat modern */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    /* Bayangan halus */
     width: 100%;
-    max-width: 400px;
-    border-top: 5px solid #2E7D32; /* Aksen HIJAU UNO (Keasrian) di bagian atas */
-    position: relative;
+    max-width: 420px;
+    border-top: 5px solid #d62828;
+    /* Aksen MERAH ARWANA di atas */
 }
 
-.auth-header {
-    text-align: center;
-    margin-bottom: 2rem;
+/* 4. FORM GROUP */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
 }
 
-.auth-header h1 {
-    font-size: 1.6rem;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
+/* Label Input */
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+    font-size: 13px;
 }
 
-.auth-header p {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-    margin: 0;
+/* --- BAGIAN INPUT MODERN (GABUNGAN IKON + TEKS) --- */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-/* 3. LOGO (Nuansa Arwana Merah) */
-.company-logo {
-    width: 70px;
-    height: 70px;
-    background: #D32F2F; /* ARWANA RED */
-    color: white;
-    border-radius: 12px; /* Sedikit kotak melengkung seperti keramik */
+/* Efek saat diklik: Border jadi Merah */
+.input-wrapper:focus-within {
+    border-color: #d62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+}
+
+/* Kotak Ikon di Kiri */
+.icon-box {
+    width: 45px;
+    height: 45px;
+    background-color: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    margin: 0 auto 1rem;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+    color: #d62828;
+    /* Ikon Merah */
+    border-right: 1px solid #eee;
+    font-size: 16px;
 }
 
-.form-group {
-    margin-bottom: 1.25rem;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #495057;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-    background-color: #fff;
-}
-
-/* Saat input diklik, muncul nuansa Hijau (Uno) biar adem */
-.form-control:focus {
-    border-color: #2E7D32; 
+/* Input Teksnya */
+.custom-input {
+    flex: 1;
+    border: none;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
-    background-color: #f1f8e9; /* Hijau sangat muda */
+    padding: 0 15px;
+    height: 45px;
+    font-size: 14px;
+    color: #333;
+    background: transparent;
+    width: 100%;
 }
 
-/* 4. TOMBOL UTAMA (Arwana Red) */
-.btn-primary {
+/* 5. TOMBOL UTAMA (ARWANA RED) */
+.btn-arwana {
     width: 100%;
-    padding: 0.85rem;
-    background-color: #D32F2F; /* ARWANA RED */
+    padding: 14px;
+    background-color: #d62828;
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    transition: 0.3s;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(214, 40, 40, 0.2);
 }
 
-.btn-primary:hover {
-    background-color: #b71c1c; /* Merah lebih gelap saat hover */
+.btn-arwana:hover {
+    background-color: #b51f1f;
+    /* Merah lebih gelap */
+    transform: translateY(-2px);
 }
 
-.btn-primary:active {
-    transform: scale(0.98);
-}
-
+/* 6. FOOTER LINK */
 .auth-footer {
     text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
-    color: #666;
+    margin-top: 25px;
 }
 
-.auth-footer a {
-    color: #D32F2F; /* Link warna Merah Arwana */
+.link-daftar {
+    color: #d62828;
     text-decoration: none;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
 }
 
-.auth-footer a:hover {
+.link-daftar:hover {
     text-decoration: underline;
-    color: #b71c1c;
 }
 
-.invalid-feedback {
-    color: #D32F2F;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
-    display: block;
+/* --- FITUR TOGGLE PASSWORD (MATA) --- */
+.toggle-password {
+    padding: 0 15px;
+    cursor: pointer;
+    color: #aaa; /* Warna abu-abu saat diam */
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.toggle-password:hover {
+    color: #d62828; /* Berubah Merah Arwana saat disorot */
 }

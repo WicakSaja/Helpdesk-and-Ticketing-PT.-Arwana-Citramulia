@@ -14,29 +14,25 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-// Redirect halaman utama ke login dulu (sementara)
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// GROUP: Khusus user yang BELUM LOGIN (Guest)
 Route::middleware('guest')->group(function () {
-    // Login Routes
+    
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']); // Action form login
+    Route::post('/login', [AuthController::class, 'login']);
 
-    // Register Routes
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']); // Action form register
+    Route::post('/register', [AuthController::class, 'register']); 
 });
 
-// GROUP: Khusus user yang SUDAH LOGIN (Auth)
 Route::middleware('auth')->group(function () {
-    // Dashboard sementara
+    // Jalur ke Dashboard
     Route::get('/dashboard', function () {
-        return "Selamat Datang di Dashboard Helpdesk!"; // Nanti kita ganti view dashboard
+        return view('dashboard');
     })->name('dashboard');
 
-    // Logout
+    // Jalur untuk Logout (Wajib POST demi keamanan)
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

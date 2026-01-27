@@ -37,11 +37,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+            
+            // Tambahkan pesan sukses biar muncul Popup Hijau di Dashboard
+            return redirect()->intended('dashboard')->with('success', 'Selamat Datang Kembali!'); 
         }
 
+        // Kalau password salah, kembalikan dengan error biar muncul Popup Merah
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'Email atau password salah. Cek lagi ya!',
         ])->onlyInput('email');
     }
 
@@ -53,17 +56,19 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'required|numeric|unique:users', // Sesuai $fillable
-            'password' => 'required|string|min:8|confirmed',
             'department_id' => 'required|exists:departments,id', // Harus pilih departemen valid
+            'password' => 'required|string|min:8|confirmed',
+            
         ]);
 
         // B. Simpan User
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
             'phone' => $request->phone,
-            'password' => Hash::make($request->password),
+            'email' => $request->email,
             'department_id' => $request->department_id,
+            'password' => Hash::make($request->password),
+            
         ]);
 
         // C. ASSIGN ROLE OTOMATIS ('Requester')
@@ -82,17 +87,19 @@ class AuthController extends Controller
             ]);
         }
 
-        Auth::login($user);
-
-        return redirect()->route('dashboard')->with('success', 'Registrasi berhasil!');
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login dengan akun barumu.');
     }
     
     // 5. Logout
     public function logout(Request $request)
     {
         Auth::logout();
+ 
         $request->session()->invalidate();
+ 
         $request->session()->regenerateToken();
-        return redirect('/login');
-    }//
+ 
+        // Redirect ke login dengan pesan sukses
+        return redirect('/login')->with('success', 'Berhasil keluar akun. Sampai jumpa!');
+    }
 }
