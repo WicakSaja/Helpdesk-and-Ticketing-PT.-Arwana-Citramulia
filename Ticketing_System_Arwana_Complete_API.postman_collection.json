@@ -319,7 +319,55 @@
               "host": ["{{base_url}}"],
               "path": ["api", "tickets", "{{ticket_id}}", "assign"]
             },
-            "description": "Assign ticket ke technician.\n\nPermission: ticket.assign (supervisor/admin)\n\nRequired:\n- assigned_to: User ID technician\n\nOptional:\n- notes: Catatan assignment\n\nResponse:\n- Returns assigned technician info\n- Includes notes and assigned_at timestamp"
+            "description": "Assign ticket ke technician oleh helpdesk.\n\nPermission: ticket.assign (helpdesk/supervisor/admin)\n\nWorkflow:\n- Ticket status: Open → Assigned\n- Technician yang di-assign harus confirm atau reject ticket\n\nRequired:\n- assigned_to: User ID technician\n\nOptional:\n- notes: Catatan assignment\n\nResponse:\n- Returns assigned technician info\n- Includes notes and assigned_at timestamp"
+          },
+          "response": []
+        },
+        {
+          "name": "Technician Confirm Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "confirm"]
+            },
+            "description": "Technician confirm ticket yang sudah di-assign.\n\nPermission: ticket.change_status (technician)\n\nWorkflow:\n- Ticket status: Assigned → In Progress\n- Hanya technician yang di-assign yang bisa confirm\n\nNo body required."
+          },
+          "response": []
+        },
+        {
+          "name": "Technician Reject Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejection_reason\": \"Saya tidak memiliki tools yang diperlukan untuk menangani issue hardware ini\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/reject",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "reject"]
+            },
+            "description": "Technician reject ticket yang sudah di-assign.\n\nPermission: ticket.change_status (technician)\n\nWorkflow:\n- Ticket status: Assigned → Open\n- Assignment dihapus\n- Ticket kembali bisa di-assign ke technician lain\n\nRequired:\n- rejection_reason: Alasan reject (min 10 char)"
           },
           "response": []
         },
@@ -343,7 +391,31 @@
               "host": ["{{base_url}}"],
               "path": ["api", "tickets", "{{ticket_id}}", "solve"]
             },
-            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.resolve (technician)\n\nNotes:\n- Hanya technician yang di-assign ke ticket yang bisa resolve\n- Status akan berubah menjadi 'Resolved'\n- Creates ticket solution record dengan solved_at timestamp\n\nRequired:\n- solution: Deskripsi solusi yang diberikan\n\nOptional:\n- resolved_at: Timestamp resolved (default: now)"
+            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.resolve (technician)\n\nWorkflow:\n- Ticket status: In Progress → Resolved\n- Hanya technician yang di-assign yang bisa resolve\n\nNotes:\n- Ticket harus sudah di-confirm (status In Progress)\n- Creates ticket solution record dengan solved_at timestamp\n\nRequired:\n- solution: Deskripsi solusi yang diberikan (min 10 char)"
+          },
+          "response": []
+        },
+        {
+          "name": "Helpdesk Unresolve Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unresolve_reason\": \"Masalah masih terjadi setelah dicek ulang. Komputer masih tidak bisa menyala. Mohon dicek kembali\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/unresolve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "unresolve"]
+            },
+            "description": "Helpdesk unresolve ticket jika masalah belum terselesaikan.\n\nPermission: ticket.assign (helpdesk/supervisor/admin)\n\nWorkflow:\n- Ticket status: Resolved → In Progress\n- Ticket kembali ke technician yang sama untuk dicek ulang\n\nRequired:\n- unresolve_reason: Alasan unresolve (min 10 char)"
           },
           "response": []
         },
@@ -367,12 +439,12 @@
               "host": ["{{base_url}}"],
               "path": ["api", "tickets", "{{ticket_id}}", "close"]
             },
-            "description": "Close ticket setelah resolved.\n\nPermission: ticket.close (admin/supervisor)\n\nOptional:\n- closing_notes: Catatan penutupan ticket"
+            "description": "Close ticket setelah resolved dan masalah benar-benar selesai.\n\nPermission: ticket.close (helpdesk/admin/supervisor)\n\nWorkflow:\n- Ticket status: Resolved → Closed\n- Ticket tidak bisa diubah lagi setelah closed\n\nOptional:\n- closing_notes: Catatan penutupan ticket"
           },
           "response": []
         }
       ],
-      "description": "Endpoint untuk ticket management:\n- Create ticket baru\n- List tickets dengan filter\n- View ticket detail\n- Assign ke technician\n- Resolve ticket\n- Close ticket"
+      "description": "Endpoint untuk ticket management:\n\nWorkflow:\n1. Requester: Create ticket (status: Open)\n2. Helpdesk: Assign ticket ke technician (status: Assigned)\n3. Technician: Confirm atau Reject ticket\n   - Confirm: status → In Progress\n   - Reject: status → Open (assignment dihapus)\n4. Technician: Resolve ticket (status: Resolved)\n5. Helpdesk: Close atau Unresolve ticket\n   - Close: status → Closed (final)\n   - Unresolve: status → In Progress (untuk dicek ulang)\n\nEndpoints:\n- Create ticket\n- List tickets dengan filter\n- View ticket detail\n- Assign ke technician\n- Confirm ticket (technician)\n- Reject ticket (technician)\n- Resolve ticket (technician)\n- Unresolve ticket (helpdesk)\n- Close ticket (helpdesk)"
     },
     {
       "name": "3. User Management (Master Admin)",
@@ -594,7 +666,7 @@
             "description": "Reset password user.\n\nRole: master-admin only\n\nRequired:\n- password: Password baru (min 8 char)\n\nNote:\n- Tidak bisa reset master-admin password\n- Semua active session user akan di-logout\n- User harus login kembali dengan password baru"
           },
           "response": []
-        },
+        }
 
       ],
       "description": "Endpoint untuk user management (Master Admin only):\n- List users\n- Get users by specific role\n- Get roles summary\n- Create user dengan role\n- Update user data & roles\n- Reset password\n\nProtection:\n- Master-admin user tidak bisa di-edit/reset"

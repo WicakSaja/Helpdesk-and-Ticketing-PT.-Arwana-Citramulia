@@ -124,7 +124,7 @@ class TicketController extends Controller
             );
 
             $ticket->update([
-                'status_id' => TicketStatus::where('name', 'In Progress')->firstOrFail()->id
+                'status_id' => TicketStatus::where('name', 'Assigned')->firstOrFail()->id
             ]);
         });
 
@@ -141,6 +141,163 @@ class TicketController extends Controller
                     'id' => $ticket->assignment->assigned_to,
                     'name' => $ticket->assignment->technician->name ?? 'Unknown'
                 ] : null
+            ]
+        ]);
+    }
+
+    /**
+     * POST /tickets/{ticket}/confirm
+     * Technician confirms assigned ticket
+     * permission: ticket.change_status
+     */
+    public function confirm(Request $request, Ticket $ticket)
+    {
+        // Load relations
+        $ticket->load(['assignment', 'status']);
+
+        // Ticket harus sudah di-assign
+        if (!$ticket->assignment) {
+            return response()->json([
+                'message' => 'Ticket has not been assigned'
+            ], 422);
+        }
+
+        // Hanya technician yang di-assign boleh confirm
+        if ($ticket->assignment->assigned_to !== $request->user()->id) {
+            return response()->json([
+                'message' => 'You are not assigned to this ticket'
+            ], 403);
+        }
+
+        // Status harus Assigned
+        if ($ticket->status->name !== 'Assigned') {
+            return response()->json([
+                'message' => 'Ticket is not in Assigned status'
+            ], 422);
+        }
+
+        $ticket->update([
+            'status_id' => TicketStatus::where('name', 'In Progress')->firstOrFail()->id
+        ]);
+
+        return response()->json([
+            'message' => 'Ticket confirmed and now in progress',
+            'ticket' => [
+                'id' => $ticket->id,
+                'ticket_number' => $ticket->ticket_number,
+                'status' => 'In Progress'
+            ]
+        ]);
+    }
+
+    /**
+     * POST /tickets/{ticket}/reject
+     * Technician rejects assigned ticket
+     * permission: ticket.change_status
+     */
+    public function reject(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|min:10|max:1000',
+        ]);
+
+        // Load relations
+        $ticket->load(['assignment', 'status']);
+
+        // Ticket harus sudah di-assign
+        if (!$ticket->assignment) {
+            return response()->json([
+                'message' => 'Ticket has not been assigned'
+            ], 422);
+        }
+
+        // Hanya technician yang di-assign boleh reject
+        if ($ticket->assignment->assigned_to !== $request->user()->id) {
+            return response()->json([
+                'message' => 'You are not assigned to this ticket'
+            ], 403);
+        }
+
+        // Status harus Assigned
+        if ($ticket->status->name !== 'Assigned') {
+            return response()->json([
+                'message' => 'Ticket is not in Assigned status'
+            ], 422);
+        }
+
+        DB::transaction(function () use ($request, $ticket) {
+            // Delete assignment
+            $ticket->assignment()->delete();
+
+            // Change status back to Open
+            $ticket->update([
+                'status_id' => TicketStatus::where('name', 'Open')->firstOrFail()->id
+            ]);
+
+            // TODO: Bisa tambahkan log rejection reason di ticket_logs atau ticket_comments
+            // TicketComment::create([
+            //     'ticket_id' => $ticket->id,
+            //     'user_id' => $request->user()->id,
+            //     'comment' => 'Ticket rejected: ' . $request->rejection_reason,
+            // ]);
+        });
+
+        return response()->json([
+            'message' => 'Ticket rejected and returned to Open status',
+            'ticket' => [
+                'id' => $ticket->id,
+                'ticket_number' => $ticket->ticket_number,
+                'status' => 'Open'
+            ]
+        ]);
+    }
+
+    /**
+     * POST /tickets/{ticket}/unresolve
+     * Helpdesk unresolves ticket for technician to recheck
+     * permission: ticket.assign
+     */
+    public function unresolve(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'unresolve_reason' => 'required|string|min:10|max:1000',
+        ]);
+
+        // Load relations
+        $ticket->load(['status', 'assignment']);
+
+        // Status harus Resolved
+        if ($ticket->status->name !== 'Resolved') {
+            return response()->json([
+                'message' => 'Ticket is not in Resolved status'
+            ], 422);
+        }
+
+        // Ticket harus punya assignment (technician yang handle)
+        if (!$ticket->assignment) {
+            return response()->json([
+                'message' => 'Ticket has no assigned technician'
+            ], 422);
+        }
+
+        // Change status back to In Progress
+        $ticket->update([
+            'status_id' => TicketStatus::where('name', 'In Progress')->firstOrFail()->id
+        ]);
+
+        // TODO: Bisa tambahkan log unresolve reason di ticket_logs atau ticket_comments
+        // TicketComment::create([
+        //     'ticket_id' => $ticket->id,
+        //     'user_id' => $request->user()->id,
+        //     'comment' => 'Ticket unresolved: ' . $request->unresolve_reason,
+        // ]);
+
+        return response()->json([
+            'message' => 'Ticket unresolved and returned to In Progress status',
+            'ticket' => [
+                'id' => $ticket->id,
+                'ticket_number' => $ticket->ticket_number,
+                'status' => 'In Progress'
             ]
         ]);
     }
@@ -172,10 +329,10 @@ class TicketController extends Controller
             ], 403);
         }
 
-        // Tidak boleh solve ticket yang sudah closed
-        if ($ticket->status->name === 'Closed') {
+        // Status harus In Progress
+        if ($ticket->status->name !== 'In Progress') {
             return response()->json([
-                'message' => 'Ticket already closed'
+                'message' => 'Ticket must be in In Progress status to be resolved'
             ], 422);
         }
 

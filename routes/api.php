@@ -40,13 +40,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])
         ->middleware('permission:ticket.view');
 
-    // supervisor / admin
+    // supervisor / admin (helpdesk can also assign)
     Route::post('/tickets/{ticket}/assign', [TicketController::class, 'assign'])
         ->middleware('permission:ticket.assign');
 
-    // technician
+    // technician - confirm or reject assigned ticket
+    Route::post('/tickets/{ticket}/confirm', [TicketController::class, 'confirm'])
+        ->middleware('permission:ticket.change_status');
+    
+    Route::post('/tickets/{ticket}/reject', [TicketController::class, 'reject'])
+        ->middleware('permission:ticket.change_status');
+
+    // technician - resolve ticket
     Route::post('/tickets/{ticket}/solve', [TicketController::class, 'solve'])
         ->middleware('permission:ticket.resolve');
+
+    // helpdesk / admin - unresolve or close ticket
+    Route::post('/tickets/{ticket}/unresolve', [TicketController::class, 'unresolve'])
+        ->middleware('permission:ticket.assign');
 
     // admin / supervisor
     Route::post('/tickets/{ticket}/close', [TicketController::class, 'close'])
@@ -69,8 +80,6 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:user.create');
         Route::put('/{user}', [UserManagementController::class, 'update'])
             ->middleware('permission:user.update');
-        Route::delete('/{user}', [UserManagementController::class, 'destroy'])
-            ->middleware('permission:user.delete');
         Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
             ->middleware('permission:user.create');
     });

@@ -220,53 +220,6 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Delete user
-     */
-    public function destroy(User $user)
-    {
-        $this->checkMasterAdminRole(auth()->user());
-        
-        // Tidak bisa delete user dengan role master-admin
-        if ($user->hasRole('master-admin')) {
-            return response()->json([
-                'message' => 'Cannot delete master-admin user',
-            ], 403);
-        }
-
-        // Cek apakah user masih memiliki tickets sebagai requester
-        $ticketCount = \App\Models\Ticket::where('requester_id', $user->id)->count();
-        if ($ticketCount > 0) {
-            return response()->json([
-                'message' => 'Cannot delete user. User still has ' . $ticketCount . ' ticket(s) as requester.',
-                'suggestion' => 'Please reassign or close all tickets before deleting this user.'
-            ], 422);
-        }
-
-        // Cek apakah user masih memiliki ticket assignments
-        $assignmentCount = \App\Models\TicketAssignment::where('assigned_to', $user->id)->count();
-        if ($assignmentCount > 0) {
-            return response()->json([
-                'message' => 'Cannot delete user. User still has ' . $assignmentCount . ' ticket assignment(s).',
-                'suggestion' => 'Please reassign all tickets before deleting this user.'
-            ], 422);
-        }
-
-        try {
-            $userName = $user->name;
-            $user->delete();
-
-            return response()->json([
-                'message' => "User '{$userName}' deleted successfully",
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to delete user',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
      * Reset password user
      */
     public function resetPassword(ResetPasswordRequest $request, User $user)
