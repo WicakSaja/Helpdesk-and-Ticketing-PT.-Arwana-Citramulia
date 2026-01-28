@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Ticketing System Arwana - Complete API Collection",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me)\n- Ticket Management (Create, List, View, Assign, Solve, Close)\n- User Management - Master Admin (CRUD Users, Reset Password)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Solve, Close)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "ticketing-arwana"
   },
@@ -319,7 +319,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "tickets", "{{ticket_id}}", "assign"]
             },
-            "description": "Assign ticket ke technician.\n\nPermission: ticket.assign (supervisor/admin)\n\nRequired:\n- assigned_to: User ID technician\n\nOptional:\n- notes: Catatan assignment"
+            "description": "Assign ticket ke technician.\n\nPermission: ticket.assign (supervisor/admin)\n\nRequired:\n- assigned_to: User ID technician\n\nOptional:\n- notes: Catatan assignment\n\nResponse:\n- Returns assigned technician info\n- Includes notes and assigned_at timestamp"
           },
           "response": []
         },
@@ -343,7 +343,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "tickets", "{{ticket_id}}", "solve"]
             },
-            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.solve (technician)\n\nRequired:\n- solution: Deskripsi solusi yang diberikan\n\nOptional:\n- resolved_at: Timestamp resolved (default: now)"
+            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.resolve (technician)\n\nNotes:\n- Hanya technician yang di-assign ke ticket yang bisa resolve\n- Status akan berubah menjadi 'Resolved'\n- Creates ticket solution record dengan solved_at timestamp\n\nRequired:\n- solution: Deskripsi solusi yang diberikan\n\nOptional:\n- resolved_at: Timestamp resolved (default: now)"
           },
           "response": []
         },
@@ -595,22 +595,9 @@
           },
           "response": []
         },
-        {
-          "name": "Delete User",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "users", "{{user_id}}"]
-            },
-            "description": "Delete user.\n\nRole: master-admin only\n\nNote: Tidak bisa delete master-admin user"
-          },
-          "response": []
-        }
+
       ],
-      "description": "Endpoint untuk user management (Master Admin only):\n- List users\n- Get users by specific role\n- Get roles summary\n- Create user dengan role\n- Update user data & roles\n- Reset password\n- Delete user\n\nProtection:\n- Master-admin user tidak bisa di-edit/delete/reset"
+      "description": "Endpoint untuk user management (Master Admin only):\n- List users\n- Get users by specific role\n- Get roles summary\n- Create user dengan role\n- Update user data & roles\n- Reset password\n\nProtection:\n- Master-admin user tidak bisa di-edit/reset"
     }
   ],
   "event": [
