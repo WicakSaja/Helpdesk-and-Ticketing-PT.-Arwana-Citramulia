@@ -4,44 +4,153 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TicketController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
+// 1. LANDING PAGE (Halaman Depan)
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    return view('landing_page');
+})->name('home');
 
-Route::middleware('guest')->group(function () {
+// 2. Auth Routes (Tetap disediakan biar tidak error jika ada link mengarah kesini)
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ====================================================
+// 3. DASHBOARD UTAMA (TANPA LOGIN / BYPASS)
+// ====================================================
+Route::get('/dashboard', function () {
     
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    // GANTI VARIABEL INI MANUAL UNTUK CEK TAMPILAN DASHBOARD UTAMA
+    $role = 'Requester'; // Opsi: 'Requester', 'Helpdesk', 'Technician'
 
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']); 
+    if ($role == 'Helpdesk') {
+        return view('dashboard.helpdesk');
+    } 
+    elseif ($role == 'Requester') {
+        return view('dashboard.requester');
+    }
+    elseif ($role == 'Technician') {
+        return view('dashboard.technician');
+    }
+    
+    return view('dashboard.requester'); // Default
+
+})->name('dashboard');
+
+
+// ====================================================
+// 4. AKSES LANGSUNG SEMUA HALAMAN (TANPA LOGIN)
+// ====================================================
+
+// Group Dashboard
+Route::prefix('dashboard')->group(function () {
+    
+    // Akses: http://127.0.0.1:8000/dashboard/requester
+    Route::get('/requester', function () {
+        return view('dashboard.requester');
+    });
+
+    // Akses: http://127.0.0.1:8000/dashboard/helpdesk
+    Route::get('/helpdesk', function () {
+        return view('dashboard.helpdesk');
+    });
+
+    // Akses: http://127.0.0.1:8000/dashboard/technician
+    Route::get('/technician', function () {
+        return view('dashboard.technician');
+    });
+    Route::get('/supervisor', function () {
+        return view('dashboard.supervisor');
+    });
 });
 
-Route::middleware('auth')->group(function () {
-    // Jalur ke Dashboard
+// Group Tiket (User Biasa)
+Route::group([], function () {
+
+    // 1. Tampilkan Form (GET)
+    Route::get('/tickets/create', function () { 
+        return view('tickets.create'); 
+    })->name('tickets.create');
+
+    // 2. Simpan Data (POST)
+Route::post('/tickets', function () { 
+    // Simpan pesan sukses ke session sementara
+    session()->flash('success', 'Tiket berhasil dibuat! Teknisi akan segera mengecek.');
+    
+    return redirect()->route('tickets.index'); 
+})->name('tickets.store');
+
+    // 3. Tampilkan List (GET)
+    Route::get('/tickets', function () { 
+        return view('tickets.index'); 
+    })->name('tickets.index');
+
+    // 4. Detail (GET)
+    Route::get('/tickets/{id}', function () { 
+        return view('tickets.show'); 
+    })->name('tickets.show');
+
+    Route::get('/profile', function () { return view('profile.index'); })->name('profile');
+});
+
+// Group Helpdesk (Admin IT)
+Route::prefix('helpdesk')->group(function () {
+    // Akses: http://127.0.0.1:8000/helpdesk/incoming
+    Route::get('/incoming', function () { return view('helpdesk.incoming'); })->name('helpdesk.incoming');
+    
+    // Akses: http://127.0.0.1:8000/helpdesk/technicians
+    Route::get('/technicians', function () { return view('helpdesk.technicians'); })->name('helpdesk.technicians');
+    
+    // Akses: http://127.0.0.1:8000/helpdesk/all-tickets
+    Route::get('/all-tickets', function () { return view('helpdesk.all_tickets'); })->name('helpdesk.all');
+});
+
+
+// Group Teknisi
+Route::prefix('technician')->group(function () {
+    
+    // Dashboard Teknisi
     Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+        return view('dashboard.technician'); // Pastikan file dashboard.technician ada (copy dari helpdesk, ubah dikit)
+    })->name('technician.dashboard');
 
-    // Jalur untuk Logout (Wajib POST demi keamanan)
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    // Tugas Saya
+    Route::get('/tasks', function () { 
+        return view('technician.tasks'); 
+    })->name('technician.tasks');
+
+    // Riwayat
+    Route::get('/history', function () { 
+        return view('technician.history'); 
+    })->name('technician.history');
+
+    // Profil
+    Route::get('/profile', function () { 
+        return view('technician.profile'); 
+    })->name('technician.profile');
 });
 
-// === BAGIAN TIKET ===
+// Group Super Admin
+Route::prefix('superadmin')->group(function () {
     
-    // 1. Untuk MENAMPILKAN Form (sudah ada)
-    Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard.superadmin');
+    })->name('superadmin.dashboard');
 
-    // 2. Untuk MENYIMPAN Data (INI YANG KURANG)
-    Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store'); // <--- TAMBAHKAN INI
+    // Manajemen User
+    Route::get('/users', function () { 
+        return view('superadmin.users.index'); 
+    })->name('superadmin.users');
+
+    // Departemen (BARU)
+    Route::get('/departments', function () { 
+        return view('superadmin.departments.index'); 
+    })->name('superadmin.departments');
+
+    // Laporan Global (BARU)
+    Route::get('/reports', function () { 
+        return view('superadmin.reports.index'); 
+    })->name('superadmin.reports');
+});

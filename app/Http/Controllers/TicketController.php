@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class TicketController extends Controller
 {
@@ -26,8 +27,9 @@ class TicketController extends Controller
 
         // 2. Simpan Data
         Ticket::create([
-            'ticket_number' => 'TKT-' . time(), 
-            'requester_id' => Auth::id(), 
+            'ticket_number' => (string) Str::uuid(), 
+           // 'requester_id' => Auth::id(), 
+            'requester_id' => Auth::id() ?? 1,
             
             'subject' => $request->subject, // <--- Ambil dari input 'subject'
             'category_id' => $request->category_id ?? 1, // <--- Ambil input kategori
@@ -38,6 +40,18 @@ class TicketController extends Controller
             'channel' => 'Web',
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Tiket berhasil dibuat!');
+        return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dikirim!');
+    }
+
+    public function index()
+    {
+        return view('tickets.index');
+    }
+
+    public function show($id)
+    {
+        // Nanti disini kita ambil data real: Ticket::find($id)
+        // Sekarang return view dummy dulu
+        return view('tickets.show');
     }
 }

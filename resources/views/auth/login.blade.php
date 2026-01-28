@@ -39,7 +39,7 @@
     </form>
 
     <div class="auth-footer">
-        <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
+        <p>Belum punya akun? <a href="{{ route('register') }}" class="link-daftar">Daftar di sini</a></p>
     </div>
     <script>
         async function handleLogin(event) {
