@@ -43,7 +43,7 @@ class Ticket extends Model
 
     public function assignment()
     {
-        return $this->hasMany(TicketAssignment::class);
+        return $this->hasOne(TicketAssignment::class);
     }
 
     public function comments()

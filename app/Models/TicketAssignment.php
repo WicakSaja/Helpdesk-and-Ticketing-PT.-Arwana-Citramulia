@@ -15,7 +15,8 @@ class TicketAssignment extends Model
         'ticket_id',
         'assigned_to',
         'assigned_by',
-        'assigned_at'
+        'assigned_at',
+        'notes'
     ];
 
     public function ticket()

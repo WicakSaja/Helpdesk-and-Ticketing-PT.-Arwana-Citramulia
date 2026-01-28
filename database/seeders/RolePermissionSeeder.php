@@ -12,6 +12,7 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             // ticket permissions
             'ticket.create',
+            'ticket.view',
             'ticket.view.own',
             'ticket.view.all',
             'ticket.comment',
@@ -44,21 +45,37 @@ class RolePermissionSeeder extends Seeder
         $admin     = Role::firstOrCreate(['name' => 'master-admin']);
 
         $admin->givePermissionTo([
+            // User Management
             'user.view',
             'user.create',
             'user.update',
             'user.delete',
             'user.assign_role',
             'user.assign_permission',
+            // Ticket Management
+            'ticket.create',
+            'ticket.view',
+            'ticket.view.all',
+            'ticket.comment',
+            'ticket.assign',
+            'ticket.change_status',
+            'ticket.resolve',
+            'ticket.close',
+            'ticket.escalate',
+            'ticket.view.dashboard',
+            'ticket.view.report',
         ]);
 
         $requester->givePermissionTo([
             'ticket.create',
+            'ticket.view',
             'ticket.view.own',
             'ticket.comment'
         ]);
 
         $helpdesk->givePermissionTo([
+            'user.view',           // View users untuk assign ke technician
+            'ticket.view',
             'ticket.view.all',
             'ticket.assign',
             'ticket.change_status',
@@ -67,6 +84,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $tech->givePermissionTo([
+            'ticket.view',
             'ticket.view.own',
             'ticket.change_status',
             'ticket.resolve',
@@ -74,6 +92,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $supervisor->givePermissionTo([
+            'ticket.view',
             'ticket.view.all',
             'ticket.assign',
             'ticket.escalate',
@@ -82,6 +101,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $manager->givePermissionTo([
+            'ticket.view',
             'ticket.view.all',
             'ticket.view.dashboard',
             'ticket.view.report'

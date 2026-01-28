@@ -1,0 +1,668 @@
+{
+  "info": {
+    "name": "Ticketing System Arwana - Complete API Collection",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me)\n- Ticket Management (Create, List, View, Assign, Solve, Close)\n- User Management - Master Admin (CRUD Users, Reset Password)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "ticketing-arwana"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "    pm.collectionVariables.set('user_id', jsonData.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@arwana.com\",\n  \"phone\": \"081234567899\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"department_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Register user baru. Default role: requester.\n\nRequired:\n- name: Nama lengkap\n- email: Email unique\n- phone: Nomor telepon unique\n- password: Min 8 karakter\n- password_confirmation: Harus sama dengan password\n\nOptional:\n- department_id: ID department yang ada"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "    pm.collectionVariables.set('user_id', jsonData.user.id);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin@arwana.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login dengan email atau phone.\n\nField login bisa diisi dengan:\n- Email: user@example.com\n- Phone: 081234567890\n\nToken akan otomatis tersimpan di collection variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Master Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "    pm.collectionVariables.set('user_id', jsonData.user.id);",
+                  "    console.log('Master Admin Token saved:', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{master_admin_email}}\",\n  \"password\": \"{{master_admin_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login sebagai Master Admin untuk akses User Management.\n\nGunakan credential dari .env:\n- MASTER_ADMIN_EMAIL\n- MASTER_ADMIN_PASSWORD"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "me"]
+            },
+            "description": "Mendapatkan informasi user yang sedang login.\n\nResponse:\n- User data\n- Roles\n- Permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user"]
+            },
+            "description": "Alternative endpoint untuk mendapatkan user info (Laravel default)."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('auth_token', '');",
+                  "    console.log('Token cleared');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout"]
+            },
+            "description": "Logout dan revoke current access token.\n\nToken akan dihapus dari collection variable."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint untuk authentication:\n- Register user baru\n- Login (email atau phone)\n- Get current user info\n- Logout"
+    },
+    {
+      "name": "2. Ticket Management",
+      "item": [
+        {
+          "name": "Create Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Komputer tidak bisa menyala\",\n  \"description\": \"Komputer di ruang admin lantai 2 tidak bisa menyala sejak pagi ini. Lampu indikator power tidak menyala sama sekali.\",\n  \"category_id\": 1,\n  \"channel\": \"web\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"]
+            },
+            "description": "Create ticket baru.\n\nPermission: ticket.create (requester role)\n\nRequired:\n- subject: Judul ticket (max 255 char)\n- description: Deskripsi lengkap masalah\n- category_id: ID kategori ticket\n- channel: Saluran pelaporan (web, mobile, email)\n\nOptional:\n- attachments: File attachment (jika ada)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets?page=1&per_page=15&status=open&priority=high",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "status",
+                  "value": "open",
+                  "description": "Filter by status"
+                },
+                {
+                  "key": "priority",
+                  "value": "high",
+                  "description": "Filter by priority"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Filter by category"
+                },
+                {
+                  "key": "assigned_to",
+                  "value": "5",
+                  "disabled": true,
+                  "description": "Filter by assigned technician"
+                },
+                {
+                  "key": "search",
+                  "value": "komputer",
+                  "disabled": true,
+                  "description": "Search in title/description"
+                }
+              ]
+            },
+            "description": "List semua tickets dengan pagination dan filter.\n\nPermission: ticket.view\n\nFilters:\n- status: open, in_progress, resolved, closed\n- priority: low, medium, high, critical\n- category_id: Filter by category\n- assigned_to: Filter by technician ID\n- search: Search keyword\n\nNote: User hanya bisa lihat ticket sesuai role:\n- Requester: Hanya ticket sendiri\n- Technician: Ticket yang di-assign\n- Supervisor/Admin: Semua ticket"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}"]
+            },
+            "description": "Mendapatkan detail ticket termasuk:\n- Data ticket lengkap\n- Comments\n- History/Logs\n- Assigned technician\n- Solution (jika sudah resolved)\n\nPermission: ticket.view"
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Ticket to Technician",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assigned_to\": 5,\n  \"notes\": \"Assigned ke technician untuk penanganan segera\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/assign",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "assign"]
+            },
+            "description": "Assign ticket ke technician.\n\nPermission: ticket.assign (supervisor/admin)\n\nRequired:\n- assigned_to: User ID technician\n\nOptional:\n- notes: Catatan assignment"
+          },
+          "response": []
+        },
+        {
+          "name": "Solve/Resolve Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"solution\": \"Sudah dicek kabel power ternyata tidak terpasang dengan baik. Sudah dipasang kembali dengan benar dan komputer sudah bisa menyala normal.\",\n  \"resolved_at\": \"2026-01-28 14:30:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/solve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "solve"]
+            },
+            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.solve (technician)\n\nRequired:\n- solution: Deskripsi solusi yang diberikan\n\nOptional:\n- resolved_at: Timestamp resolved (default: now)"
+          },
+          "response": []
+        },
+        {
+          "name": "Close Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"closing_notes\": \"Ticket sudah diselesaikan dengan baik. User sudah konfirmasi komputer berjalan normal.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/close",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "close"]
+            },
+            "description": "Close ticket setelah resolved.\n\nPermission: ticket.close (admin/supervisor)\n\nOptional:\n- closing_notes: Catatan penutupan ticket"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint untuk ticket management:\n- Create ticket baru\n- List tickets dengan filter\n- View ticket detail\n- Assign ke technician\n- Resolve ticket\n- Close ticket"
+    },
+    {
+      "name": "3. User Management (Master Admin)",
+      "item": [
+        {
+          "name": "Get Available Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/available-roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "available-roles"]
+            },
+            "description": "Mendapatkan list role yang tersedia untuk assignment.\n\nRole: master-admin only\n\nResponse: [\"helpdesk\", \"technician\", \"supervisor\"]"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Users by Role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/by-role/technician",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "by-role", "technician"]
+            },
+            "description": "Mendapatkan semua user dengan role tertentu.\n\nRole: master-admin only\n\nPath Parameters:\n- roleName: helpdesk, technician, supervisor, requester, manager\n\nResponse:\n- message: Status message\n- role: Role yang di-filter\n- count: Jumlah user dengan role tersebut\n- data: Array of users dengan role tersebut"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Roles Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/roles-summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "roles-summary"]
+            },
+            "description": "Mendapatkan ringkasan jumlah user per role di sistem.\n\nRole: master-admin only\n\nResponse:\n- message: Status message\n- data: Array of roles dengan user count masing-masing"
+          },
+          "response": []
+        },
+        {
+          "name": "List All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users?page=1&per_page=15",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15"
+                },
+                {
+                  "key": "role",
+                  "value": "helpdesk",
+                  "disabled": true,
+                  "description": "Filter by role"
+                },
+                {
+                  "key": "department_id",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Filter by department"
+                },
+                {
+                  "key": "search",
+                  "value": "john",
+                  "disabled": true,
+                  "description": "Search name/email/phone"
+                }
+              ]
+            },
+            "description": "List semua users dengan pagination dan filter.\n\nRole: master-admin only\n\nQuery Parameters:\n- page: Page number\n- per_page: Items per page (default: 15)\n- role: Filter by role (helpdesk, technician, supervisor)\n- department_id: Filter by department\n- search: Search by name, email, or phone"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "Mendapatkan detail user.\n\nRole: master-admin only"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Helpdesk\",\n  \"email\": \"john.helpdesk@arwana.com\",\n  \"phone\": \"081234567891\",\n  \"password\": \"password123\",\n  \"department_id\": 1,\n  \"roles\": [\"helpdesk\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Create user baru dengan role assignment.\n\nRole: master-admin only\n\nRequired:\n- name: Nama lengkap (max 100 char)\n- email: Email unique\n- phone: Phone unique (max 20 char)\n- password: Min 8 characters\n- roles: Array of roles [\"helpdesk\", \"technician\", \"supervisor\"]\n\nOptional:\n- department_id: ID department"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User - Multiple Roles",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Multi Role\",\n  \"email\": \"jane.multi@arwana.com\",\n  \"phone\": \"082345678902\",\n  \"password\": \"password123\",\n  \"department_id\": 1,\n  \"roles\": [\"helpdesk\", \"technician\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            },
+            "description": "Create user dengan multiple roles.\n\nUser bisa memiliki lebih dari 1 role sekaligus."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Helpdesk Updated\",\n  \"email\": \"john.updated@arwana.com\",\n  \"phone\": \"081234567892\",\n  \"department_id\": 2,\n  \"roles\": [\"technician\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "Update user data.\n\nRole: master-admin only\n\nSemua field optional (hanya kirim field yang ingin diupdate):\n- name\n- email (unique, except self)\n- phone (unique, except self)\n- department_id\n- roles (array)\n\nNote: Tidak bisa update master-admin user"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User - Partial",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated Name Only\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "Partial update - hanya update field tertentu.\n\nKirim hanya field yang ingin diubah."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset User Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/reset-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}", "reset-password"]
+            },
+            "description": "Reset password user.\n\nRole: master-admin only\n\nRequired:\n- password: Password baru (min 8 char)\n\nNote:\n- Tidak bisa reset master-admin password\n- Semua active session user akan di-logout\n- User harus login kembali dengan password baru"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "Delete user.\n\nRole: master-admin only\n\nNote: Tidak bisa delete master-admin user"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint untuk user management (Master Admin only):\n- List users\n- Get users by specific role\n- Get roles summary\n- Create user dengan role\n- Update user data & roles\n- Reset password\n- Delete user\n\nProtection:\n- Master-admin user tidak bisa di-edit/delete/reset"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ticket_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "master_admin_email",
+      "value": "admin@arwana.com",
+      "type": "string"
+    },
+    {
+      "key": "master_admin_password",
+      "value": "password123",
+      "type": "string"
+    }
+  ]
+}

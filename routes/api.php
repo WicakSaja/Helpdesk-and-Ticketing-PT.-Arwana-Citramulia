@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\UserManagementController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -45,9 +46,32 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // technician
     Route::post('/tickets/{ticket}/solve', [TicketController::class, 'solve'])
-        ->middleware('permission:ticket.solve');
+        ->middleware('permission:ticket.resolve');
 
     // admin / supervisor
     Route::post('/tickets/{ticket}/close', [TicketController::class, 'close'])
         ->middleware('permission:ticket.close');
+});
+
+// User Management - GET endpoints (Master Admin + Helpdesk)
+Route::middleware('auth:sanctum', 'permission:user.view')->group(function () {
+    Route::get('/users/available-roles', [UserManagementController::class, 'getAvailableRoles']);
+    Route::get('/users/by-role/{roleName}', [UserManagementController::class, 'getUsersByRole']);
+    Route::get('/users/roles-summary', [UserManagementController::class, 'getRolesSummary']);
+    Route::get('/users', [UserManagementController::class, 'index']);
+    Route::get('/users/{user}', [UserManagementController::class, 'show']);
+});
+
+// User Management - POST/PUT/DELETE endpoints (Master Admin Only)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('users')->group(function () {
+        Route::post('/', [UserManagementController::class, 'store'])
+            ->middleware('permission:user.create');
+        Route::put('/{user}', [UserManagementController::class, 'update'])
+            ->middleware('permission:user.update');
+        Route::delete('/{user}', [UserManagementController::class, 'destroy'])
+            ->middleware('permission:user.delete');
+        Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
+            ->middleware('permission:user.create');
+    });
 });
