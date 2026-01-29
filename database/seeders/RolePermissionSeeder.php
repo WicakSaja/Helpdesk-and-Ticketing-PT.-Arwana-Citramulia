@@ -26,6 +26,7 @@ class RolePermissionSeeder extends Seeder
 
             // USER MANAGEMENT
             'user.view',
+            'user.view.all',
             'user.create',
             'user.update',
             'user.delete',
@@ -47,6 +48,7 @@ class RolePermissionSeeder extends Seeder
         $admin->givePermissionTo([
             // User Management
             'user.view',
+            'user.view.all',
             'user.create',
             'user.update',
             'user.delete',

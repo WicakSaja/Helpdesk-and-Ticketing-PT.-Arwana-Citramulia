@@ -37,7 +37,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tickets', [TicketController::class, 'index'])
         ->middleware('permission:ticket.view');
 
+    // requester - get own tickets
+    Route::get('/my-tickets', [TicketController::class, 'myTickets']);
+
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])
+        ->middleware('permission:ticket.view');
+
+    // get completion history of ticket
+    Route::get('/tickets/{ticket}/completion-history', [TicketController::class, 'completionHistory'])
         ->middleware('permission:ticket.view');
 
     // supervisor / admin (helpdesk can also assign)
@@ -66,16 +73,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // User Management - GET endpoints (Master Admin + Helpdesk)
 Route::middleware('auth:sanctum', 'permission:user.view')->group(function () {
-    Route::get('/users/available-roles', [UserManagementController::class, 'getAvailableRoles']);
     Route::get('/users/by-role/{roleName}', [UserManagementController::class, 'getUsersByRole']);
-    Route::get('/users/roles-summary', [UserManagementController::class, 'getRolesSummary']);
-    Route::get('/users', [UserManagementController::class, 'index']);
     Route::get('/users/{user}', [UserManagementController::class, 'show']);
+    Route::get('/users/{user}/resolved-tickets', [UserManagementController::class, 'resolvedTickets']);
 });
 
 // User Management - POST/PUT/DELETE endpoints (Master Admin Only)
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('users')->group(function () {
+        Route::get('/roles-summary', [UserManagementController::class, 'getRolesSummary'])
+            ->middleware('permission:user.view-all');
+        Route::get('/', [UserManagementController::class, 'index'])
+            ->middleware('permission:user.view-all');
+        Route::get('/available-roles', [UserManagementController::class, 'getAvailableRoles'])
+            ->middleware('permission:user.view-all');
         Route::post('/', [UserManagementController::class, 'store'])
             ->middleware('permission:user.create');
         Route::put('/{user}', [UserManagementController::class, 'update'])

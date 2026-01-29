@@ -10,6 +10,7 @@ use App\Models\Ticket;
 use App\Models\TicketStatus;
 use App\Models\TicketSolution;
 use App\Models\TicketAssignment;
+use App\Models\TechnicianTicketHistory;
 
 class TicketController extends Controller
 {
@@ -74,6 +75,25 @@ class TicketController extends Controller
         return response()->json($tickets);
     }
 
+    /**
+     * GET /my-tickets
+     * Ambil semua ticket yang dibuat oleh user (requester)
+     */
+    public function myTickets(Request $request)
+    {
+        $user = $request->user();
+
+        $tickets = Ticket::where('requester_id', $user->id)
+            ->with(['status', 'category', 'requester:id,name,email', 'assignment.technician:id,name,email'])
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'message' => 'My tickets retrieved successfully',
+            'data' => $tickets
+        ]);
+    }
+
     public function close(Ticket $ticket)
     {
         $ticket->update([
@@ -93,6 +113,7 @@ class TicketController extends Controller
             'assignment.technician:id,name,email',
             'assignment.assigner:id,name,email',
             'solution',
+            'technicianHistories.technician:id,name,email',
         ]);
 
         return response()->json([
@@ -347,6 +368,14 @@ class TicketController extends Controller
                 ]
             );
 
+            // Track technician ticket completion history
+            TechnicianTicketHistory::create([
+                'ticket_id' => $ticket->id,
+                'technician_id' => $request->user()->id,
+                'resolved_at' => now(),
+                'solution_text' => $request->solution,
+            ]);
+
             $ticket->update([
                 'status_id' => TicketStatus::where('name', 'Resolved')->firstOrFail()->id,
             ]);
@@ -354,6 +383,24 @@ class TicketController extends Controller
 
         return response()->json([
             'message' => 'Ticket solved successfully'
+        ]);
+    }
+
+    /**
+     * GET /tickets/{ticket}/completion-history
+     * Lihat history penyelesaian ticket (siapa teknisi yang menyelesaikannya)
+     */
+    public function completionHistory(Ticket $ticket)
+    {
+        $ticket->load(['technicianHistories.technician:id,name,email']);
+
+        return response()->json([
+            'message' => 'Ticket completion history retrieved successfully',
+            'data' => [
+                'ticket_id' => $ticket->id,
+                'ticket_number' => $ticket->ticket_number,
+                'completion_histories' => $ticket->technicianHistories,
+            ]
         ]);
     }
 

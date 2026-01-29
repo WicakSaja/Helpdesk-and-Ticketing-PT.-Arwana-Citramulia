@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Ticketing System Arwana - Complete API Collection",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Solve, Close)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "ticketing-arwana"
   },
@@ -445,6 +445,54 @@
         }
       ],
       "description": "Endpoint untuk ticket management:\n\nWorkflow:\n1. Requester: Create ticket (status: Open)\n2. Helpdesk: Assign ticket ke technician (status: Assigned)\n3. Technician: Confirm atau Reject ticket\n   - Confirm: status → In Progress\n   - Reject: status → Open (assignment dihapus)\n4. Technician: Resolve ticket (status: Resolved)\n5. Helpdesk: Close atau Unresolve ticket\n   - Close: status → Closed (final)\n   - Unresolve: status → In Progress (untuk dicek ulang)\n\nEndpoints:\n- Create ticket\n- List tickets dengan filter\n- View ticket detail\n- Assign ke technician\n- Confirm ticket (technician)\n- Reject ticket (technician)\n- Resolve ticket (technician)\n- Unresolve ticket (helpdesk)\n- Close ticket (helpdesk)"
+    },
+    {
+      "name": "2a. My Tickets & History",
+      "item": [
+        {
+          "name": "Get My Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/my-tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "my-tickets"]
+            },
+            "description": "Mendapatkan semua ticket yang dibuat oleh user (requester).\n\nPermission: Terbuka untuk semua authenticated users\n\nResponse:\n- message: Status message\n- data: Array of tickets yang dibuat oleh user\n  - Includes: requester, status, category, assignment dengan technician info\n\nGunakan endpoint ini untuk requester melihat status semua ticketnya."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Completion History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/completion-history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tickets", "{{ticket_id}}", "completion-history"]
+            },
+            "description": "Melihat history penyelesaian ticket - siapa teknisi yang menyelesaikannya dan kapan.\n\nPermission: ticket.view\n\nPath Parameters:\n- ticket_id: ID ticket\n\nResponse:\n- message: Status message\n- data:\n  - ticket_id: ID ticket\n  - ticket_number: Nomor ticket (TKT-YYYY-XXXXXX)\n  - completion_histories: Array of completion records\n    - id: History ID\n    - technician_id: ID teknisi\n    - resolved_at: Waktu penyelesaian\n    - solution_text: Solusi yang diberikan\n    - technician: Object berisi data teknisi (name, email)\n\nGunakan endpoint ini untuk melihat siapa saja yang pernah menyelesaikan ticket ini (jika ada multiple resolutions/unresolves)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Technician Resolved Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/resolved-tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}", "resolved-tickets"]
+            },
+            "description": "Melihat semua ticket yang telah diselesaikan oleh seorang technician.\n\nPermission: user.view (helpdesk, supervisor, admin)\n\nPath Parameters:\n- user_id: ID technician user\n\nResponse:\n- message: Status message\n- data:\n  - technician_id: ID teknisi\n  - technician_name: Nama teknisi\n  - total_resolved: Total ticket yang diselesaikan\n  - resolved_tickets: Array of completion history records\n    - id: History ID\n    - ticket_id: ID ticket\n    - resolved_at: Waktu penyelesaian\n    - solution_text: Solusi yang diberikan\n    - ticket: Object berisi ticket info (ticket_number, subject, status)\n\nGunakan endpoint ini untuk melihat performa technician - berapa banyak ticket yang sudah diselesaikan."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint untuk melihat ticket history dan penyelesaian:\n\n- Get My Tickets: Requester melihat semua ticket mereka\n- Get Ticket Completion History: Melihat history siapa saja yang menyelesaikan ticket tertentu\n- Get Technician Resolved Tickets: Melihat semua ticket yang diselesaikan oleh seorang technician\n\nFitur baru: Automatic tracking ketika technician menyelesaikan ticket via /solve endpoint, sistem mencatat di TechnicianTicketHistory untuk audit trail dan performance tracking."
     },
     {
       "name": "3. User Management (Master Admin)",

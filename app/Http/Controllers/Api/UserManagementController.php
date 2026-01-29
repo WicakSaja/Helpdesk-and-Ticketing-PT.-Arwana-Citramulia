@@ -7,6 +7,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
+use App\Models\TechnicianTicketHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -342,6 +343,31 @@ class UserManagementController extends Controller
         return response()->json([
             'message' => 'Roles summary retrieved successfully',
             'data' => $summary,
+        ]);
+    }
+
+    /**
+     * GET /users/{user}/resolved-tickets
+     * Lihat semua ticket yang telah diselesaikan oleh technician
+     */
+    public function resolvedTickets(Request $request, User $user)
+    {
+        $this->checkCanViewUsers($request->user());
+
+        // Load resolved ticket histories dengan relasi ticket
+        $resolvedTickets = $user->resolvedTicketHistories()
+            ->with(['ticket:id,ticket_number,subject,status_id', 'ticket.status:id,name'])
+            ->latest('resolved_at')
+            ->get();
+
+        return response()->json([
+            'message' => 'Resolved tickets retrieved successfully',
+            'data' => [
+                'technician_id' => $user->id,
+                'technician_name' => $user->name,
+                'total_resolved' => $resolvedTickets->count(),
+                'resolved_tickets' => $resolvedTickets,
+            ]
         ]);
     }
 }

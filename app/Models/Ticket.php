@@ -55,5 +55,10 @@ class Ticket extends Model
     {
         return $this->hasOne(TicketSolution::class);
     }
+
+    public function technicianHistories()
+    {
+        return $this->hasMany(TechnicianTicketHistory::class);
+    }
 }
 

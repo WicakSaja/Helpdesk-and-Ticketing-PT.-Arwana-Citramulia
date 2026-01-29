@@ -67,4 +67,10 @@ class User extends Authenticatable
         return $this->hasMany(TicketAssignment::class, 'assigned_to');
     }
 
+    // History penyelesaian ticket oleh technician
+    public function resolvedTicketHistories()
+    {
+        return $this->hasMany(TechnicianTicketHistory::class, 'technician_id');
+    }
+
 }
