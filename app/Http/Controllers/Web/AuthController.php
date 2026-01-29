@@ -5,161 +5,164 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
-    /**
-     * Show login form
-     */
+    // =========================================================================
+    // 1. LOGIN
+    // =========================================================================
+
     public function showLoginForm()
     {
+        if (session()->has('user_data')) {
+            return redirect()->route('dashboard');
+        }
         return view('auth.login');
     }
 
-    /**
-     * Show register form
-     */
-    public function showRegisterForm()
-    {
-        return view('auth.register');
-    }
-
-    /**
-     * Handle login - fetch dari API
-     */
     public function login(Request $request)
     {
-        $validated = $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string|min:8',
-        ]);
+        // Validasi Input
+        $request->validate(['email' => 'required', 'password' => 'required']);
 
         try {
-            // Fetch dari API endpoint
-            $response = Http::post(env('API_BASE_URL') . '/api/login', [
-                'login' => $validated['login'],
-                'password' => $validated['password'],
+            $apiUrl = env('API_BASE_URL', 'http://127.0.0.1:8000');
+            
+            // Tembak API Login
+            $response = Http::post($apiUrl . '/api/login', [
+                'login' => $request->email, 
+                'password' => $request->password,
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
-
-                // Simpan token dan user info ke session
-                session([
-                    'auth_token' => $data['token'],
-                    'user' => $data['user'],
-                    'roles' => $data['roles'] ?? [],
-                    'permissions' => $data['permissions'] ?? [],
-                ]);
-
-                // Redirect based on role
-                $role = $data['roles'][0] ?? 'requester';
                 
-                if (in_array('master-admin', $data['roles'])) {
-                    return redirect()->route('dashboard.admin');
-                } elseif (in_array('helpdesk', $data['roles']) || in_array('supervisor', $data['roles'])) {
-                    return redirect()->route('dashboard.helpdesk');
-                } elseif (in_array('technician', $data['roles'])) {
-                    return redirect()->route('dashboard.technician');
-                } else {
-                    return redirect()->route('dashboard.requester');
-                }
-            } else {
-                return back()->withErrors(['login' => 'Invalid credentials'])->withInput();
+                // Simpan Session Web
+                Session::put('api_token', $data['token'] ?? null);
+                Session::put('user_data', $data['user'] ?? []);
+                Session::put('user_roles', $data['roles'] ?? []);
+
+                // Return JSON agar JS di frontend bisa memproses redirect
+                return response()->json([
+                    'status' => 'success', 
+                    'message' => 'Login Berhasil!',
+                    'redirect_url' => route('dashboard')
+                ]);
             }
+
+            // Jika Gagal Login
+            return response()->json([
+                'status' => 'error', 
+                'message' => $response->json()['message'] ?? 'Email atau Password salah.'
+            ], 401);
+
         } catch (\Exception $e) {
-            return back()->withErrors(['login' => 'Connection error: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Koneksi API Gagal.'], 500);
         }
     }
 
-    /**
-     * Handle register - fetch dari API
-     */
+    // =========================================================================
+    // 2. REGISTER
+    // =========================================================================
+
+    public function showRegisterForm()
+    {
+        if (session()->has('user_data')) {
+            return redirect()->route('dashboard');
+        }
+
+        $departments = [];
+
+        try {
+            $apiUrl = env('API_BASE_URL', 'http://127.0.0.1:8000');
+            
+            // Ambil data Departemen untuk Dropdown
+            $response = Http::get($apiUrl . '/api/departments');
+
+            if ($response->successful()) {
+                $json = $response->json();
+                $departments = $json['data'] ?? $json; 
+            }
+
+        } catch (\Exception $e) {
+            // Biarkan kosong jika API mati
+        }
+
+        return view('auth.register', compact('departments'));
+    }
+
     public function register(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users',
-            'phone' => 'required|string|max:20|unique:users',
-            'password' => 'required|min:8|confirmed',
-            'department_id' => 'nullable|integer',
+        // Validasi input di sisi Web
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'password' => 'required|confirmed',
+            'department_id' => 'required' 
         ]);
 
         try {
-            // Fetch dari API endpoint
-            $response = Http::post(env('API_BASE_URL') . '/api/register', [
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'password' => $validated['password'],
-                'password_confirmation' => $validated['password'],
-                'department_id' => $validated['department_id'] ?? null,
+            $apiUrl = env('API_BASE_URL', 'http://127.0.0.1:8000');
+
+            // Tembak API Register
+            $response = Http::post($apiUrl . '/api/register', [
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+                'department_id' => $request->department_id 
             ]);
 
             if ($response->successful()) {
                 $data = $response->json();
+                
+                // Auto Login setelah Register (Simpan Session)
+                Session::put('api_token', $data['token']);
+                Session::put('user_data', $data['user']);
+                Session::put('user_roles', ['Requester']); // Default role requester
 
-                // Simpan token dan user info ke session
-                session([
-                    'auth_token' => $data['token'],
-                    'user' => $data['user'],
-                    'roles' => ['requester'], // Default role untuk user baru
+                // Return JSON sukses
+                return response()->json([
+                    'status' => 'success', 
+                    'message' => 'Registrasi Berhasil!',
+                    'redirect_url' => route('dashboard')
                 ]);
-
-                return redirect()->route('dashboard.requester')->with('success', 'Registration successful!');
-            } else {
-                $errors = $response->json()['errors'] ?? ['message' => 'Registration failed'];
-                return back()->withErrors($errors)->withInput();
             }
+
+            // Error dari API (misal: Email sudah ada)
+            return response()->json([
+                'status' => 'error', 
+                'message' => $response->json()['message'] ?? 'Registrasi gagal.',
+                'errors' => $response->json()['errors'] ?? []
+            ], $response->status());
+
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Connection error: ' . $e->getMessage()])->withInput();
+            return response()->json(['status' => 'error', 'message' => 'Error Server: ' . $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Handle logout
-     */
-    public function logout(Request $request)
+    // =========================================================================
+    // 3. LOGOUT
+    // =========================================================================
+
+    public function logout()
     {
+        // Opsional: Tembak API Logout jika diperlukan
         try {
-            // Optional: notify API tentang logout
-            $token = session('auth_token');
+            $apiUrl = env('API_BASE_URL', 'http://127.0.0.1:8000');
+            $token = Session::get('api_token');
+            
             if ($token) {
-                Http::withToken($token)->post(env('API_BASE_URL') . '/api/logout');
+                Http::withToken($token)->post($apiUrl . '/api/logout');
             }
         } catch (\Exception $e) {
-            // Silent fail - just logout from web
+            // Abaikan jika API mati, yang penting web session hancur
         }
 
-        // Clear session
-        session()->flush();
-        
-        return redirect()->route('home')->with('success', 'Logged out successfully');
-    }
-
-    /**
-     * Get current user info - fetch dari API
-     */
-    public function getCurrentUser(Request $request)
-    {
-        $token = session('auth_token');
-
-        if (!$token) {
-            return response()->json(['error' => 'Not authenticated'], 401);
-        }
-
-        try {
-            $response = Http::withToken($token)
-                ->get(env('API_BASE_URL') . '/api/me');
-
-            if ($response->successful()) {
-                return response()->json($response->json());
-            } else {
-                session()->flush();
-                return response()->json(['error' => 'Token expired'], 401);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Connection error'], 500);
-        }
+        Session::flush(); // Hapus semua session
+        return redirect()->route('login')->with('success', 'Berhasil Logout');
     }
 }
