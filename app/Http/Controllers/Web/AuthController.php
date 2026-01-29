@@ -23,6 +23,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // Validasi Input
         $request->validate(['email' => 'required', 'password' => 'required']);
 
         try {
@@ -37,10 +38,12 @@ class AuthController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
                 
+                // Simpan Session Web
                 Session::put('api_token', $data['token'] ?? null);
                 Session::put('user_data', $data['user'] ?? []);
                 Session::put('user_roles', $data['roles'] ?? []);
 
+                // Return JSON agar JS di frontend bisa memproses redirect
                 return response()->json([
                     'status' => 'success', 
                     'message' => 'Login Berhasil!',
@@ -48,6 +51,7 @@ class AuthController extends Controller
                 ]);
             }
 
+            // Jika Gagal Login
             return response()->json([
                 'status' => 'error', 
                 'message' => $response->json()['message'] ?? 'Email atau Password salah.'
@@ -73,20 +77,18 @@ class AuthController extends Controller
         try {
             $apiUrl = env('API_BASE_URL', 'http://127.0.0.1:8000');
             
-            // TEMBAK API DEPARTEMEN (Sesuai tes browser Mas tadi)
+            // Ambil data Departemen untuk Dropdown
             $response = Http::get($apiUrl . '/api/departments');
 
             if ($response->successful()) {
                 $json = $response->json();
-                // Ambil data dari key 'data', atau langsung array jika formatnya beda
                 $departments = $json['data'] ?? $json; 
             }
 
         } catch (\Exception $e) {
-            // Jika error koneksi, array $departments tetap kosong (biar view gak crash)
+            // Biarkan kosong jika API mati
         }
 
-        // Kirim data ke View Register
         return view('auth.register', compact('departments'));
     }
 
@@ -98,7 +100,7 @@ class AuthController extends Controller
             'email' => 'required|email',
             'phone' => 'required',
             'password' => 'required|confirmed',
-            'department_id' => 'required' // Pastikan user memilih departemen
+            'department_id' => 'required' 
         ]);
 
         try {
@@ -117,11 +119,12 @@ class AuthController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
                 
-                // Auto Login
+                // Auto Login setelah Register (Simpan Session)
                 Session::put('api_token', $data['token']);
                 Session::put('user_data', $data['user']);
-                Session::put('user_roles', ['Requester']); 
+                Session::put('user_roles', ['Requester']); // Default role requester
 
+                // Return JSON sukses
                 return response()->json([
                     'status' => 'success', 
                     'message' => 'Registrasi Berhasil!',
@@ -137,7 +140,7 @@ class AuthController extends Controller
             ], $response->status());
 
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Error Server.'], 500);
+            return response()->json(['status' => 'error', 'message' => 'Error Server: ' . $e->getMessage()], 500);
         }
     }
 
@@ -147,7 +150,19 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Session::flush();
+        // Opsional: Tembak API Logout jika diperlukan
+        try {
+            $apiUrl = env('API_BASE_URL', 'http://127.0.0.1:8000');
+            $token = Session::get('api_token');
+            
+            if ($token) {
+                Http::withToken($token)->post($apiUrl . '/api/logout');
+            }
+        } catch (\Exception $e) {
+            // Abaikan jika API mati, yang penting web session hancur
+        }
+
+        Session::flush(); // Hapus semua session
         return redirect()->route('login')->with('success', 'Berhasil Logout');
     }
 }

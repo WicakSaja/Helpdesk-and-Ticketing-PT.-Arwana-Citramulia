@@ -1,82 +1,107 @@
 <?php
 
-namespace App\Http\Controllers\Web; // Namespace Wajib
+namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller; // Induk Controller
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Http;     // Wajib import ini
+use Illuminate\Support\Facades\Session;  // Wajib import ini
 
 class TicketController extends Controller
 {
-    private function getApiConfig()
-    {
-        return [
-            'token' => Session::get('api_token'),
-            'url'   => env('API_BASE_URL', 'http://127.0.0.1:8000/api')
-        ];
+    // Helper untuk ambil URL API
+    private function getApiUrl() {
+        return env('API_BASE_URL', 'http://127.0.0.1:8000');
     }
 
-    // INDEX
+    // Helper untuk ambil Token dari Session (hasil login)
+    private function getToken() {
+        return Session::get('api_token');
+    }
+
+    // 1. TAMPILKAN LIST TIKET (INDEX)
     public function index()
     {
-        $api = $this->getApiConfig();
+        $tickets = [];
         try {
-            $response = Http::withToken($api['token'])->get($api['url'] . '/tickets');
-            $tickets = $response->successful() ? $response->json()['data'] : [];
-            return view('tickets.index', compact('tickets'));
+            // Ambil data tiket dari API
+            $response = Http::withToken($this->getToken())
+                            ->get($this->getApiUrl() . '/api/tickets');
+            
+            if ($response->successful()) {
+                $json = $response->json();
+                $tickets = $json['data'] ?? [];
+            }
         } catch (\Exception $e) {
-            return view('tickets.index', ['tickets' => []])->with('error', 'Gagal ambil data.');
+            // Silent error biar halaman tetap kebuka walau kosong
         }
+
+        return view('tickets.index', compact('tickets'));
     }
 
-    // CREATE
+    // 2. TAMPILKAN FORM
     public function create()
     {
-        return view('tickets.create');
+        // Opsional: Ambil data Kategori dari API untuk dropdown
+        $categories = [];
+        // $response = Http::get(...) -> logic ambil kategori bisa ditaruh sini
+        
+        return view('tickets.create', compact('categories')); 
     }
 
-    // STORE
+    // 3. SIMPAN DATA (POST KE API)
     public function store(Request $request)
     {
-        $api = $this->getApiConfig();
-        
+        // Validasi di sisi Web (biar user gak nunggu lama kalau kosong)
         $request->validate([
-            'subject' => 'required',
-            'description' => 'required'
+            'subject' => 'required|max:255',
+            'description' => 'required',
         ]);
 
         try {
-            $response = Http::withToken($api['token'])->post($api['url'] . '/tickets', [
-                'subject' => $request->subject,
-                'description' => $request->description,
-                'priority' => 'Low'
-            ]);
+            // Ambil data user dari session (karena Auth::id() mungkin null)
+            $userData = Session::get('user_data');
+            $requesterId = $userData['id'] ?? null;
+
+            // KIRIM KE API
+            $response = Http::withToken($this->getToken())
+                ->post($this->getApiUrl() . '/api/tickets', [
+                    'subject'       => $request->subject,
+                    'description'   => $request->description,
+                    'category_id'   => $request->category_id ?? 1, // Default kategori
+                    'priority_id'   => 1, // Default Low
+                    'requester_id'  => $requesterId, // Kirim ID user yang sedang login
+                ]);
 
             if ($response->successful()) {
-                return redirect()->route('tickets.index')->with('success', 'Tiket Terkirim!');
+                return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dibuat!');
+            } else {
+                return back()->with('error', 'Gagal membuat tiket: ' . ($response->json()['message'] ?? 'API Error'));
             }
-            
-            return back()->with('error', 'Gagal kirim tiket.')->withInput();
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Error Server.')->withInput();
+            return back()->with('error', 'Koneksi ke Server API Gagal.');
         }
     }
 
-    // SHOW
+    // 4. DETAIL TIKET
     public function show($id)
     {
-        $api = $this->getApiConfig();
+        $ticket = null;
         try {
-            $response = Http::withToken($api['token'])->get($api['url'] . '/tickets/' . $id);
+            $response = Http::withToken($this->getToken())
+                            ->get($this->getApiUrl() . '/api/tickets/' . $id);
+            
             if ($response->successful()) {
-                $ticket = $response->json()['data'];
-                return view('tickets.show', compact('ticket'));
+                $ticket = $response->json()['data'] ?? null;
             }
+        } catch (\Exception $e) { }
+
+        // Jika tiket tidak ditemukan di API
+        if (!$ticket) {
             return redirect()->route('tickets.index')->with('error', 'Tiket tidak ditemukan.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal load tiket.');
         }
+
+        return view('tickets.show', compact('ticket'));
     }
 }
