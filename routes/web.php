@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 // Import Controller dari folder Web (Namespace Baru)
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\TicketController;
+use App\Http\Controllers\Web\DepartmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +45,7 @@ Route::group([], function () {
         $roles = Session::get('user_roles', []);
 
         // Logic Redirect Sesuai Role
-        if (in_array('Super Admin', $roles) || in_array('Master Admin', $roles)) {
+        if (in_array('Super Admin', $roles) || in_array('Super Admin', $roles)) {
             return redirect()->route('superadmin.dashboard');
         }
         if (in_array('Helpdesk', $roles)) {
@@ -64,7 +65,11 @@ Route::group([], function () {
 Route::prefix('superadmin')->group(function () {
     Route::get('/dashboard', function () { return view('dashboard.superadmin'); })->name('superadmin.dashboard');
     Route::get('/users', function () { return view('superadmin.users.index'); })->name('superadmin.users');
-    Route::get('/departments', function () { return view('superadmin.departments.index'); })->name('superadmin.departments');
+    
+    Route::get('/departments', [DepartmentController::class, 'index'])->name('superadmin.departments');
+    Route::post('/departments/save', [DepartmentController::class, 'store'])->name('superadmin.departments.store');
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('superadmin.departments.delete');
+
     Route::get('/reports', function () { return view('superadmin.reports.index'); })->name('superadmin.reports');
 });
 
