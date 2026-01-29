@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Ticketing System Arwana - Complete API Collection",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n- Department Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "ticketing-arwana"
   },
@@ -718,6 +718,127 @@
 
       ],
       "description": "Endpoint untuk user management (Master Admin only):\n- List users\n- Get users by specific role\n- Get roles summary\n- Create user dengan role\n- Update user data & roles\n- Reset password\n\nProtection:\n- Master-admin user tidak bisa di-edit/reset"
+    },
+    {
+      "name": "4. Department Management",
+      "item": [
+        {
+          "name": "List All Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "IT",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Menampilkan semua departemen dengan opsional pencarian.\n\nRole: All authenticated users\n\nQuery Parameters:\n- search (optional): Filter departemen berdasarkan nama"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Department Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments", "1"]
+            },
+            "description": "Menampilkan detail departemen berdasarkan ID.\n\nRole: All authenticated users"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Information Technology\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/departments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments"]
+            },
+            "description": "Membuat departemen baru.\n\nRole: Admin & Helpdesk only\n\nRequired:\n- name: Nama departemen (max 255 char, harus unique)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Department",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"IT Department\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/departments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments", "1"]
+            },
+            "description": "Mengupdate data departemen.\n\nRole: Admin & Helpdesk only\n\nRequired:\n- name: Nama departemen baru (harus unique jika berubah)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Department",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments", "1"]
+            },
+            "description": "Menghapus departemen.\n\nRole: Admin & Helpdesk only\n\nCatatan:\n- Tidak bisa menghapus departemen yang masih memiliki user\n- Akan mengembalikan 422 error jika ada user terikat"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint untuk department management:\n- List departments dengan pencarian (All roles)\n- Get department detail (All roles)\n- Create, Update, Delete departments (Admin & Helpdesk only)\n\nProtection:\n- GET: Semua user yang authenticated\n- POST/PUT/PATCH/DELETE: Hanya Admin & Helpdesk\n- Validasi: Nama departemen harus unique\n- Soft delete protection: Tidak bisa hapus departemen dengan user"
     }
   ],
   "event": [

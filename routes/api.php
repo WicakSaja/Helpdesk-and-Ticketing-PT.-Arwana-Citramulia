@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\UserManagementController;
+use App\Http\Controllers\Api\DepartmentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -93,5 +94,19 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:user.update');
         Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
             ->middleware('permission:user.create');
+    });
+});
+
+// Department Management
+// GET endpoints - semua bisa akses
+Route::get('/departments', [DepartmentController::class, 'index']);
+Route::get('/departments/{department}', [DepartmentController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
+    // POST/PUT/PATCH/DELETE - hanya admin & helpdesk
+    Route::middleware('role:admin|helpdesk')->group(function () {
+        Route::post('/departments', [DepartmentController::class, 'store']);
+        Route::put('/departments/{department}', [DepartmentController::class, 'update']);
+        Route::patch('/departments/{department}', [DepartmentController::class, 'update']);
+        Route::delete('/departments/{department}', [DepartmentController::class, 'destroy']);
     });
 });

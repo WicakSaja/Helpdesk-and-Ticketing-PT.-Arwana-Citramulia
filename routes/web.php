@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TicketController;
+use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Wev\TicketController;
 
 // 1. LANDING PAGE (Halaman Depan)
 Route::get('/', function () {
