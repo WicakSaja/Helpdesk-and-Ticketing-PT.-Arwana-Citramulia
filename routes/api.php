@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\UserManagementController;
 use App\Http\Controllers\Api\DepartmentController;
+use App\Http\Controllers\Api\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,4 +118,19 @@ Route::middleware('auth:sanctum', 'role:master-admin|helpdesk')->group(function 
     Route::put('/departments/{department}', [DepartmentController::class, 'update']);
     Route::patch('/departments/{department}', [DepartmentController::class, 'update']);
     Route::delete('/departments/{department}', [DepartmentController::class, 'destroy']);
+});
+
+// ============================================================================
+// CATEGORY MANAGEMENT ROUTES
+// ============================================================================
+// Public GET Endpoints
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{category}', [CategoryController::class, 'show']);
+
+// Protected POST/PUT/PATCH/DELETE Endpoints (Master Admin & Helpdesk)
+Route::middleware('auth:sanctum', 'role:master-admin|helpdesk')->group(function () {
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::patch('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 });

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Ticketing System Arwana - Complete API Collection",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n- Department Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "ticketing-arwana"
   },
@@ -839,6 +839,127 @@
         }
       ],
       "description": "Endpoint untuk department management:\n- List departments dengan pencarian (All roles)\n- Get department detail (All roles)\n- Create, Update, Delete departments (Admin & Helpdesk only)\n\nProtection:\n- GET: Semua user yang authenticated\n- POST/PUT/PATCH/DELETE: Hanya Admin & Helpdesk\n- Validasi: Nama departemen harus unique\n- Soft delete protection: Tidak bisa hapus departemen dengan user"
+    },
+    {
+      "name": "5. Category Management",
+      "item": [
+        {
+          "name": "List All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Hardware",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Mengambil semua kategori tiket dengan opsional pencarian.\n\nRole: Public (tidak perlu auth)\n\nQuery Parameters:\n- search (optional): Filter kategori berdasarkan nama atau deskripsi"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "1"]
+            },
+            "description": "Mengambil detail kategori berdasarkan ID.\n\nRole: Public (tidak perlu auth)\n\nResponse:\n- Menampilkan detail kategori lengkap\n- 404 jika kategori tidak ditemukan"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Database\",\n  \"description\": \"Masalah database dan server\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Membuat kategori tiket baru.\n\nRole: Admin & Helpdesk only\n\nRequired:\n- name: Nama kategori (max 255 karakter, harus unique)\n\nOptional:\n- description: Deskripsi kategori (max 1000 karakter)\n\nValidation Errors:\n- 422: Nama sudah ada, atau format tidak valid\n- 401: Tidak authenticated\n- 403: Role tidak memiliki akses"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Perangkat Keras\",\n  \"description\": \"Masalah hardware dan perangkat keras komputer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "1"]
+            },
+            "description": "Mengubah/update kategori tiket.\n\nRole: Admin & Helpdesk only\n\nRequired:\n- name: Nama kategori baru (max 255 karakter, harus unique kecuali nama sama)\n\nOptional:\n- description: Deskripsi kategori baru (max 1000 karakter)\n\nNote:\n- Bisa menggunakan PATCH juga dengan request yang sama\n- 404 jika kategori tidak ditemukan"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "1"]
+            },
+            "description": "Menghapus kategori tiket.\n\nRole: Admin & Helpdesk only\n\nCatatan:\n- Tidak bisa menghapus kategori yang masih memiliki tiket\n- Akan mengembalikan 422 error jika ada tiket terikat\n- 404 jika kategori tidak ditemukan"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoint untuk category management (Manajemen Kategori Tiket):\n- List categories dengan pencarian (Public)\n- Get category detail (Public)\n- Create, Update, Delete categories (Admin & Helpdesk only)\n\nProtection:\n- GET: Public - tidak perlu auth\n- POST/PUT/PATCH/DELETE: Hanya Admin & Helpdesk\n- Validasi: Nama kategori harus unique\n- Soft delete protection: Tidak bisa hapus kategori dengan tiket\n\nUse Cases:\n- Master Admin & Helpdesk: Kelola daftar kategori tiket untuk sistem"
     }
   ],
   "event": [
