@@ -463,7 +463,7 @@
         const API_URL = ("{{ config('app.url') }}".trim() || window.location.origin).replace(/\/$/, '');
         
         // Get token from session/localStorage
-        const authToken = localStorage.getItem('user_token')
+        const authToken = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
         
         // Pagination state
         let currentPage = 1;

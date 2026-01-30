@@ -235,7 +235,7 @@
         </div>
 
         <div class="menu">
-            <a href="{{ route('dashboard') }}" class="menu-item active">
+            <a href="{{ route('dashboard.requester') }}" class="menu-item">
                 <i class="fa-solid fa-house"></i> Dashboard
             </a>
             <a href="{{ route('tickets.create') }}" class="menu-item">
@@ -316,6 +316,18 @@
 
     </div>
 
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+    </script>
+    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <script src="{{ asset('js/role-protection.js') }}"></script>
+    <script src="{{ asset('js/page-protection.js') }}"></script>
+    <script>
+        // Protect this page - require authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            requireRequesterRole();
+        });
+    </script>
 </body>
 
 </html>

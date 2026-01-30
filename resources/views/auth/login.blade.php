@@ -43,5 +43,12 @@
     </div>
     
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <script src="{{ asset('js/role-protection.js') }}"></script>
     <script src="{{ asset('js/auth-form-handler.js') }}"></script>
+    <script>
+        // Redirect to dashboard if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            requireGuest();
+        });
+    </script>
 @endsection

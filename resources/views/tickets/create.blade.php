@@ -42,17 +42,15 @@
         </div>
 
         <div class="card-body">
-            <form action="{{ route('tickets.store') }}" method="POST">
-                @csrf
-
+            <form id="ticketCreateForm">
                 <div class="form-group">
                     <label class="form-label">Subjek / Judul Masalah</label>
-                    <input type="text" name="subject" class="form-control" placeholder="Contoh: Internet di Ruang Meeting Mati" required>
+                    <input type="text" id="subject" name="subject" class="form-control" placeholder="Contoh: Internet di Ruang Meeting Mati" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Kategori Masalah</label>
-                    <select name="category_id" class="form-select">
+                    <select id="category_id" name="category_id" class="form-select">
                         <option value="1">Hardware (Perangkat Keras)</option>
                         <option value="2">Software (Aplikasi/Windows)</option>
                         <option value="3">Network (Jaringan/Internet)</option>
@@ -62,13 +60,99 @@
 
                 <div class="form-group">
                     <label class="form-label">Deskripsi Lengkap</label>
-                    <textarea name="description" class="form-textarea" placeholder="Jelaskan detail kronologi masalahnya..." required></textarea>
+                    <textarea id="description" name="description" class="form-textarea" placeholder="Jelaskan detail kronologi masalahnya..." required></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="btnSubmitTicket">
                     <i class="fa-solid fa-paper-plane"></i> KIRIM TIKET SEKARANG
                 </button>
             </form>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+    </script>
+    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <script src="{{ asset('js/role-protection.js') }}"></script>
+    <script src="{{ asset('js/page-protection.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            requireRequesterRole();
+
+            const form = document.getElementById('ticketCreateForm');
+            const btn = document.getElementById('btnSubmitTicket');
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const subject = document.getElementById('subject').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const categoryId = document.getElementById('category_id').value;
+
+                if (!subject || !description || !categoryId) {
+                    showAlert('error', 'Validasi Gagal', 'Semua field harus diisi.');
+                    return;
+                }
+
+                setButtonLoading(btn, true);
+
+                try {
+                    const response = await fetch(`${API_URL}/api/tickets`, {
+                        method: 'POST',
+                        headers: TokenManager.getHeaders(),
+                        body: JSON.stringify({
+                            subject: subject,
+                            description: description,
+                            category_id: Number(categoryId),
+                            channel: 'web'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showAlert('success', 'Berhasil', 'Tiket berhasil dibuat. Mengalihkan...');
+                        setTimeout(() => {
+                            window.location.href = "{{ route('tickets.index') }}";
+                        }, 1200);
+                    } else {
+                        const errorMsg = data.message || 'Gagal membuat tiket.';
+                        showAlert('error', 'Gagal', errorMsg);
+                    }
+                } catch (error) {
+                    showAlert('error', 'Error', error.message || 'Tidak dapat menghubungi server API');
+                } finally {
+                    setButtonLoading(btn, false);
+                }
+            });
+        });
+
+        function setButtonLoading(button, isLoading) {
+            if (!button) return;
+            if (isLoading) {
+                button.disabled = true;
+                button.dataset.originalText = button.innerHTML;
+                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
+            } else {
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText || button.innerHTML;
+            }
+        }
+
+        function showAlert(type, title, text) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: type,
+                    title: title,
+                    text: text,
+                    confirmButtonColor: '#d62828'
+                });
+                return;
+            }
+            alert(`${title}: ${text}`);
+        }
+    </script>
 @endsection

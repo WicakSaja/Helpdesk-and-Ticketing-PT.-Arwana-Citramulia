@@ -177,6 +177,20 @@
         @yield('content')
     </div>
 
+    {{-- Auth Scripts --}}
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+    </script>
+    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <script src="{{ asset('js/role-protection.js') }}"></script>
+    <script src="{{ asset('js/page-protection.js') }}"></script>
+    <script>
+        // Protect helpdesk pages
+        document.addEventListener('DOMContentLoaded', function() {
+            requireHelpdeskRole();
+        });
+    </script>
+
     @yield('scripts')
 
 </body>

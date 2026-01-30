@@ -99,11 +99,14 @@ async function handleRegister(event) {
         const data = await response.json();
 
         if (response.ok && data.token) {
-            // Only save token to localStorage
-            const saved = TokenManager.setToken(data.token);
+            // Save token, user data, and roles
+            const user = data.data || data.user || null;
+            const roles = data.roles || [];
+            
+            const saved = TokenManager.setAuth(data.token, user, roles);
 
             if (!saved) {
-                throw new Error('Gagal menyimpan token');
+                throw new Error('Gagal menyimpan data autentikasi');
             }
 
             Swal.fire({
@@ -113,7 +116,7 @@ async function handleRegister(event) {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                window.location.href = TokenManager.getDashboardUrl();
+                TokenManager.redirectToDashboard();
             });
         } else {
             const errorMsg = data.message || data.errors?.email?.[0] || data.errors?.phone?.[0] || 'Registrasi gagal';
@@ -176,11 +179,14 @@ async function handleLogin(event) {
         const data = await response.json();
 
         if (response.ok && data.token) {
-            // Only save token to localStorage
-            const saved = TokenManager.setToken(data.token);
+            // Save token, user data, and roles
+            const user = data.data || data.user || null;
+            const roles = data.roles || [];
+            
+            const saved = TokenManager.setAuth(data.token, user, roles);
 
             if (!saved) {
-                throw new Error('Gagal menyimpan token');
+                throw new Error('Gagal menyimpan data autentikasi');
             }
 
             Swal.fire({
@@ -190,7 +196,7 @@ async function handleLogin(event) {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                window.location.href = TokenManager.getDashboardUrl();
+                TokenManager.redirectToDashboard();
             });
         } else {
             const errorMsg = data.message || data.errors?.login?.[0] || 'Email atau password salah';
