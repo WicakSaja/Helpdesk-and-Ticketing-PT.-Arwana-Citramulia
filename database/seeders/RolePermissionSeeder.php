@@ -76,7 +76,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $helpdesk->givePermissionTo([
-            'user.view',           // View users untuk assign ke technician
+            'user.view',           
             'ticket.view',
             'ticket.view.all',
             'ticket.assign',
@@ -100,13 +100,6 @@ class RolePermissionSeeder extends Seeder
             'ticket.escalate',
             'ticket.change_status',
             'ticket.view.dashboard'
-        ]);
-
-        $manager->givePermissionTo([
-            'ticket.view',
-            'ticket.view.all',
-            'ticket.view.dashboard',
-            'ticket.view.report'
         ]);
     }
 }

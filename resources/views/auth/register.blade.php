@@ -11,8 +11,7 @@
         <p style="color: #777; font-size: 14px;">Isi data diri Anda untuk membuat akun</p>
     </div>
 
-    <form action="{{ route('register') }}" method="POST">
-        @csrf
+    <form onsubmit="handleRegister(event)">
 
         <div class="form-group">
             <label class="form-label">Nama Lengkap</label>
@@ -20,8 +19,7 @@
                 <span class="icon-box">
                     <i class="fa-solid fa-user"></i>
                 </span>
-                <input type="text" name="name" class="custom-input" placeholder="Nama Lengkap..."
-                    value="{{ old('name') }}" required>
+                <input type="text" id="nameReg" class="custom-input" placeholder="Nama Lengkap..." required>
             </div>
         </div>
 
@@ -31,8 +29,7 @@
                 <span class="icon-box">
                     <i class="fa-brands fa-whatsapp"></i>
                 </span>
-                <input type="number" name="phone" class="custom-input" placeholder="Contoh: 0812xxxx"
-                    value="{{ old('phone') }}" required>
+                <input type="number" id="phoneReg" class="custom-input" placeholder="Contoh: 0812xxxx" required>
             </div>
         </div>
 
@@ -42,8 +39,7 @@
                 <span class="icon-box">
                     <i class="fa-solid fa-envelope"></i>
                 </span>
-                <input type="email" name="email" class="custom-input" placeholder="nama@arwanacitra.com"
-                    value="{{ old('email') }}" required>
+                <input type="email" id="emailReg" class="custom-input" placeholder="nama@arwanacitra.com" required>
             </div>
         </div>
 
@@ -53,12 +49,9 @@
                 <span class="icon-box">
                     <i class="fa-solid fa-building"></i>
                 </span>
-                <select name="department_id" class="custom-input" style="cursor: pointer; background-color: transparent;"
-                    required>
+                <select id="departmentSelect" class="custom-input" 
+                    style="cursor: pointer; background-color: transparent;" required>
                     <option value="" disabled selected>-- Pilih Departemen --</option>
-                    @foreach ($departments as $dept)
-                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
-                    @endforeach
                 </select>
             </div>
         </div>
@@ -68,7 +61,7 @@
             <div class="input-wrapper">
                 <span class="icon-box"><i class="fa-solid fa-lock"></i></span>
 
-                <input type="password" name="password" class="custom-input" id="passReg"
+                <input type="password" class="custom-input" id="passReg"
                     placeholder="Minimal 8 karakter..." required>
 
                 <span class="toggle-password" onclick="togglePassword('passReg', this)">
@@ -82,7 +75,7 @@
             <div class="input-wrapper">
                 <span class="icon-box"><i class="fa-solid fa-check-double"></i></span>
 
-                <input type="password" name="password_confirmation" class="custom-input" id="passConfirm"
+                <input type="password" class="custom-input" id="passConfirm"
                     placeholder="Ketik ulang password..." required>
 
                 <span class="toggle-password" onclick="togglePassword('passConfirm', this)">
@@ -100,4 +93,7 @@
         </div>
 
     </form>
+
+    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <script src="{{ asset('js/auth-form-handler.js') }}"></script>
 @endsection

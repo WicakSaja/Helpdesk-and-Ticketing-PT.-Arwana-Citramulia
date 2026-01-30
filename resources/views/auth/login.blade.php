@@ -41,76 +41,7 @@
     <div class="auth-footer">
         <p>Belum punya akun? <a href="{{ route('register') }}" class="link-daftar">Daftar di sini</a></p>
     </div>
-    <script>
-        async function handleLogin(event) {
-            event.preventDefault(); // Mencegah reload halaman biasa
-
-            // 1. Ambil nilai input
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('btnLogin');
-
-            // Ubah tombol jadi loading
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
-            btn.disabled = true;
-
-            try {
-                // 2. Tembak API Login ke endpoint /api/login
-                // Note: Gunakan login field bukan email, API bisa terima email atau phone
-                const response = await fetch(`${API_URL}/api/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        login: email,  // bisa email atau phone
-                        password: password
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // 3. SUKSES: Simpan Token!
-                    const token = data.token || data.access_token;
-                    localStorage.setItem('user_token', token);
-
-                    // Notifikasi Sukses
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Login Berhasil!',
-                        text: 'Mengalihkan ke dashboard...',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = '/dashboard'; // Pindah halaman
-                    });
-
-                } else {
-                    // 4. GAGAL
-                    const errorMsg = data.message || data.errors?.login?.[0] || 'Email atau password salah.';
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Masuk',
-                        text: errorMsg,
-                        confirmButtonColor: '#d62828'
-                    });
-                }
-
-            } catch (error) {
-                console.error(error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error Sistem',
-                    text: 'Tidak dapat menghubungi server API.',
-                    confirmButtonColor: '#d62828'
-                });
-            } finally {
-                // Kembalikan tombol seperti semula
-                btn.innerHTML = 'MASUK SEKARANG <i class="fa-solid fa-arrow-right-to-bracket"></i>';
-                btn.disabled = false;
-            }
-        }
-    </script>
+    
+    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <script src="{{ asset('js/auth-form-handler.js') }}"></script>
 @endsection
