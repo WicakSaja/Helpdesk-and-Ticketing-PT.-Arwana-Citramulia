@@ -459,8 +459,6 @@
 
 @section('scripts')
     <script>
-        // Define API_URL for this page
-        const API_URL = ("{{ config('app.url') }}".trim() || window.location.origin).replace(/\/$/, '');
         
         // Get token from session/localStorage
         const authToken = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
