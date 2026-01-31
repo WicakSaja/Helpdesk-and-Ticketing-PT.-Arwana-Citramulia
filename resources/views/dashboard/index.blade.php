@@ -19,7 +19,7 @@
                             {{ session('user.name') }}
                         @endauth_check
                     </span>
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                    <form action="{{ route('logout') }}" method="POST" class="inline" id="logoutForm">
                         @csrf
                         <button type="submit" class="text-blue-600 hover:text-blue-800">
                             Logout
@@ -147,4 +147,12 @@
         @endauth_check
     </div>
 </div>
+
+{{-- Auth Scripts --}}
+<script>
+    const API_URL = 'http://127.0.0.1:8000';
+</script>
+<script src="{{ asset('js/auth-token-manager.js') }}"></script>
+<script src="{{ asset('js/logout-handler.js') }}"></script>
+
 @endsection
