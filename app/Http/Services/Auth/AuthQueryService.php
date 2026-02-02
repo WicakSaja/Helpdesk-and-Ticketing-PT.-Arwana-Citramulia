@@ -31,15 +31,20 @@ class AuthQueryService
 
     /**
      * Get current user with roles and permissions
-     * Returns full user object with relationships (for backward compatibility)
      */
     public function getCurrentUser(User $user): array
     {
-        // Load full relationships
-        $user->load('roles.permissions');
-
         return [
-            'user' => $user,
+            'user' => $user->only([
+                'id',
+                'name',
+                'email',
+                'phone',
+                'department_id',
+                'is_active',
+                'created_at',
+                'updated_at',
+            ]),
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ];

@@ -188,8 +188,9 @@
     }
 
     users.forEach((user) => {
-      const roleClass = getRoleClass(user.roles[0]);
-      const roleName = formatRoleName(user.roles[0]);
+      const primaryRole = user.roles && user.roles[0] ? user.roles[0] : 'user';
+      const roleClass = getRoleClass(primaryRole);
+      const roleName = formatRoleName(primaryRole);
       const departmentName = user.department ? user.department.name : "-";
 
       const row = document.createElement("tr");
@@ -204,7 +205,7 @@
                 <td><span class="badge status-active" id="badge-${user.id}">Aktif</span></td>
                 <td style="text-align: right;">
                     <button type="button" class="btn-icon btn-edit" 
-                        onclick="editUser(${user.id}, '${user.name}', '${user.email}', '${user.phone}', '${user.roles[0]}', ${user.department_id || "null"})">
+                        onclick="editUser(${user.id}, '${user.name}', '${user.email}', '${user.phone}', '${primaryRole}', ${user.department_id || "null"})">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <button type="button" class="btn-icon btn-toggle-off" id="btn-status-${user.id}"

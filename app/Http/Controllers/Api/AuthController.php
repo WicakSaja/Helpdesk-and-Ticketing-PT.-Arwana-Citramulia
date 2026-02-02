@@ -33,9 +33,6 @@ class AuthController extends Controller
 
         $user = $this->crudService->registerUser($validated);
 
-        // Load relationships for complete user data
-        $user->load('roles.permissions');
-
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -69,14 +66,13 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // Load relationships for complete user data
-        $user->load('roles.permissions');
+        $userData = $this->queryService->getCurrentUser($user);
 
         return response()->json([
             'message' => 'Login success',
-            'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
+            'user' => $userData['user'],
+            'roles' => $userData['roles'],
+            'permissions' => $userData['permissions'],
             'token' => $token,
         ]);
     }
