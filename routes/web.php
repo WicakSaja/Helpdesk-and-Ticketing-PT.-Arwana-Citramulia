@@ -152,5 +152,5 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
 
 // 8. PROFILE ROUTE
 Route::get('/profile', function () { 
-    return view('profile.index'); 
+    return view('tickets.profile'); 
 })->name('profile');

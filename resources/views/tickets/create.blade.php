@@ -2,8 +2,9 @@
 @section('title', 'Buat Tiket Baru')
 
 @section('css')
+    @vite(['resources/css/create-ticket.css'])
+
     <style>
-        /* CSS Khusus Form */
         .card {
             background: white;
             padding: 40px;
@@ -164,6 +165,7 @@
             border: 1px solid #eee;
         }
     </style>
+
 @endsection
 
 @section('content')

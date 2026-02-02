@@ -2,7 +2,7 @@
 @section('title', 'Manajemen User')
 
 @section('css')
-    <link rel="stylesheet" href="{{ asset('css/users.css') }}">
+    @vite(['resources/css/users.css'])
 @endsection
 
 @section('content')
@@ -119,21 +119,20 @@
 @section('scripts')
     <script src="{{ asset('js/users.js') }}?v={{ time() }}"></script>
     <script>
-        
         // Get token from session/localStorage
         const authToken = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-        
+
         // Pagination state
         let currentPage = 1;
         let currentPerPage = 15;
-        
+
         // Change per page handler
         function changePerPage() {
             currentPerPage = parseInt(document.getElementById('perPageSelect').value);
             currentPage = 1; // Reset to first page
             loadUsers(currentPage, currentPerPage);
         }
-        
+
         // Fetch Departments dari API
         async function loadDepartments() {
             try {
@@ -152,7 +151,8 @@
                 populateDepartmentSelect(result.data);
             } catch (error) {
                 console.error('Error fetching departments:', error);
-                document.getElementById('uDept').innerHTML = '<option value="" disabled selected>Error loading departments</option>';
+                document.getElementById('uDept').innerHTML =
+                    '<option value="" disabled selected>Error loading departments</option>';
             }
         }
 
@@ -160,11 +160,12 @@
         function populateDepartmentSelect(departments) {
             const select = document.getElementById('uDept');
             select.innerHTML = '<option value="" disabled selected>-- Pilih Departemen --</option>';
-            
+
             departments.forEach(dept => {
                 const option = document.createElement('option');
                 option.value = dept.id;
-                option.textContent = dept.name.charAt(0).toUpperCase() + dept.name.slice(1); // Capitalize first letter
+                option.textContent = dept.name.charAt(0).toUpperCase() + dept.name.slice(
+                1); // Capitalize first letter
                 select.appendChild(option);
             });
         }
@@ -175,9 +176,9 @@
             if (perPage === null) {
                 perPage = currentPerPage;
             }
-            
+
             currentPage = page; // Update current page state
-            
+
             try {
                 const response = await fetch(`${API_URL}/api/users?page=${page}&per_page=${perPage}`, {
                     method: 'GET',
@@ -211,13 +212,14 @@
         function updatePagination(paginationData) {
             const infoText = document.getElementById('paginationInfoText');
             const buttons = document.getElementById('paginationButtons');
-            
+
             // Update info text
-            infoText.textContent = `Menampilkan ${paginationData.from || 0} - ${paginationData.to || 0} dari ${paginationData.total} users`;
-            
+            infoText.textContent =
+                `Menampilkan ${paginationData.from || 0} - ${paginationData.to || 0} dari ${paginationData.total} users`;
+
             // Clear existing buttons
             buttons.innerHTML = '';
-            
+
             // Previous button
             const prevBtn = document.createElement('button');
             prevBtn.className = 'page-btn';
@@ -225,11 +227,11 @@
             prevBtn.disabled = paginationData.current_page === 1;
             prevBtn.onclick = () => loadUsers(paginationData.current_page - 1);
             buttons.appendChild(prevBtn);
-            
+
             // Page number buttons
             const startPage = Math.max(1, paginationData.current_page - 2);
             const endPage = Math.min(paginationData.last_page, paginationData.current_page + 2);
-            
+
             // First page if not in range
             if (startPage > 1) {
                 const firstBtn = document.createElement('button');
@@ -237,7 +239,7 @@
                 firstBtn.textContent = '1';
                 firstBtn.onclick = () => loadUsers(1);
                 buttons.appendChild(firstBtn);
-                
+
                 if (startPage > 2) {
                     const dots = document.createElement('span');
                     dots.textContent = '...';
@@ -246,7 +248,7 @@
                     buttons.appendChild(dots);
                 }
             }
-            
+
             // Page numbers
             for (let i = startPage; i <= endPage; i++) {
                 const pageBtn = document.createElement('button');
@@ -255,7 +257,7 @@
                 pageBtn.onclick = () => loadUsers(i);
                 buttons.appendChild(pageBtn);
             }
-            
+
             // Last page if not in range
             if (endPage < paginationData.last_page) {
                 if (endPage < paginationData.last_page - 1) {
@@ -265,14 +267,14 @@
                     dots.style.color = '#999';
                     buttons.appendChild(dots);
                 }
-                
+
                 const lastBtn = document.createElement('button');
                 lastBtn.className = 'page-btn';
                 lastBtn.textContent = paginationData.last_page;
                 lastBtn.onclick = () => loadUsers(paginationData.last_page);
                 buttons.appendChild(lastBtn);
             }
-            
+
             // Next button
             const nextBtn = document.createElement('button');
             nextBtn.className = 'page-btn';
@@ -307,12 +309,12 @@
 
                 const row = document.createElement('tr');
                 row.id = `user-${user.id}`;
-                
+
                 const statusBadgeClass = isActive ? 'status-active' : 'status-inactive';
                 const statusBadgeText = isActive ? 'Aktif' : 'Nonaktif';
                 const btnClass = isActive ? 'btn-icon btn-toggle-off' : 'btn-icon btn-toggle-on';
                 const btnIcon = isActive ? 'fa-solid fa-power-off' : 'fa-solid fa-rotate-left';
-                
+
                 row.innerHTML = `
                     <td>
                         <div style="font-weight: 600;">${user.name}</div>
@@ -402,7 +404,7 @@
             document.getElementById('uEmail').value = email;
             document.getElementById('uPhone').value = phone;
             document.getElementById('uRole').value = role;
-            
+
             // Set department by ID if exists
             if (deptId) {
                 document.getElementById('uDept').value = deptId;
@@ -610,7 +612,7 @@
                     });
 
                     const result = await response.json();
-                    
+
                     console.log('Update Response Status:', response.status);
                     console.log('Update Response Data:', result);
 
@@ -628,14 +630,17 @@
                     // If password is filled, reset password separately
                     if (password && password.trim()) {
                         try {
-                            const resetResponse = await fetch(`${API_URL}/api/users/${editingUserId}/reset-password`, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': `Bearer ${authToken}`,
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({ password: password })
-                            });
+                            const resetResponse = await fetch(
+                                `${API_URL}/api/users/${editingUserId}/reset-password`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Authorization': `Bearer ${authToken}`,
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        password: password
+                                    })
+                                });
 
                             const resetResult = await resetResponse.json();
                             console.log('Password Reset Response:', resetResponse.status, resetResult);
@@ -693,7 +698,7 @@
                     });
 
                     const result = await response.json();
-                    
+
                     console.log('Create Response Status:', response.status);
                     console.log('Create Response Data:', result);
 

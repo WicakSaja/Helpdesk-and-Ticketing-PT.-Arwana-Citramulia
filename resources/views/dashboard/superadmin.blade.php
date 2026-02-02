@@ -180,7 +180,7 @@
     <div class="welcome-banner">
         <div>
             <h2>Dashboard Overview</h2>
-            <p>Selamat Datang, {{ auth()->user()->name ?? 'Administrator' }}! 👋</p>
+            <p>Selamat Datang, {{ auth()->user() ? auth()->user()->name : 'Administrator' }}! 👋</p>
         </div>
         <div style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; font-size: 13px;">
             📅 {{ date('d F Y') }}
