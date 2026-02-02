@@ -11,109 +11,65 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    @vite(['resources/css/global.css'])
     <style>
-        /* GLOBAL STYLE */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+        @yield('css')
+    </style> padding: 12px 15px;
+    color: #666;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.3s;
+    position: relative;
+    }
 
-        body {
-            background-color: #f4f6f9;
-            display: flex;
-            min-height: 100vh;
-        }
+    .menu-item i {
+    width: 30px;
+    font-size: 16px;
+    }
 
-        a {
-            text-decoration: none;
-        }
+    .menu-item:hover {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    }
 
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: white;
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #eee;
-            position: fixed;
-            height: 100vh;
-            z-index: 1000;
-        }
+    /* Active State */
+    .menu-item.active {
+    background-color: #1565c0;
+    color: white;
+    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
+    }
 
-        .sidebar-logo {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
+    .mt-auto {
+    margin-top: auto;
+    }
 
-        .img-logo {
-            width: 160px;
-            height: auto;
-        }
+    .btn-logout {
+    width: 100%;
+    padding: 12px;
+    background: #fff0f0;
+    color: #d62828;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    padding-left: 20px;
+    transition: 0.3s;
+    }
 
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: #666;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: 0.3s;
-            position: relative;
-        }
+    .btn-logout:hover {
+    background: #d62828;
+    color: white;
+    }
 
-        .menu-item i {
-            width: 30px;
-            font-size: 16px;
-        }
-
-        .menu-item:hover {
-            background-color: #e3f2fd;
-            color: #1565c0;
-        }
-
-        /* Active State */
-        .menu-item.active {
-            background-color: #1565c0;
-            color: white;
-            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
-        }
-
-        .mt-auto {
-            margin-top: auto;
-        }
-
-        .btn-logout {
-            width: 100%;
-            padding: 12px;
-            background: #fff0f0;
-            color: #d62828;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: left;
-            padding-left: 20px;
-            transition: 0.3s;
-        }
-
-        .btn-logout:hover {
-            background: #d62828;
-            color: white;
-        }
-
-        /* KONTEN UTAMA */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 35px 40px;
-        }
+    /* KONTEN UTAMA */
+    .main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 35px 40px;
+    }
     </style>
     @yield('css')
 </head>

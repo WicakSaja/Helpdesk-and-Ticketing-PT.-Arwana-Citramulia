@@ -1,0 +1,169 @@
+/* Global styles extracted from layout files (sidebar, base, utilities) */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    display: flex;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background: white;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #eee;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.sidebar-logo {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.img-logo {
+    width: 160px;
+    height: auto;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: #666;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.3s;
+    position: relative;
+}
+
+.menu-item i {
+    width: 30px;
+    font-size: 16px;
+}
+
+.menu-item:hover {
+    background-color: #ffebee;
+    color: #d62828;
+}
+
+.menu-item.active {
+    background-color: #d62828;
+    color: white;
+    box-shadow: 0 4px 10px rgba(214, 40, 40, 0.3);
+}
+
+.menu-badge {
+    background: #d62828;
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    position: absolute;
+    right: 15px;
+    font-weight: 600;
+}
+
+.menu-item.active .menu-badge {
+    background: white;
+    color: #d62828;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 12px;
+    background: #fff0f0;
+    color: #d62828;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    padding-left: 20px;
+    transition: 0.3s;
+}
+
+.btn-logout:hover {
+    background: #d62828;
+    color: white;
+}
+
+/* WRAPPER KONTEN UTAMA */
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 30px 40px;
+}
+
+/* Utility */
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+/* small helpers */
+.loading-row {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+.text-error {
+    color: #d62828;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+/* modern small icon button */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 8px;
+}
+
+/* outline variant for small icon buttons in headers */
+.btn-icon.btn-outline {
+    background: #fff;
+    border: 1px solid #e9e9e9;
+    color: #333;
+}
+
+/* loading state (spinner) */
+.btn-icon[aria-busy="true"] {
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.btn-icon i {
+    font-size: 14px;
+}
+
+/* All-tickets styles moved to resources/css/helpdesk-all-tickets.css */

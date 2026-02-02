@@ -2,7 +2,7 @@
 @section('title', 'Manajemen Departemen')
 
 @section('css')
-    <link rel="stylesheet" href="{{ asset('css/department.css') }}">
+    @vite(['resources/css/department.css'])
 @endsection
 
 @section('content')
@@ -48,18 +48,21 @@
                 <h3 style="font-size: 20px; font-weight:700;" id="modalTitle">Tambah Departemen</h3>
                 <span onclick="closeModal()" style="cursor:pointer; font-size:24px; color:#999;">&times;</span>
             </div>
-            
-            <div id="errorMessage" class="text-error" style="background: #ffebee; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: none;"></div>
+
+            <div id="errorMessage" class="text-error"
+                style="background: #ffebee; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: none;"></div>
 
             <form onsubmit="handleSave(event)">
                 <div class="form-group">
                     <label class="form-label">Nama Departemen</label>
                     <input type="text" id="deptName" class="form-input" placeholder="Contoh: IT Support" required>
                 </div>
-                
+
                 <div style="text-align: right; margin-top: 25px;">
-                    <button type="button" onclick="closeModal()" style="background:white; border:1px solid #ddd; padding:10px 25px; border-radius:8px; cursor:pointer; margin-right: 10px; font-weight:600; color:#555;">Batal</button>
-                    <button type="submit" id="btnSave" style="background:#1565c0; color:white; border:none; padding:10px 30px; border-radius:8px; cursor:pointer; font-weight:600;">Simpan</button>
+                    <button type="button" onclick="closeModal()"
+                        style="background:white; border:1px solid #ddd; padding:10px 25px; border-radius:8px; cursor:pointer; margin-right: 10px; font-weight:600; color:#555;">Batal</button>
+                    <button type="submit" id="btnSave"
+                        style="background:#1565c0; color:white; border:none; padding:10px 30px; border-radius:8px; cursor:pointer; font-weight:600;">Simpan</button>
                 </div>
             </form>
         </div>
