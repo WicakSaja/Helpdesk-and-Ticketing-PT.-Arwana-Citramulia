@@ -176,14 +176,11 @@
                 <img src="https://ui-avatars.com/api/?name=User+Requester&background=d62828&color=fff&size=200" alt="Avatar"
                     class="avatar-img">
             </div>
-            <h3 class="user-name">User Requester</h3>
-            <span class="user-role">Staff Produksi</span>
+            <h3 class="user-name">{{ auth()->user()->name }}</h3>
+            <span class="user-role">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}</span>
             <div class="profile-stats">
                 <div class="stat-item">
-                    <h4>12</h4><span>Total Tiket</span>
-                </div>
-                <div class="stat-item">
-                    <h4>0</h4><span>Komplain</span>
+                    <h4>{{ auth()->user()->tickets()->count() }}</h4><span>Total Tiket</span>
                 </div>
             </div>
         </div>
@@ -194,12 +191,12 @@
                     Informasi Pribadi</h4>
                 <div class="form-grid">
                     <div class="form-group"><label class="form-label">Nama Lengkap</label><input type="text"
-                            class="form-input" value="User Requester" disabled></div>
-                    <div class="form-group"><label class="form-label">NIK</label><input type="text" class="form-input"
-                            value="12345678" disabled></div>
+                            class="form-input" value="{{ auth()->user()->name }}" disabled></div>
+                    <div class="form-group"><label class="form-label">Nomor Telepon</label><input type="text"
+                            class="form-input" value="{{ auth()->user()->phone }}" disabled></div>
                 </div>
                 <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input"
-                        value="user@arwanacitra.com" disabled></div>
+                        value="{{ auth()->user()->email }}" disabled></div>
 
                 <h4 class="form-section-title" style="margin-top: 30px;"><i class="fa-solid fa-lock"
                         style="margin-right:8px; color:#d62828;"></i> Keamanan</h4>
