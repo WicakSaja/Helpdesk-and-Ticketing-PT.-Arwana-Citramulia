@@ -1,7 +1,8 @@
 (function () {
-  // Auth token
-  const authToken =
-    sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token");
+  // Function to get current auth token
+  function getAuthToken() {
+    return sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token");
+  }
 
   // Pagination state
   let currentPage = 1;
@@ -71,7 +72,7 @@
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${getAuthToken()}`,
             "Content-Type": "application/json",
           },
         },
@@ -454,7 +455,7 @@
             {
               method: "PUT",
               headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${getAuthToken()}`,
                 "Content-Type": "application/json",
               },
               body: JSON.stringify(updateData),
@@ -482,7 +483,7 @@
                 {
                   method: "POST",
                   headers: {
-                    Authorization: `Bearer ${authToken}`,
+                    Authorization: `Bearer ${getAuthToken()}`,
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({ password: password }),
@@ -524,7 +525,7 @@
           const response = await fetch(`${API_URL}/api/users`, {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${getAuthToken()}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({

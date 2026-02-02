@@ -3,11 +3,31 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Category;
+use App\Http\Requests\Category\StoreCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
+use App\Http\Services\Category\CategoryCrudService;
+use App\Http\Services\Category\CategoryQueryService;
+use App\Http\Services\Category\CategoryValidationService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CategoryController extends Controller
 {
+    private CategoryCrudService $crudService;
+    private CategoryQueryService $queryService;
+    private CategoryValidationService $validationService;
+
+    public function __construct(
+        CategoryCrudService $crudService,
+        CategoryQueryService $queryService,
+        CategoryValidationService $validationService
+    )
+    {
+        $this->crudService = $crudService;
+        $this->queryService = $queryService;
+        $this->validationService = $validationService;
+    }
+
     /**
      * GET /api/categories
      * Mengambil semua kategori tiket
@@ -15,12 +35,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $categories = Category::when($request->search, function ($q, $search) {
-                return $q->where('name', 'like', "%{$search}%")
-                         ->orWhere('description', 'like', "%{$search}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            $categories = $this->queryService->listCategories($request->search);
 
             return response()->json([
                 'message' => 'Daftar kategori berhasil diambil',
@@ -39,22 +54,13 @@ class CategoryController extends Controller
      * POST /api/categories
      * Menambah kategori baru
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
         try {
-            // Validasi input
-            $validated = $request->validate([
-                'name' => 'required|string|max:255|unique:categories,name',
-                'description' => 'nullable|string|max:1000'
-            ], [
-                'name.required' => 'Nama kategori wajib diisi',
-                'name.unique' => 'Nama kategori sudah ada',
-                'name.max' => 'Nama kategori maksimal 255 karakter',
-                'description.max' => 'Deskripsi maksimal 1000 karakter'
-            ]);
+            $validated = $request->validated();
 
             // Buat kategori baru
-            $category = Category::create($validated);
+            $category = $this->crudService->createCategory($validated);
 
             return response()->json([
                 'message' => 'Kategori berhasil ditambahkan',
@@ -80,7 +86,7 @@ class CategoryController extends Controller
     public function show($id)
     {
         try {
-            $category = Category::find($id);
+            $category = $this->queryService->getCategoryById($id);
 
             if (!$category) {
                 return response()->json([
@@ -104,10 +110,10 @@ class CategoryController extends Controller
      * PUT/PATCH /api/categories/{id}
      * Mengubah/update kategori
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCategoryRequest $request, $id)
     {
         try {
-            $category = Category::find($id);
+            $category = $this->queryService->getCategoryById($id);
 
             if (!$category) {
                 return response()->json([
@@ -115,19 +121,10 @@ class CategoryController extends Controller
                 ], 404);
             }
 
-            // Validasi input
-            $validated = $request->validate([
-                'name' => 'required|string|max:255|unique:categories,name,' . $id,
-                'description' => 'nullable|string|max:1000'
-            ], [
-                'name.required' => 'Nama kategori wajib diisi',
-                'name.unique' => 'Nama kategori sudah ada',
-                'name.max' => 'Nama kategori maksimal 255 karakter',
-                'description.max' => 'Deskripsi maksimal 1000 karakter'
-            ]);
+            $validated = $request->validated();
 
             // Update kategori
-            $category->update($validated);
+            $category = $this->crudService->updateCategory($category, $validated);
 
             return response()->json([
                 'message' => 'Kategori berhasil diperbarui',
@@ -153,7 +150,7 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-            $category = Category::find($id);
+            $category = $this->queryService->getCategoryById($id);
 
             if (!$category) {
                 return response()->json([
@@ -162,17 +159,17 @@ class CategoryController extends Controller
             }
 
             // Cek apakah ada tiket yang menggunakan kategori ini
-            if ($category->tickets()->exists()) {
+            $canDelete = $this->validationService->canDelete($category);
+            if (!$canDelete['valid']) {
                 return response()->json([
-                    'message' => 'Tidak dapat menghapus kategori yang memiliki tiket',
+                    'message' => $canDelete['message'],
                     'data' => [
-                        'ticket_count' => $category->tickets()->count()
+                        'ticket_count' => $canDelete['ticket_count']
                     ]
                 ], 422);
             }
 
-            // Hapus kategori
-            $category->delete();
+            $this->crudService->deleteCategory($category);
 
             return response()->json([
                 'message' => 'Kategori berhasil dihapus'

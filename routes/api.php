@@ -78,8 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
 // GET Endpoints (Master Admin + Helpdesk)
 Route::middleware('auth:sanctum', 'permission:user.view')->group(function () {
     Route::get('/users/by-role/{roleName}', [UserManagementController::class, 'getUsersByRole']);
-    Route::get('/users/{user}', [UserManagementController::class, 'show']);
-    Route::get('/users/{user}/resolved-tickets', [UserManagementController::class, 'resolvedTickets']);
+    Route::get('/users/{user}', [UserManagementController::class, 'show'])
+        ->whereNumber('user');
+    Route::get('/users/{user}/resolved-tickets', [UserManagementController::class, 'resolvedTickets'])
+        ->whereNumber('user');
 });
 
 // POST/PUT/DELETE Endpoints (Master Admin Only)

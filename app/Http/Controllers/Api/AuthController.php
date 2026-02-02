@@ -3,33 +3,38 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Services\Auth\AuthCrudService;
+use App\Http\Services\Auth\AuthQueryService;
+use App\Http\Services\Auth\AuthValidationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    private AuthCrudService $crudService;
+    private AuthQueryService $queryService;
+    private AuthValidationService $validationService;
+
+    public function __construct(
+        AuthCrudService $crudService,
+        AuthQueryService $queryService,
+        AuthValidationService $validationService
+    )
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users',
-            'phone' => 'required|string|max:20|unique:users',
-            'department_id' => 'nullable|exists:departments,id',
-            'password' => 'required|min:8|confirmed',
-        ]);
+        $this->crudService = $crudService;
+        $this->queryService = $queryService;
+        $this->validationService = $validationService;
+    }
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'department_id' => $validated['department_id'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'is_active' => true,
-        ]);
+    public function register(RegisterRequest $request)
+    {
+        $validated = $request->validated();
 
-        // default role
-        $user->assignRole('requester');
+        $user = $this->crudService->registerUser($validated);
+
+        // Load relationships for complete user data
+        $user->load('roles.permissions');
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -39,40 +44,33 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
-    public function login(Request $request)
+
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
-        ]);
+        $validated = $request->validated();
+        $loginField = $this->queryService->getLoginField($validated['login']);
 
-        $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL)
-            ? 'email'
-            : 'phone';
+        $user = $this->queryService->authenticateUser($loginField, $validated['login'], $validated['password']);
 
-        if (!auth()->attempt([
-            $loginField => $request->login,
-            'password' => $request->password,
-        ])) {
+        if (!$user) {
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
         }
 
-        $user = User::where($loginField, $request->login)->first();
-
-        // Check if user is active
-        if (!$user->isActive()) {
+        if (!$this->queryService->isUserActive($user)) {
             auth()->logout();
             return response()->json([
                 'message' => 'Your account has been deactivated. Please contact administrator.'
             ], 403);
         }
 
-        // optional: revoke token lama
         $user->tokens()->delete();
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Load relationships for complete user data
+        $user->load('roles.permissions');
 
         return response()->json([
             'message' => 'Login success',
@@ -82,30 +80,19 @@ class AuthController extends Controller
             'token' => $token,
         ]);
     }
+
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->crudService->logoutUser($request->user()->currentAccessToken());
 
         return response()->json([
             'message' => 'Logout success'
         ]);
     }
+
     public function me(Request $request)
     {
         $user = $request->user();
-        return response()->json([
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'department_id' => $user->department_id,
-                'is_active' => $user->is_active,
-                'created_at' => $user->created_at,
-            ],
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
-        ]);
+        return response()->json($this->queryService->getCurrentUser($user));
     }
 }
-

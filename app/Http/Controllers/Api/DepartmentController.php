@@ -3,11 +3,31 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Department;
+use App\Http\Requests\Department\StoreDepartmentRequest;
+use App\Http\Requests\Department\UpdateDepartmentRequest;
+use App\Http\Services\Department\DepartmentCrudService;
+use App\Http\Services\Department\DepartmentQueryService;
+use App\Http\Services\Department\DepartmentValidationService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class DepartmentController extends Controller
 {
+    private DepartmentCrudService $crudService;
+    private DepartmentQueryService $queryService;
+    private DepartmentValidationService $validationService;
+
+    public function __construct(
+        DepartmentCrudService $crudService,
+        DepartmentQueryService $queryService,
+        DepartmentValidationService $validationService
+    )
+    {
+        $this->crudService = $crudService;
+        $this->queryService = $queryService;
+        $this->validationService = $validationService;
+    }
+
     /**
      * GET /api/departments
      * Menampilkan semua departemen
@@ -15,11 +35,7 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         try {
-            $departments = Department::when($request->search, function ($q, $search) {
-                return $q->where('name', 'like', "%{$search}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            $departments = $this->queryService->listDepartments($request->search);
 
             return response()->json([
                 'message' => 'Daftar departemen berhasil diambil',
@@ -38,20 +54,13 @@ class DepartmentController extends Controller
      * POST /api/departments
      * Menambah departemen baru
      */
-    public function store(Request $request)
+    public function store(StoreDepartmentRequest $request)
     {
         try {
-            // Validasi input
-            $validated = $request->validate([
-                'name' => 'required|string|max:255|unique:departments,name'
-            ], [
-                'name.required' => 'Nama departemen wajib diisi',
-                'name.unique' => 'Nama departemen sudah ada',
-                'name.max' => 'Nama departemen maksimal 255 karakter'
-            ]);
+            $validated = $request->validated();
 
             // Buat departemen baru
-            $department = Department::create($validated);
+            $department = $this->crudService->createDepartment($validated);
 
             return response()->json([
                 'message' => 'Departemen berhasil ditambahkan',
@@ -77,7 +86,7 @@ class DepartmentController extends Controller
     public function show($id)
     {
         try {
-            $department = Department::find($id);
+            $department = $this->queryService->getDepartmentById($id);
 
             if (!$department) {
                 return response()->json([
@@ -101,10 +110,10 @@ class DepartmentController extends Controller
      * PUT/PATCH /api/departments/{id}
      * Mengedit departemen
      */
-    public function update(Request $request, $id)
+    public function update(UpdateDepartmentRequest $request, $id)
     {
         try {
-            $department = Department::find($id);
+            $department = $this->queryService->getDepartmentById($id);
 
             if (!$department) {
                 return response()->json([
@@ -112,17 +121,10 @@ class DepartmentController extends Controller
                 ], 404);
             }
 
-            // Validasi input
-            $validated = $request->validate([
-                'name' => 'required|string|max:255|unique:departments,name,' . $id
-            ], [
-                'name.required' => 'Nama departemen wajib diisi',
-                'name.unique' => 'Nama departemen sudah ada',
-                'name.max' => 'Nama departemen maksimal 255 karakter'
-            ]);
+            $validated = $request->validated();
 
             // Update departemen
-            $department->update($validated);
+            $department = $this->crudService->updateDepartment($department, $validated);
 
             return response()->json([
                 'message' => 'Departemen berhasil diperbarui',
@@ -148,7 +150,7 @@ class DepartmentController extends Controller
     public function destroy($id)
     {
         try {
-            $department = Department::find($id);
+            $department = $this->queryService->getDepartmentById($id);
 
             if (!$department) {
                 return response()->json([
@@ -157,17 +159,17 @@ class DepartmentController extends Controller
             }
 
             // Cek apakah ada user yang menggunakan departemen ini
-            if ($department->users()->exists()) {
+            $canDelete = $this->validationService->canDelete($department);
+            if (!$canDelete['valid']) {
                 return response()->json([
-                    'message' => 'Tidak dapat menghapus departemen yang memiliki user',
+                    'message' => $canDelete['message'],
                     'data' => [
-                        'user_count' => $department->users()->count()
+                        'user_count' => $canDelete['user_count']
                     ]
                 ], 422);
             }
 
-            // Hapus departemen
-            $department->delete();
+            $this->crudService->deleteDepartment($department);
 
             return response()->json([
                 'message' => 'Departemen berhasil dihapus'

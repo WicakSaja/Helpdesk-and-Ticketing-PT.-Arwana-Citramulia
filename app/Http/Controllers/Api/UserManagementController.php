@@ -3,24 +3,35 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\UserManagement\StoreUserRequest;
+use App\Http\Requests\UserManagement\UpdateUserRequest;
+use App\Http\Requests\UserManagement\ResetPasswordRequest;
+use App\Http\Services\UserManagement\UserCrudService;
+use App\Http\Services\UserManagement\UserQueryService;
+use App\Http\Services\UserManagement\UserRoleService;
 use App\Models\User;
-use App\Models\TechnicianTicketHistory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class UserManagementController extends Controller
 {
+    private UserCrudService $crudService;
+    private UserQueryService $queryService;
+    private UserRoleService $roleService;
+
     /**
      * Construct - Middleware untuk authentication
      * Role checking dilakukan di method level atau Form Request
      */
-    public function __construct()
+    public function __construct(
+        UserCrudService $crudService,
+        UserQueryService $queryService,
+        UserRoleService $roleService
+    )
     {
         $this->middleware('auth:sanctum');
+        $this->crudService = $crudService;
+        $this->queryService = $queryService;
+        $this->roleService = $roleService;
     }
 
     /**
@@ -50,46 +61,11 @@ class UserManagementController extends Controller
     public function index(Request $request)
     {
         $this->checkCanViewUsers($request->user());
-        
-        $query = User::query();
 
-        // Filter by role jika ada
-        if ($request->filled('role')) {
-            $query->role($request->role);
-        }
+        $users = $this->queryService->listUsers($request);
 
-        // Filter by department jika ada
-        if ($request->filled('department_id')) {
-            $query->where('department_id', $request->department_id);
-        }
-
-        // Search by name atau email
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        $users = $query->with('department')
-            ->paginate($request->per_page ?? 15);
-
-        // Add roles ke setiap user
         $users->getCollection()->transform(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'department_id' => $user->department_id,
-                'department' => $user->department,
-                'roles' => $user->getRoleNames(),
-                'is_active' => $user->is_active,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-            ];
+            return $this->queryService->mapUserDetail($user);
         });
 
         return response()->json([
@@ -107,18 +83,7 @@ class UserManagementController extends Controller
         
         return response()->json([
             'message' => 'User retrieved successfully',
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'department_id' => $user->department_id,
-                'department' => $user->department,
-                'roles' => $user->getRoleNames(),
-                'is_active' => $user->is_active,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-            ],
+            'data' => $this->queryService->mapUserDetail($user),
         ]);
     }
 
@@ -132,17 +97,7 @@ class UserManagementController extends Controller
         $validated = $request->validated();
 
         try {
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'department_id' => $validated['department_id'] ?? null,
-                'password' => Hash::make($validated['password']),
-                'is_active' => $validated['is_active'] ?? true,
-            ]);
-
-            // Assign roles
-            $user->syncRoles($validated['roles']);
+            $user = $this->crudService->createUser($validated);
 
             return response()->json([
                 'message' => 'User created successfully',
@@ -183,28 +138,7 @@ class UserManagementController extends Controller
         $validated = $request->validated();
 
         try {
-            // Update user data
-            if (isset($validated['name'])) {
-                $user->name = $validated['name'];
-            }
-            if (isset($validated['email'])) {
-                $user->email = $validated['email'];
-            }
-            if (isset($validated['phone'])) {
-                $user->phone = $validated['phone'];
-            }
-            if (isset($validated['department_id'])) {
-                $user->department_id = $validated['department_id'];
-            }
-            if (isset($validated['is_active'])) {
-                $user->is_active = $validated['is_active'];
-            }
-            $user->save();
-
-            // Update roles jika ada
-            if (isset($validated['roles'])) {
-                $user->syncRoles($validated['roles']);
-            }
+            $user = $this->crudService->updateUser($user, $validated);
 
             return response()->json([
                 'message' => 'User updated successfully',
@@ -245,8 +179,7 @@ class UserManagementController extends Controller
             'is_active' => 'required|boolean',
         ]);
 
-        $user->is_active = $validated['is_active'];
-        $user->save();
+        $user = $this->crudService->updateStatus($user, $validated['is_active']);
 
         return response()->json([
             'message' => 'User status updated successfully',
@@ -281,11 +214,7 @@ class UserManagementController extends Controller
         $validated = $request->validated();
 
         try {
-            $user->password = Hash::make($validated['password']);
-            $user->save();
-
-            // Optional: Revoke semua token user jika ada
-            $user->tokens()->delete();
+            $this->crudService->resetPassword($user, $validated['password']);
 
             return response()->json([
                 'message' => 'Password reset successfully',
@@ -310,8 +239,8 @@ class UserManagementController extends Controller
     public function getAvailableRoles()
     {
         $this->checkMasterAdminRole(auth()->user());
-        
-        $roles = ['helpdesk', 'technician', 'supervisor'];
+
+        $roles = $this->roleService->getAvailableRoles();
 
         return response()->json([
             'message' => 'Available roles retrieved successfully',
@@ -328,7 +257,7 @@ class UserManagementController extends Controller
         $this->checkCanViewUsers($request->user());
 
         // Validate role exists
-        $validRoles = ['helpdesk', 'technician', 'supervisor', 'requester', 'manager'];
+        $validRoles = $this->roleService->getValidRoles();
         
         if (!in_array($roleName, $validRoles)) {
             return response()->json([
@@ -338,98 +267,7 @@ class UserManagementController extends Controller
         }
 
         // Get users with specified role
-        $query = User::role($roleName)
-            ->with(['department:id,name', 'roles:id,name']);
-
-        // For technician role, include assigned tickets
-        if ($roleName === 'technician') {
-            $query->with([
-                'assignedTickets' => function ($q) {
-                    $q->with([
-                        'ticket' => function ($tq) {
-                            $tq->select('id', 'ticket_number', 'subject', 'description', 'status_id', 'category_id', 'requester_id', 'created_at');
-                            $tq->with([
-                                'status:id,name',
-                                'category:id,name',
-                                'requester:id,name,email,phone'
-                            ]);
-                        }
-                    ]);
-                }
-            ]);
-        }
-
-        $users = $query->select('id', 'name', 'email', 'phone', 'department_id', 'is_active', 'created_at')
-            ->get()
-            ->map(function ($user) use ($roleName) {
-                $userData = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'department' => $user->department ? [
-                        'id' => $user->department->id,
-                        'name' => $user->department->name,
-                    ] : null,
-                    'roles' => $user->roles->pluck('name'),
-                    'is_active' => $user->is_active,
-                    'created_at' => $user->created_at,
-                ];
-
-                // Add assigned tickets for technician role
-                if ($roleName === 'technician') {
-                    $assignedTickets = $user->assignedTickets->map(function ($assignment) {
-                        return [
-                            'assignment_id' => $assignment->id,
-                            'assigned_at' => $assignment->assigned_at,
-                            'notes' => $assignment->notes,
-                            'ticket' => [
-                                'id' => $assignment->ticket->id,
-                                'ticket_number' => $assignment->ticket->ticket_number,
-                                'subject' => $assignment->ticket->subject,
-                                'description' => $assignment->ticket->description,
-                                'status' => [
-                                    'id' => $assignment->ticket->status->id ?? null,
-                                    'name' => $assignment->ticket->status->name ?? null,
-                                ],
-                                'category' => [
-                                    'id' => $assignment->ticket->category->id ?? null,
-                                    'name' => $assignment->ticket->category->name ?? null,
-                                ],
-                                'requester' => [
-                                    'id' => $assignment->ticket->requester->id ?? null,
-                                    'name' => $assignment->ticket->requester->name ?? null,
-                                    'email' => $assignment->ticket->requester->email ?? null,
-                                    'phone' => $assignment->ticket->requester->phone ?? null,
-                                ],
-                                'created_at' => $assignment->ticket->created_at,
-                            ]
-                        ];
-                    });
-
-                    // Calculate ticket statistics
-                    $inProgressCount = 0;
-                    $completedCount = 0;
-
-                    foreach ($user->assignedTickets as $assignment) {
-                        $statusName = $assignment->ticket->status->name ?? '';
-                        if ($statusName === 'Closed') {
-                            $completedCount++;
-                        } else {
-                            $inProgressCount++;
-                        }
-                    }
-
-                    $userData['assigned_tickets'] = $assignedTickets;
-                    $userData['ticket_statistics'] = [
-                        'in_progress' => $inProgressCount,
-                        'completed' => $completedCount,
-                        'total' => count($assignedTickets),
-                    ];
-                }
-
-                return $userData;
-            });
+        $users = $this->queryService->getUsersByRole($roleName);
 
         return response()->json([
             'message' => 'Users retrieved successfully',
@@ -447,16 +285,8 @@ class UserManagementController extends Controller
     {
         $this->checkCanViewUsers($request->user());
 
-        $roles = ['helpdesk', 'technician', 'supervisor', 'requester', 'manager', 'master-admin'];
-        
-        $summary = collect($roles)->map(function ($roleName) {
-            $count = User::role($roleName)->count();
-            
-            return [
-                'role' => $roleName,
-                'user_count' => $count,
-            ];
-        });
+        $roles = $this->roleService->getSummaryRoles();
+        $summary = $this->queryService->getRolesSummary($roles);
 
         return response()->json([
             'message' => 'Roles summary retrieved successfully',
@@ -473,10 +303,7 @@ class UserManagementController extends Controller
         $this->checkCanViewUsers($request->user());
 
         // Load resolved ticket histories dengan relasi ticket
-        $resolvedTickets = $user->resolvedTicketHistories()
-            ->with(['ticket:id,ticket_number,subject,status_id', 'ticket.status:id,name'])
-            ->latest('resolved_at')
-            ->get();
+        $resolvedTickets = $this->queryService->getResolvedTickets($user);
 
         return response()->json([
             'message' => 'Resolved tickets retrieved successfully',

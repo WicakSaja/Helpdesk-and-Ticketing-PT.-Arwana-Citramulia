@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\UserManagement;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     public function authorize()
     {
@@ -16,7 +16,7 @@ class StoreUserRequest extends FormRequest
     protected function failedAuthorization()
     {
         throw new \Illuminate\Auth\Access\AuthorizationException(
-            'Only master-admin can create users'
+            'Only master-admin can update users'
         );
     }
 
@@ -32,13 +32,14 @@ class StoreUserRequest extends FormRequest
 
     public function rules()
     {
+        $userId = $this->route('user')->id ?? $this->route('user');
+        
         return [
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20|unique:users,phone',
-            'password' => 'required|min:8',
+            'name' => 'sometimes|required|string|max:100',
+            'email' => 'sometimes|required|email|unique:users,email,' . $userId,
+            'phone' => 'sometimes|required|string|max:20|unique:users,phone,' . $userId,
             'department_id' => 'nullable|exists:departments,id',
-            'roles' => 'required|array|min:1',
+            'roles' => 'sometimes|required|array|min:1',
             'roles.*' => 'required|string|in:helpdesk,technician,supervisor',
             'is_active' => 'sometimes|boolean',
         ];
@@ -54,8 +55,6 @@ class StoreUserRequest extends FormRequest
             'email.unique' => 'Email sudah terdaftar',
             'phone.required' => 'Nomor telepon wajib diisi',
             'phone.unique' => 'Nomor telepon sudah terdaftar',
-            'password.required' => 'Password wajib diisi',
-            'password.min' => 'Password minimal 8 karakter',
             'roles.required' => 'Role wajib dipilih minimal satu',
             'roles.*.in' => 'Role harus salah satu dari: helpdesk, technician, supervisor',
             'department_id.exists' => 'Department yang dipilih tidak valid',
