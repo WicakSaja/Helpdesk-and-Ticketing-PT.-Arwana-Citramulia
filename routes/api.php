@@ -99,6 +99,9 @@ Route::middleware('auth:sanctum')->group(function () {
         
         Route::put('/{user}', [UserManagementController::class, 'update'])
             ->middleware('permission:user.update');
+
+        Route::patch('/{user}/status', [UserManagementController::class, 'updateStatus'])
+            ->middleware('permission:user.update');
         
         Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
             ->middleware('permission:user.create');

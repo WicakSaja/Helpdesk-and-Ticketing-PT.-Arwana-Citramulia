@@ -23,7 +23,8 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
-        'department_id'
+        'department_id',
+        'is_active'
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     // ========================
@@ -71,6 +73,56 @@ class User extends Authenticatable
     public function resolvedTicketHistories()
     {
         return $this->hasMany(TechnicianTicketHistory::class, 'technician_id');
+    }
+
+    // ========================
+    // SCOPES
+    // ========================
+
+    /**
+     * Scope query untuk user yang aktif
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope query untuk user yang non-aktif
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
+    }
+
+    // ========================
+    // ACCESSORS & METHODS
+    // ========================
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
+    }
+
+    /**
+     * Activate user
+     */
+    public function activate()
+    {
+        $this->is_active = true;
+        return $this->save();
+    }
+
+    /**
+     * Deactivate user
+     */
+    public function deactivate()
+    {
+        $this->is_active = false;
+        return $this->save();
     }
 
 }

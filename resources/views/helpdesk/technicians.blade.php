@@ -66,17 +66,28 @@
     }
 
     /* Modal styles */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 999; }
-    .modal-box { background: white; width: 450px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 999; overflow-y: auto; }
+    .modal-box { background: white; width: 550px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease; margin: 20px 0; }
     @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .btn-close-modal { background: #eee; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: 600; color: #555; transition: 0.3s; }
     .btn-close-modal:hover { background: #ddd; }
     
     .detail-header { text-align: center; margin-bottom: 20px; }
     .detail-avatar { width: 80px; height: 80px; background: #eee; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; }
-    .detail-tasks { background: #f9f9f9; padding: 15px; border-radius: 10px; }
-    .detail-item { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .detail-tasks { background: #f9f9f9; padding: 15px; border-radius: 10px; max-height: 300px; overflow-y: auto; }
+    .detail-item { display: flex; justify-content: space-between; font-size: 13px; padding: 10px; border-bottom: 1px solid #eee; }
     .detail-item:last-child { border-bottom: none; }
+    .ticket-link { color: #1976d2; font-weight: 600; text-decoration: none; }
+    .ticket-link:hover { text-decoration: underline; }
+    
+    /* Loading */
+    .loading { text-align: center; padding: 40px; color: #777; }
+    .loading-spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1976d2; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+    .empty-state img { width: 150px; opacity: 0.5; margin-bottom: 20px; }
 </style>
 @endsection
 
@@ -86,49 +97,10 @@
         <p class="page-subtitle">Monitoring status personel teknisi yang siap bertugas.</p>
     </div>
 
-    <div class="tech-grid">
-        <div class="tech-card border-ready" onclick="openDetailModal('Budi Santoso', 'Mekanik', 'Available', 'e8f5e9', '2e7d32')">
-            <div class="tech-avatar" style="background: #e8f5e9; color: #2e7d32;">BS</div>
-            <div class="tech-name">Budi Santoso</div>
-            <div class="tech-spec">Mekanik (Mesin)</div>
-            <div class="tech-status st-ready"><i class="fa-solid fa-circle" style="font-size:10px;"></i> Available</div>
-            <div class="task-count">
-                <span>Sedang Dikerjakan: <b>0</b></span>
-                <span>Selesai: <b>15</b></span>
-            </div>
-        </div>
-
-        <div class="tech-card border-busy" onclick="openDetailModal('Citra', 'Elektrikal', 'Sibuk', 'ffebee', 'd62828')">
-            <div class="tech-avatar" style="background: #ffebee; color: #d62828;">C</div>
-            <div class="tech-name">Citra</div>
-            <div class="tech-spec">Elektrikal & PLC</div>
-            <div class="tech-status st-busy"><i class="fa-solid fa-circle" style="font-size:10px;"></i> Sibuk</div>
-            <div class="task-count">
-                <span>Sedang Dikerjakan: <b>2</b></span>
-                <span>Selesai: <b>12</b></span>
-            </div>
-        </div>
-
-        <div class="tech-card border-ready" onclick="openDetailModal('Andi Pratama', 'IT Support', 'Available', 'e3f2fd', '1976d2')">
-            <div class="tech-avatar" style="background: #e3f2fd; color: #1976d2;">AP</div>
-            <div class="tech-name">Andi Pratama</div>
-            <div class="tech-spec">IT Support</div>
-            <div class="tech-status st-ready"><i class="fa-solid fa-circle" style="font-size:10px;"></i> Available</div>
-            <div class="task-count">
-                <span>Sedang Dikerjakan: <b>0</b></span>
-                <span>Selesai: <b>20</b></span>
-            </div>
-        </div>
-
-        <div class="tech-card border-ready" onclick="openDetailModal('Rudi Hartono', 'Mekanik', 'Available', 'fff3e0', 'e65100')">
-            <div class="tech-avatar" style="background: #fff3e0; color: #e65100;">RH</div>
-            <div class="tech-name">Rudi Hartono</div>
-            <div class="tech-spec">Mekanik (Umum)</div>
-            <div class="tech-status st-ready"><i class="fa-solid fa-circle" style="font-size:10px;"></i> Available</div>
-            <div class="task-count">
-                <span>Sedang Dikerjakan: <b>0</b></span>
-                <span>Selesai: <b>8</b></span>
-            </div>
+    <div class="tech-grid" id="technicianGrid">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 20px;">Memuat data teknisi...</p>
         </div>
     </div>
 
@@ -137,24 +109,33 @@
             <div class="detail-header">
                 <div class="detail-avatar" id="dAvatar">X</div>
                 <h3 style="margin-bottom: 5px; font-size: 20px;" id="dName">Nama</h3>
-                <span style="background:#f4f6f9; padding:5px 12px; border-radius:20px; font-size:12px; color:#555;" id="dSpec">Spesialis</span>
-                <div style="margin-top:10px; font-weight:600; color:#2e7d32;" id="dStatus">Status</div>
+                <p style="margin: 5px 0; color: #777; font-size: 13px;">
+                    <span id="dEmail"></span><br>
+                    <span id="dPhone"></span>
+                </p>
+                <span style="background:#f4f6f9; padding:5px 12px; border-radius:20px; font-size:12px; color:#555;" id="dDept">Departemen</span>
             </div>
 
-            <h4 style="font-size:14px; margin-bottom:10px; color:#555;">Riwayat Pekerjaan Terbaru</h4>
-            <div class="detail-tasks">
-                <div class="detail-item">
-                    <span>#TKT-005: Perbaikan Sensor</span>
-                    <span style="color:#2e7d32; font-weight:600;">Selesai</span>
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #f57c00;" id="dInProgress">0</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 5px;">Sedang Dikerjakan</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #2e7d32;" id="dCompleted">0</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 5px;">Selesai</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #1976d2;" id="dTotal">0</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 5px;">Total Tiket</div>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <span>#TKT-008: Install Ulang PC</span>
-                    <span style="color:#f57c00; font-weight:600;">Proses</span>
-                </div>
-                <div class="detail-item">
-                    <span>#TKT-001: Cek Kabel LAN</span>
-                    <span style="color:#2e7d32; font-weight:600;">Selesai</span>
-                </div>
+            </div>
+
+            <h4 style="font-size:14px; margin-bottom:10px; color:#555;">Tiket yang Ditugaskan</h4>
+            <div class="detail-tasks" id="ticketsList">
+                <div style="text-align: center; color: #999; padding: 20px;">Tidak ada tiket</div>
             </div>
 
             <div style="text-align: center;">
@@ -165,27 +146,174 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function openDetailModal(name, spec, status, colorBg, colorText) {
-        document.getElementById('detailModal').style.display = 'flex';
-        document.getElementById('dName').innerText = name;
-        document.getElementById('dSpec').innerText = spec;
-        document.getElementById('dStatus').innerText = status;
-        
-        if(status === 'Sibuk') {
-            document.getElementById('dStatus').style.color = '#d62828';
-        } else {
-            document.getElementById('dStatus').style.color = '#2e7d32';
+let allTechnicians = [];
+
+// Fetch technicians on page load
+document.addEventListener('DOMContentLoaded', async function() {
+    await fetchTechnicians();
+});
+
+async function fetchTechnicians() {
+    try {
+        const token = TokenManager.getToken();
+        if (!token) {
+            showError('Token tidak ditemukan. Silakan login kembali.');
+            return;
         }
 
-        const avatar = document.getElementById('dAvatar');
-        avatar.innerText = name.match(/\b(\w)/g).join('').substring(0,2);
-        avatar.style.background = '#' + colorBg;
-        avatar.style.color = '#' + colorText;
+        const response = await fetch(`${API_URL}/api/users/by-role/technician`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        allTechnicians = data.data || [];
+
+        renderTechnicians(allTechnicians);
+    } catch (error) {
+        console.error('Error fetching technicians:', error);
+        showError('Gagal memuat data teknisi. Silakan refresh halaman.');
+    }
+}
+
+function renderTechnicians(technicians) {
+    const grid = document.getElementById('technicianGrid');
+
+    if (technicians.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1;">
+                <div class="empty-state">
+                    <p>Tidak ada data teknisi tersedia</p>
+                </div>
+            </div>
+        `;
+        return;
     }
 
-    function closeDetailModal() { 
-        document.getElementById('detailModal').style.display = 'none'; 
+    grid.innerHTML = technicians.map(tech => {
+        const avatarColor = getColorForTechnician(tech.id);
+        const isActive = !!tech.is_active;
+        const statusText = isActive ? 'Active' : 'Nonactive';
+        const statusClass = isActive ? 'st-ready' : 'st-busy';
+        const borderClass = isActive ? 'border-ready' : 'border-busy';
+
+        return `
+            <div class="tech-card ${borderClass}" onclick="openDetailModal(${tech.id})">
+                <div class="tech-avatar" style="background: ${avatarColor.bg}; color: ${avatarColor.text};">
+                    ${getInitials(tech.name)}
+                </div>
+                <div class="tech-name">${tech.name}</div>
+                <div class="tech-spec">${tech.department?.name || 'N/A'}</div>
+                <div class="tech-status ${statusClass}">
+                    <i class="fa-solid fa-circle" style="font-size:10px;"></i> ${statusText}
+                </div>
+                <div class="task-count">
+                    <span>Sedang Dikerjakan: <b>${tech.ticket_statistics.in_progress}</b></span>
+                    <span>Selesai: <b>${tech.ticket_statistics.completed}</b></span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openDetailModal(technicianId) {
+    const tech = allTechnicians.find(t => t.id === technicianId);
+    if (!tech) return;
+
+    const avatarColor = getColorForTechnician(tech.id);
+
+    document.getElementById('dAvatar').innerText = getInitials(tech.name);
+    document.getElementById('dAvatar').style.background = avatarColor.bg;
+    document.getElementById('dAvatar').style.color = avatarColor.text;
+    document.getElementById('dName').innerText = tech.name;
+    document.getElementById('dEmail').innerText = tech.email;
+    document.getElementById('dPhone').innerText = tech.phone;
+    document.getElementById('dDept').innerText = tech.department?.name || 'N/A';
+    document.getElementById('dInProgress').innerText = tech.ticket_statistics.in_progress;
+    document.getElementById('dCompleted').innerText = tech.ticket_statistics.completed;
+    document.getElementById('dTotal').innerText = tech.ticket_statistics.total;
+
+    // Render tickets
+    const ticketsHtml = renderTickets(tech.assigned_tickets);
+    document.getElementById('ticketsList').innerHTML = ticketsHtml;
+
+    document.getElementById('detailModal').style.display = 'flex';
+}
+
+function renderTickets(tickets) {
+    if (!tickets || tickets.length === 0) {
+        return `<div style="text-align: center; color: #999; padding: 20px;">Tidak ada tiket yang ditugaskan</div>`;
     }
+
+    return tickets.map(assignment => {
+        const ticket = assignment.ticket;
+        const status = ticket.status?.name || 'Unknown';
+        const statusColor = status === 'Closed' ? '#2e7d32' : status === 'IN_PROGRESS' ? '#f57c00' : '#d62828';
+        
+        return `
+            <div class="detail-item">
+                <div>
+                    <div style="font-weight: 600; color: #333;">${ticket.ticket_number}</div>
+                    <div style="color: #777; margin-top: 3px;">${ticket.subject}</div>
+                </div>
+                <div style="color: ${statusColor}; font-weight: 600; text-align: right;">
+                    ${status}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').style.display = 'none';
+}
+
+function getInitials(name) {
+    return name.match(/\b(\w)/g)?.join('').substring(0, 2).toUpperCase() || 'U';
+}
+
+function getColorForTechnician(id) {
+    const colors = [
+        { bg: '#e8f5e9', text: '#2e7d32' }, // Green
+        { bg: '#ffebee', text: '#d62828' }, // Red
+        { bg: '#e3f2fd', text: '#1976d2' }, // Blue
+        { bg: '#fff3e0', text: '#e65100' }, // Orange
+        { bg: '#f3e5f5', text: '#7b1fa2' }, // Purple
+        { bg: '#e0f2f1', text: '#00897b' }, // Teal
+    ];
+    return colors[(id - 1) % colors.length];
+}
+
+function showError(message) {
+    const grid = document.getElementById('technicianGrid');
+    grid.innerHTML = `
+        <div style="grid-column: 1 / -1;">
+            <div class="empty-state">
+                <p style="color: #d62828; margin-bottom: 20px;">⚠️ ${message}</p>
+                <button onclick="location.reload()" style="background: #1976d2; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    Coba Lagi
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('detailModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
 </script>
 @endsection

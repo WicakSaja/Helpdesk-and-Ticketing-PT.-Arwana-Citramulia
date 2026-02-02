@@ -25,6 +25,7 @@ class AuthController extends Controller
             'phone' => $validated['phone'],
             'department_id' => $validated['department_id'] ?? null,
             'password' => Hash::make($validated['password']),
+            'is_active' => true,
         ]);
 
         // default role
@@ -60,6 +61,14 @@ class AuthController extends Controller
 
         $user = User::where($loginField, $request->login)->first();
 
+        // Check if user is active
+        if (!$user->isActive()) {
+            auth()->logout();
+            return response()->json([
+                'message' => 'Your account has been deactivated. Please contact administrator.'
+            ], 403);
+        }
+
         // optional: revoke token lama
         $user->tokens()->delete();
 
@@ -83,10 +92,19 @@ class AuthController extends Controller
     }
     public function me(Request $request)
     {
+        $user = $request->user();
         return response()->json([
-            'user' => $request->user(),
-            'roles' => $request->user()->getRoleNames(),
-            'permissions' => $request->user()->getAllPermissions()->pluck('name'),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'department_id' => $user->department_id,
+                'is_active' => $user->is_active,
+                'created_at' => $user->created_at,
+            ],
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name'),
         ]);
     }
 }

@@ -86,6 +86,7 @@ class UserManagementController extends Controller
                 'department_id' => $user->department_id,
                 'department' => $user->department,
                 'roles' => $user->getRoleNames(),
+                'is_active' => $user->is_active,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ];
@@ -114,6 +115,7 @@ class UserManagementController extends Controller
                 'department_id' => $user->department_id,
                 'department' => $user->department,
                 'roles' => $user->getRoleNames(),
+                'is_active' => $user->is_active,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at,
             ],
@@ -136,6 +138,7 @@ class UserManagementController extends Controller
                 'phone' => $validated['phone'],
                 'department_id' => $validated['department_id'] ?? null,
                 'password' => Hash::make($validated['password']),
+                'is_active' => $validated['is_active'] ?? true,
             ]);
 
             // Assign roles
@@ -151,6 +154,7 @@ class UserManagementController extends Controller
                     'department_id' => $user->department_id,
                     'department' => $user->department,
                     'roles' => $user->getRoleNames(),
+                    'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                 ],
             ], 201);
@@ -192,6 +196,9 @@ class UserManagementController extends Controller
             if (isset($validated['department_id'])) {
                 $user->department_id = $validated['department_id'];
             }
+            if (isset($validated['is_active'])) {
+                $user->is_active = $validated['is_active'];
+            }
             $user->save();
 
             // Update roles jika ada
@@ -209,6 +216,7 @@ class UserManagementController extends Controller
                     'department_id' => $user->department_id,
                     'department' => $user->department,
                     'roles' => $user->getRoleNames(),
+                    'is_active' => $user->is_active,
                     'updated_at' => $user->updated_at,
                 ],
             ]);
@@ -218,6 +226,42 @@ class UserManagementController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Update user status (active/nonactive)
+     */
+    public function updateStatus(Request $request, User $user)
+    {
+        $this->checkMasterAdminRole($request->user());
+
+        if ($user->hasRole('master-admin')) {
+            return response()->json([
+                'message' => 'Cannot update master-admin status',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $user->is_active = $validated['is_active'];
+        $user->save();
+
+        return response()->json([
+            'message' => 'User status updated successfully',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'department_id' => $user->department_id,
+                'department' => $user->department,
+                'roles' => $user->getRoleNames(),
+                'is_active' => $user->is_active,
+                'updated_at' => $user->updated_at,
+            ],
+        ]);
     }
 
     /**
@@ -294,12 +338,31 @@ class UserManagementController extends Controller
         }
 
         // Get users with specified role
-        $users = User::role($roleName)
-            ->with(['department:id,name', 'roles:id,name'])
-            ->select('id', 'name', 'email', 'phone', 'department_id', 'created_at')
+        $query = User::role($roleName)
+            ->with(['department:id,name', 'roles:id,name']);
+
+        // For technician role, include assigned tickets
+        if ($roleName === 'technician') {
+            $query->with([
+                'assignedTickets' => function ($q) {
+                    $q->with([
+                        'ticket' => function ($tq) {
+                            $tq->select('id', 'ticket_number', 'subject', 'description', 'status_id', 'category_id', 'requester_id', 'created_at');
+                            $tq->with([
+                                'status:id,name',
+                                'category:id,name',
+                                'requester:id,name,email,phone'
+                            ]);
+                        }
+                    ]);
+                }
+            ]);
+        }
+
+        $users = $query->select('id', 'name', 'email', 'phone', 'department_id', 'is_active', 'created_at')
             ->get()
-            ->map(function ($user) {
-                return [
+            ->map(function ($user) use ($roleName) {
+                $userData = [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
@@ -309,8 +372,63 @@ class UserManagementController extends Controller
                         'name' => $user->department->name,
                     ] : null,
                     'roles' => $user->roles->pluck('name'),
+                    'is_active' => $user->is_active,
                     'created_at' => $user->created_at,
                 ];
+
+                // Add assigned tickets for technician role
+                if ($roleName === 'technician') {
+                    $assignedTickets = $user->assignedTickets->map(function ($assignment) {
+                        return [
+                            'assignment_id' => $assignment->id,
+                            'assigned_at' => $assignment->assigned_at,
+                            'notes' => $assignment->notes,
+                            'ticket' => [
+                                'id' => $assignment->ticket->id,
+                                'ticket_number' => $assignment->ticket->ticket_number,
+                                'subject' => $assignment->ticket->subject,
+                                'description' => $assignment->ticket->description,
+                                'status' => [
+                                    'id' => $assignment->ticket->status->id ?? null,
+                                    'name' => $assignment->ticket->status->name ?? null,
+                                ],
+                                'category' => [
+                                    'id' => $assignment->ticket->category->id ?? null,
+                                    'name' => $assignment->ticket->category->name ?? null,
+                                ],
+                                'requester' => [
+                                    'id' => $assignment->ticket->requester->id ?? null,
+                                    'name' => $assignment->ticket->requester->name ?? null,
+                                    'email' => $assignment->ticket->requester->email ?? null,
+                                    'phone' => $assignment->ticket->requester->phone ?? null,
+                                ],
+                                'created_at' => $assignment->ticket->created_at,
+                            ]
+                        ];
+                    });
+
+                    // Calculate ticket statistics
+                    $inProgressCount = 0;
+                    $completedCount = 0;
+
+                    foreach ($user->assignedTickets as $assignment) {
+                        $statusName = $assignment->ticket->status->name ?? '';
+                        if ($statusName === 'Closed') {
+                            $completedCount++;
+                        } else {
+                            $inProgressCount++;
+                        }
+                    }
+
+                    $userData['assigned_tickets'] = $assignedTickets;
+                    $userData['ticket_statistics'] = [
+                        'in_progress' => $inProgressCount,
+                        'completed' => $completedCount,
+                        'total' => count($assignedTickets),
+                    ];
+                }
+
+                return $userData;
             });
 
         return response()->json([

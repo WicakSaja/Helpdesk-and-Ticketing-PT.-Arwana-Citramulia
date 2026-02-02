@@ -40,6 +40,7 @@ class StoreUserRequest extends FormRequest
             'department_id' => 'nullable|exists:departments,id',
             'roles' => 'required|array|min:1',
             'roles.*' => 'required|string|in:helpdesk,technician,supervisor',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 
