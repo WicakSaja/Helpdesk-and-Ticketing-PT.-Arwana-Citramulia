@@ -47,10 +47,15 @@
 
             <div
                 style="margin-bottom:24px; background:#fff5f5; padding:18px; border-radius:10px; border: 1px solid #ffcdd2;">
-                <div style="font-size: 12px; color: #d62828; font-weight: 600;" id="modalTicketId">#ID</div>
-                <div style="font-weight: 700; font-size: 15px; color: #333; margin-top: 3px;" id="modalTicketSubject">
-                    Subject</div>
-                <div id="modalAssignedTo" style="margin-top:12px; font-size:13px; color:#333;">Requester: -</div>
+                <div class="modal-info">
+                    <div class="modal-ticket-number" id="modalTicketId">#NO</div>
+                    <div class="modal-ticket-subject" id="modalTicketSubject">Subject</div>
+                    <div id="modalAssignedTo" class="modal-assigned-to">User: -</div>
+                    <div class="modal-desc">
+                        <div class="modal-desc-title">Deskripsi</div>
+                        <div id="modalTicketDesc" class="modal-desc-text">-</div>
+                    </div>
+                </div>
             </div>
 
             <div style="margin-bottom: 10px;">

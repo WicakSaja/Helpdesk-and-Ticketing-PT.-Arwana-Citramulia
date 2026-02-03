@@ -132,6 +132,58 @@
     border-spacing: 0;
 }
 
+/* Modal / Assign */
+.modal-info {
+    margin-bottom: 20px;
+    background: #fff5f5;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ffcdd2;
+}
+
+.modal-ticket-number {
+    font-size: 12px;
+    color: #d62828;
+    font-weight: 600;
+}
+
+.modal-ticket-subject {
+    font-weight: 700;
+    font-size: 15px;
+    color: #333;
+    margin-top: 3px;
+}
+
+.modal-assigned-to {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #333;
+}
+
+.modal-desc {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #ffcdd2;
+}
+
+.modal-desc-title {
+    font-size: 11px;
+    color: #777;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.modal-desc-text {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.ticket-subject {
+    font-weight: 600;
+}
+
 .urgent-table th {
     text-align: left;
     color: #999;
