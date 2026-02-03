@@ -69,7 +69,9 @@ class TicketController extends Controller
             $sortBy,
             $sortOrder,
             $page,
-            $perPage
+            $perPage,
+            null,
+            null
         );
 
         return response()->json([
@@ -92,6 +94,107 @@ class TicketController extends Controller
         return response()->json([
             'message' => 'My tickets retrieved successfully',
             'data' => $tickets
+        ]);
+    }
+
+    /**
+     * GET /technician/tickets
+     * Ambil semua ticket yang di-assign ke technician yang sedang login
+     */
+    public function technicianTickets(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->hasRole('technician')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $status = $request->query('status');
+        $categoryId = $request->query('category_id');
+        $search = $request->query('search');
+        $sortBy = $request->query('sort_by', 'created_at');
+        $sortOrder = $request->query('sort_order', 'desc');
+        $page = (int) $request->query('page', 1);
+        $perPage = (int) $request->query('per_page', 15);
+
+        $page = max(1, $page);
+        $perPage = min(max(1, $perPage), 100);
+
+        $result = $this->queryService->listTickets(
+            $user,
+            $status,
+            $categoryId,
+            $user->id,
+            $search,
+            $sortBy,
+            $sortOrder,
+            $page,
+            $perPage,
+            ['closed'],
+            null
+        );
+
+        return response()->json([
+            'message' => 'Technician tickets retrieved successfully',
+            'data' => $result['data'],
+            'pagination' => $result['pagination']
+        ]);
+    }
+
+    /**
+     * GET /technician/completed-tickets
+     * Endpoint khusus untuk teknisi melihat ticket yang sudah resolved/closed
+     * permission: role technician
+     */
+    public function technicianCompletedTickets(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->hasRole('technician')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $status = $request->query('status'); // Optional: specific 'resolved' or 'closed'
+        $categoryId = $request->query('category_id');
+        $search = $request->query('search');
+        $sortBy = $request->query('sort_by', 'updated_at'); // Sort by updated_at karena completed ticket
+        $sortOrder = $request->query('sort_order', 'desc');
+        $page = (int) $request->query('page', 1);
+        $perPage = (int) $request->query('per_page', 15);
+
+        $page = max(1, $page);
+        $perPage = min(max(1, $perPage), 100);
+
+        // Jika status diisi, validasi hanya boleh resolved atau closed
+        if ($status && !in_array($status, ['resolved', 'closed'])) {
+            return response()->json([
+                'message' => 'Status must be either "resolved" or "closed"'
+            ], 422);
+        }
+
+        // Gunakan includeStatus untuk filter hanya resolved dan closed
+        // Jika status diisi (resolved atau closed), gunakan status spesifik
+        // Jika tidak diisi, tampilkan semua ticket resolved dan closed
+        $includeStatus = $status ? [$status] : ['resolved', 'closed'];
+
+        $result = $this->queryService->listTickets(
+            $user,
+            null, // status - null karena kita sudah filter dengan includeStatus
+            $categoryId,
+            $user->id, // assigned_to = current technician
+            $search,
+            $sortBy,
+            $sortOrder,
+            $page,
+            $perPage,
+            null, // excludeStatus
+            $includeStatus // includeStatus
+        );
+
+        return response()->json([
+            'message' => 'Technician completed tickets retrieved successfully',
+            'data' => $result['data'],
+            'pagination' => $result['pagination']
         ]);
     }
 

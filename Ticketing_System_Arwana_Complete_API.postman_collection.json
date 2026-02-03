@@ -346,27 +346,6 @@
           "response": []
         },
         {
-          "name": "Get Ticket by status",
-          "id": "2800be3b-8234-4a31-966d-777dafd1c6ab",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/tickets/{{ticket_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "tickets",
-                "{{ticket_id}}"
-              ]
-            },
-            "description": "Mendapatkan detail ticket termasuk:\n- Data ticket lengkap\n- Comments\n- History/Logs\n- Assigned technician\n- Solution (jika sudah resolved)\n\nPermission: ticket.view"
-          },
-          "response": []
-        },
-        {
           "name": "Assign Ticket to Technician",
           "id": "e9372223-e76a-4b51-9c0f-cdf0e8923643",
           "request": {
@@ -641,6 +620,127 @@
               ]
             },
             "description": "Melihat semua ticket yang telah diselesaikan oleh seorang technician.\n\nPermission: user.view (helpdesk, supervisor, admin)\n\nPath Parameters:\n- user_id: ID technician user\n\nResponse:\n- message: Status message\n- data:\n  - technician_id: ID teknisi\n  - technician_name: Nama teknisi\n  - total_resolved: Total ticket yang diselesaikan\n  - resolved_tickets: Array of completion history records\n    - id: History ID\n    - ticket_id: ID ticket\n    - resolved_at: Waktu penyelesaian\n    - solution_text: Solusi yang diberikan\n    - ticket: Object berisi ticket info (ticket_number, subject, status)\n\nGunakan endpoint ini untuk melihat performa technician - berapa banyak ticket yang sudah diselesaikan."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Technician Completed Tickets",
+          "id": "fe73b8d1-9c4e-4f2f-8b9a-2d1e0c3a5f7b",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/technician/completed-tickets?status=&category_id=&search=&sort_by=updated_at&sort_order=desc&page=1&per_page=15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "technician",
+                "completed-tickets"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "Filter by specific status: 'resolved' or 'closed' (optional, default: both)"
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "description": "Filter by category ID (optional)"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by ticket number, subject, or description (optional)"
+                },
+                {
+                  "key": "sort_by",
+                  "value": "updated_at",
+                  "description": "Sort by field: created_at, updated_at, ticket_number, subject (default: updated_at)"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "description": "Sort order: asc, desc (default: desc)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "description": "Items per page (default: 15, max: 100)"
+                }
+              ]
+            },
+            "description": "Endpoint khusus untuk teknisi melihat ticket yang sudah diselesaikan (resolved) dan ditutup (closed) yang di-assign ke mereka.\n\nRole: technician only\n\nQuery Parameters:\n- status: Filter spesifik 'resolved' atau 'closed' (optional, default: tampilkan keduanya)\n- category_id: Filter by category (optional)\n- search: Search by ticket_number, subject, atau description (optional)\n- sort_by: Sort by field (default: updated_at)\n- sort_order: asc/desc (default: desc)\n- page: Halaman (default: 1)\n- per_page: Items per halaman (default: 15, max: 100)\n\nResponse:\n- message: Status message\n- data: Array ticket dengan relasi (status, category, requester, department, assignment)\n- pagination: Object pagination (total, per_page, current_page, last_page, from, to)\n\nGunakan endpoint ini untuk teknisi melihat riwayat pekerjaan mereka yang sudah selesai."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Technician Task",
+          "id": "6a517e06-b205-4838-bf75-1294d3056231",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/technician/tickets?page=1&per_page=15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "technician",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "uuid": "b4bb41b2-0070-4678-ab4e-4522959a4f1b",
+                  "disabled": true
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "uuid": "8802e300-9b28-4f95-b2d3-f64fc4865510",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "uuid": "93ed1267-a63c-4a7b-ad6f-c9b23caf5f52",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_by",
+                  "value": "updated_at",
+                  "uuid": "aa4786f5-f48b-425e-9a99-9b52080f495e",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc",
+                  "uuid": "10ce20e4-70b1-4fb8-9162-95ee8d440dbb",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "uuid": "70f25cce-b1b6-4949-8772-8bb6236c90a0"
+                },
+                {
+                  "key": "per_page",
+                  "value": "15",
+                  "uuid": "2b13c848-89f7-4c3e-b1a2-cf718c72382d"
+                }
+              ]
+            },
+            "description": "Endpoint khusus untuk teknisi melihat ticket yang sudah diselesaikan (resolved) dan ditutup (closed) yang di-assign ke mereka.\n\nRole: technician only\n\nQuery Parameters:\n- status: Filter spesifik 'resolved' atau 'closed' (optional, default: tampilkan keduanya)\n- category_id: Filter by category (optional)\n- search: Search by ticket_number, subject, atau description (optional)\n- sort_by: Sort by field (default: updated_at)\n- sort_order: asc/desc (default: desc)\n- page: Halaman (default: 1)\n- per_page: Items per halaman (default: 15, max: 100)\n\nResponse:\n- message: Status message\n- data: Array ticket dengan relasi (status, category, requester, department, assignment)\n- pagination: Object pagination (total, per_page, current_page, last_page, from, to)\n\nGunakan endpoint ini untuk teknisi melihat riwayat pekerjaan mereka yang sudah selesai."
           },
           "response": []
         }
@@ -1312,37 +1412,37 @@
   },
   "variable": [
     {
-      "id": "11ad5772-8f04-43f9-a264-4eec617f719c",
+      "id": "73743092-be2a-486d-a3a8-f82f2079b790",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "d381c1fe-93d0-46ce-9832-5b7c5437cba7",
+      "id": "a17b33ab-9618-44ec-bd2d-880a977ba936",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "81b26244-84e0-4faa-96e7-f5deb32998db",
+      "id": "c23faef2-35ba-4a9c-a60b-5d2009429393",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "ca16eb47-bafd-4a1b-ae9e-a25621ee7c45",
+      "id": "49672cc0-5699-4b1a-a2d1-179101433df2",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "2f11fb14-1e91-4082-bc9c-970ea91e78ea",
+      "id": "5a7b8666-569e-4368-bbcd-d65ea5a1fde5",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "0fe0791e-f654-41e7-b06f-d66a8907b147",
+      "id": "313520ff-c956-403b-9b2c-c7d24a1ed197",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

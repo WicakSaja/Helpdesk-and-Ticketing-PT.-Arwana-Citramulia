@@ -297,10 +297,23 @@ class UserManagementController extends Controller
     /**
      * GET /users/{user}/resolved-tickets
      * Lihat semua ticket yang telah diselesaikan oleh technician
+     * Accessible by: master-admin, helpdesk, or technician viewing their own data
      */
     public function resolvedTickets(Request $request, User $user)
     {
-        $this->checkCanViewUsers($request->user());
+        $currentUser = $request->user();
+        
+        // Allow if master-admin or helpdesk
+        if ($currentUser->hasPermissionTo('user.view')) {
+            // Has permission to view all users
+        } 
+        // Allow if technician viewing their own data
+        elseif ($currentUser->hasRole('technician') && $currentUser->id === $user->id) {
+            // Allow technician to view their own resolved tickets
+        } 
+        else {
+            abort(403, 'You do not have permission to view this user\'s resolved tickets');
+        }
 
         // Load resolved ticket histories dengan relasi ticket
         $resolvedTickets = $this->queryService->getResolvedTickets($user);

@@ -5,6 +5,7 @@ namespace App\Http\Services\Dashboard;
 use App\Models\User;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
+use Carbon\Carbon;
 
 class RequesterDashboard
 {
@@ -85,8 +86,8 @@ class RequesterDashboard
                     'status' => $ticket->status ? [
                         'id' => $ticket->status->id,
                         'name' => $ticket->status->name,
-                        'created_at' => $ticket->status->created_at->format('Y-m-d H:i:s'),
-                        'updated_at' => $ticket->status->updated_at->format('Y-m-d H:i:s'),
+                        'created_at' => $this->formatDateTime($ticket->status->created_at),
+                        'updated_at' => $this->formatDateTime($ticket->status->updated_at),
                     ] : null,
                     'category' => $ticket->category ? [
                         'id' => $ticket->category->id,
@@ -120,5 +121,18 @@ class RequesterDashboard
                 ];
             })
             ->toArray();
+    }
+
+    private function formatDateTime($value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
 }

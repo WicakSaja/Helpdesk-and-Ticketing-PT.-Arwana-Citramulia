@@ -250,54 +250,15 @@
 
 @section('content')
     <div class="page-header">
-        <h1 class="page-title">Daftar Tugas (3)</h1>
+        <h1 class="page-title" id="taskTitle">Daftar Tugas</h1>
     </div>
 
-    <div class="task-card bd-mech">
-        <div class="task-header">
-            <span class="task-id txt-mech">#TKT-002</span>
-            <span class="task-time"><i class="fa-regular fa-clock"></i> 30 Menit lalu</span>
-        </div>
-        <div class="task-body">
-            <h3>Ganti Bearing Motor Conveyor Line 2</h3>
-            <p>Supervisor melaporkan bunyi kasar pada motor utama conveyor finish line. Indikasi bearing pecah.</p>
-            <div class="task-meta">
-                <div class="meta-tag"><i class="fa-solid fa-building"></i> Produksi</div>
-                <div class="meta-tag"><i class="fa-solid fa-wrench"></i> Mechanical</div>
+    <div id="taskList">
+        <div class="task-card">
+            <div class="task-body">
+                <h3>Loading...</h3>
+                <p>Sedang memuat daftar tugas.</p>
             </div>
-        </div>
-        <div class="action-group">
-            <button class="btn-action btn-detail"
-                onclick="openDetail('#TKT-002', 'Ganti Bearing Motor', 'Mesin bunyi kasar di Line 2.', 'Produksi', 'Spv. Andi')">
-                <i class="fa-regular fa-eye"></i> Detail
-            </button>
-            <button class="btn-action btn-update" onclick="openUpdate('#TKT-002', 'Ganti Bearing Motor')">
-                <i class="fa-solid fa-pen-to-square"></i> Update Status
-            </button>
-        </div>
-    </div>
-
-    <div class="task-card bd-it">
-        <div class="task-header">
-            <span class="task-id txt-it">#TKT-005</span>
-            <span class="task-time">2 Jam lalu</span>
-        </div>
-        <div class="task-body">
-            <h3>Install Ulang PC Admin Gudang</h3>
-            <p>PC terkena virus dan lambat. User meminta install ulang Windows 10 dan Office lengkap.</p>
-            <div class="task-meta">
-                <div class="meta-tag"><i class="fa-solid fa-warehouse"></i> Gudang</div>
-                <div class="meta-tag"><i class="fa-solid fa-desktop"></i> IT Support</div>
-            </div>
-        </div>
-        <div class="action-group">
-            <button class="btn-action btn-detail"
-                onclick="openDetail('#TKT-005', 'Install Ulang PC', 'PC Lambat kena virus.', 'Gudang', 'Staff Budi')">
-                <i class="fa-regular fa-eye"></i> Detail
-            </button>
-            <button class="btn-action btn-update" onclick="openUpdate('#TKT-005', 'Install Ulang PC')">
-                <i class="fa-solid fa-pen-to-square"></i> Update Status
-            </button>
         </div>
     </div>
 
@@ -375,6 +336,128 @@
 
 @section('scripts')
     <script>
+        async function loadTechnicianTasks() {
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+
+            try {
+                const response = await fetch('{{ url("/api/technician/tickets") }}?page=1&per_page=15', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const tickets = result.data || [];
+                document.getElementById('taskTitle').innerText = `Daftar Tugas (${tickets.length})`;
+
+                renderTasks(tickets);
+            } catch (error) {
+                document.getElementById('taskList').innerHTML = `
+                    <div class="task-card">
+                        <div class="task-body">
+                            <h3>Gagal memuat data</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderTasks(tickets) {
+            if (!tickets.length) {
+                document.getElementById('taskList').innerHTML = `
+                    <div class="task-card">
+                        <div class="task-body">
+                            <h3>Tidak ada tugas</h3>
+                            <p>Belum ada ticket yang di-assign ke Anda.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = tickets.map(ticket => {
+                const categoryName = ticket.category?.name || 'Unknown';
+                const statusName = ticket.status?.name || 'unknown';
+                const requesterName = ticket.requester?.name || 'Unknown';
+                const requesterDept = ticket.requester?.department?.name || 'Unknown';
+                const createdAt = formatDate(ticket.created_at);
+                const cardClass = getCategoryClass(categoryName);
+                const textClass = getCategoryTextClass(categoryName);
+
+                return `
+                    <div class="task-card ${cardClass}">
+                        <div class="task-header">
+                            <span class="task-id ${textClass}">#${ticket.ticket_number}</span>
+                            <span class="task-time"><i class="fa-regular fa-clock"></i> ${createdAt}</span>
+                        </div>
+                        <div class="task-body">
+                            <h3>${ticket.subject}</h3>
+                            <p>${ticket.description || '-'}</p>
+                            <div class="task-meta">
+                                <div class="meta-tag"><i class="fa-solid fa-building"></i> ${requesterDept}</div>
+                                <div class="meta-tag"><i class="fa-solid fa-tag"></i> ${categoryName}</div>
+                                <div class="meta-tag"><i class="fa-solid fa-circle-info"></i> ${statusName}</div>
+                            </div>
+                        </div>
+                        <div class="action-group">
+                            <button class="btn-action btn-detail"
+                                onclick="openDetail('#${ticket.ticket_number}', '${escapeHtml(ticket.subject)}', '${escapeHtml(ticket.description || '-')}', '${escapeHtml(requesterDept)}', '${escapeHtml(requesterName)}')">
+                                <i class="fa-regular fa-eye"></i> Detail
+                            </button>
+                            <button class="btn-action btn-update" onclick="openUpdate('#${ticket.ticket_number}', '${escapeHtml(ticket.subject)}')">
+                                <i class="fa-solid fa-pen-to-square"></i> Update Status
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('taskList').innerHTML = html;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getCategoryClass(category) {
+            const name = (category || '').toLowerCase();
+            if (name.includes('hardware') || name.includes('mechanical')) return 'bd-mech';
+            if (name.includes('it') || name.includes('software')) return 'bd-it';
+            return '';
+        }
+
+        function getCategoryTextClass(category) {
+            const name = (category || '').toLowerCase();
+            if (name.includes('hardware') || name.includes('mechanical')) return 'txt-mech';
+            if (name.includes('it') || name.includes('software')) return 'txt-it';
+            return '';
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function openDetail(id, subject, desc, dept, user) {
             document.getElementById('dId').innerText = id;
             document.getElementById('dUser').innerText = user;
@@ -417,5 +500,9 @@
                 event.target.style.display = 'none';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTechnicianTasks();
+        });
     </script>
 @endsection

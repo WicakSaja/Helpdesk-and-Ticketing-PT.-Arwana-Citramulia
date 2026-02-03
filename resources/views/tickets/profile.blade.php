@@ -15,15 +15,15 @@
         <div class="profile-card">
             <div class="avatar-wrapper">
                 <img id="profile_avatar"
-                    src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user() ? auth()->user()->name : 'User Requester') }}&background=d62828&color=fff&size=200"
+                    src=""
                     alt="Avatar" class="avatar-img">
             </div>
-            <h3 id="profile_name_display" class="user-name">{{ auth()->user() ? auth()->user()->name : 'Guest' }}</h3>
+            <h3 id="profile_name_display" class="user-name">Loading...</h3>
             <span id="profile_role"
-                class="user-role">{{ auth()->user() ? auth()->user()->getRoleNames()->first() : 'User' }}</span>
+                class="user-role">-</span>
             <div class="profile-stats">
                 <div class="stat-item">
-                    <h4 id="profile_ticket_count">{{ auth()->user() ? auth()->user()->tickets()->count() : 0 }}</h4>
+                    <h4 id="profile_ticket_count">0</h4>
                     <span>Total Tiket</span>
                 </div>
             </div>
@@ -36,13 +36,13 @@
                 <div class="form-grid">
                     <div class="form-group"><label class="form-label">Nama Lengkap</label><input type="text"
                             id="profile_name" name="profile_name" class="form-input"
-                            value="{{ auth()->user() ? auth()->user()->name : '' }}" disabled></div>
+                            disabled></div>
                     <div class="form-group"><label class="form-label">Nomor Telepon</label><input type="text"
                             id="profile_phone" name="profile_phone" class="form-input"
-                            value="{{ auth()->user() ? auth()->user()->phone : '' }}" disabled></div>
+                            disabled></div>
                 </div>
                 <div class="form-group"><label class="form-label">Email</label><input type="email" id="profile_email"
-                        name="profile_email" class="form-input" value="{{ auth()->user() ? auth()->user()->email : '' }}"
+                        name="profile_email" class="form-input"
                         disabled></div>
 
                 <h4 class="form-section-title" style="margin-top: 30px;"><i class="fa-solid fa-lock"
@@ -85,49 +85,46 @@
             }
         }
 
-        // Fetch user/profile and ticket count via API if possible
+        // Load profile data from sessionStorage
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                const headers = (typeof TokenManager !== 'undefined' && typeof TokenManager.getHeaders ===
-                    'function') ? TokenManager.getHeaders() : {
-                    'Content-Type': 'application/json'
-                };
-
-                // /api/me
-                const meRes = await fetch(API_URL + '/api/me', {
-                    headers
-                });
-                if (meRes.ok) {
-                    const meJson = await meRes.json();
-                    const user = meJson.user || meJson.data || meJson;
-                    const roles = meJson.roles || user.roles || [];
-                    if (user && user.name) {
-                        const nameEl = document.getElementById('profile_name_display');
-                        const roleEl = document.getElementById('profile_role');
-                        const avatarImg = document.getElementById('profile_avatar');
-                        const nameInput = document.getElementById('profile_name');
-                        const phoneInput = document.getElementById('profile_phone');
-                        const emailInput = document.getElementById('profile_email');
-                        if (nameEl) nameEl.innerText = user.name;
-                        if (roleEl) roleEl.innerText = (roles && roles.length) ? roles[0] : (user.role ||
-                            'User');
-                        if (avatarImg) avatarImg.src =
-                            `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=d62828&color=fff&size=200`;
-                        if (nameInput) nameInput.value = user.name || '';
-                        if (phoneInput) phoneInput.value = user.phone || '';
-                        if (emailInput) emailInput.value = user.email || '';
-                    }
+                const authUserJson = sessionStorage.getItem('auth_user');
+                const authRolesJson = sessionStorage.getItem('auth_roles');
+                
+                if (!authUserJson) {
+                    console.warn('No auth_user found in sessionStorage');
+                    return;
                 }
 
-                // /api/my-tickets to get count
+                const user = JSON.parse(authUserJson);
+                const roles = authRolesJson ? JSON.parse(authRolesJson) : [];
+                
+                // Update profile display
+                const nameEl = document.getElementById('profile_name_display');
+                const roleEl = document.getElementById('profile_role');
+                const avatarImg = document.getElementById('profile_avatar');
+                const nameInput = document.getElementById('profile_name');
+                const phoneInput = document.getElementById('profile_phone');
+                const emailInput = document.getElementById('profile_email');
+                const ticketCountEl = document.getElementById('profile_ticket_count');
+
+                if (nameEl) nameEl.innerText = user.name || 'User';
+                if (roleEl) roleEl.innerText = (roles && roles.length > 0) ? roles[0] : 'Requester';
+                if (avatarImg) avatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=d62828&color=fff&size=200`;
+                if (nameInput) nameInput.value = user.name || '';
+                if (phoneInput) phoneInput.value = user.phone || '';
+                if (emailInput) emailInput.value = user.email || '';
+
+                // Fetch ticket count from API
                 const ticketsRes = await fetch(API_URL + '/api/my-tickets', {
-                    headers
+                    headers: (typeof TokenManager !== 'undefined' && typeof TokenManager.getHeaders === 'function') 
+                        ? TokenManager.getHeaders() 
+                        : {'Content-Type': 'application/json'}
                 });
                 if (ticketsRes.ok) {
                     const ticketsJson = await ticketsRes.json();
                     const items = ticketsJson.data || (Array.isArray(ticketsJson) ? ticketsJson : []);
-                    const statCountEl = document.querySelector('.stat-item h4');
-                    if (statCountEl) statCountEl.innerText = items.length || 0;
+                    if (ticketCountEl) ticketCountEl.innerText = items.length || 0;
                 }
 
                 // Attach handler for password change (friendly messages if backend not available)

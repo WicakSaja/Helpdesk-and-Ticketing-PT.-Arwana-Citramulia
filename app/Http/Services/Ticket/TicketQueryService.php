@@ -18,8 +18,10 @@ class TicketQueryService
      * - sort_order: sort order (asc, desc) - default: desc
      * - page: halaman (default: 1)
      * - per_page: jumlah item per halaman (default: 15)
+     * - exclude_status: array status untuk dikecualikan
+     * - include_status: array status untuk diinclude (hanya ticket dengan status ini yang akan muncul)
      */
-    public function listTickets(User $user, ?string $status = null, ?int $categoryId = null, ?int $assignedTo = null, ?string $search = null, string $sortBy = 'created_at', string $sortOrder = 'desc', int $page = 1, int $perPage = 15)
+    public function listTickets(User $user, ?string $status = null, ?int $categoryId = null, ?int $assignedTo = null, ?string $search = null, string $sortBy = 'created_at', string $sortOrder = 'desc', int $page = 1, int $perPage = 15, ?array $excludeStatus = null, ?array $includeStatus = null)
     {
         $query = Ticket::with(['status', 'category', 'requester.department', 'assignment.technician']);
 
@@ -27,8 +29,8 @@ class TicketQueryService
         if ($user->hasRole('requester')) {
             $query->where('requester_id', $user->id);
         } elseif ($user->hasRole('technician')) {
-            $query->whereHas('assignments', fn ($a) =>
-                $a->where('technician_id', $user->id)
+            $query->whereHas('assignment', fn ($a) =>
+                $a->where('assigned_to', $user->id)
             );
         }
 
@@ -36,6 +38,22 @@ class TicketQueryService
         if ($status) {
             $query->whereHas('status', fn ($q) =>
                 $q->where('name', strtolower($status))
+            );
+        }
+
+        // Include only specific statuses
+        if ($includeStatus && count($includeStatus) > 0) {
+            $normalized = array_map(fn ($s) => strtolower($s), $includeStatus);
+            $query->whereHas('status', fn ($q) =>
+                $q->whereIn('name', $normalized)
+            );
+        }
+
+        // Exclude statuses
+        if ($excludeStatus && count($excludeStatus) > 0) {
+            $normalized = array_map(fn ($s) => strtolower($s), $excludeStatus);
+            $query->whereHas('status', fn ($q) =>
+                $q->whereNotIn('name', $normalized)
             );
         }
 

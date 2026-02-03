@@ -1,4 +1,4 @@
-/**
+/*
  * Token Manager - Manage authentication token and user data
  * Handles token, user data, and roles in sessionStorage
  */
@@ -125,9 +125,9 @@ const TokenManager = {
         } else if (this.hasRole('supervisor')) {
             window.location.href = '/dashboard/supervisor';
         } else if (this.hasRole('helpdesk')) {
-            window.location.href = '/helpdesk/incoming';
+            window.location.href = '/dashboard/helpdesk';
         } else if (this.hasRole('technician')) {
-            window.location.href = '/technician/dashboard';
+            window.location.href = '/dashboard/technician';
         } else if (this.hasRole('requester')) {
             window.location.href = '/dashboard/requester';
         } else {
@@ -152,9 +152,9 @@ const TokenManager = {
         } else if (this.hasRole('supervisor')) {
             return '/dashboard/supervisor';
         } else if (this.hasRole('helpdesk')) {
-            return '/helpdesk/incoming';
+            return '/dashboard/helpdesk';
         } else if (this.hasRole('technician')) {
-            return '/technician/dashboard';
+            return '/dashboard/technician';
         } else {
             return '/dashboard/requester';
         }

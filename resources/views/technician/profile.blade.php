@@ -49,17 +49,17 @@
         
         <div class="profile-card">
             <div class="avatar-wrapper">
-                <img src="https://ui-avatars.com/api/?name=Teknisi+Andi&background=d62828&color=fff&size=256" alt="Avatar" class="avatar-img">
+                <img id="profile_avatar" src="" alt="Avatar" class="avatar-img">
             </div>
-            <h3 class="user-name">Teknisi Andi</h3>
-            <span class="user-role">Mechanical Support</span>
+            <h3 id="profile_name_display" class="user-name">Loading...</h3>
+            <span id="profile_role" class="user-role">-</span>
 
             <div style="margin-top: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
                 
                 <div style="text-align: left;">
                     <small style="color: #999; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">STATUS</small>
                     <div style="font-size: 13px; color: #2e7d32; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-circle" style="font-size: 8px;"></i> Available
+                        <i class="fa-solid fa-circle" style="font-size: 8px;"></i> <span id="profile_status">Loading...</span>
                     </div>
                 </div>
 
@@ -68,7 +68,7 @@
                 <div style="text-align: right;">
                     <small style="color: #999; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;">SELESAI BULAN INI</small>
                     <div style="font-size: 13px; color: #333; font-weight: 700; margin-top: 4px;">
-                        45 Tiket
+                        <span id="profile_tickets_count">-</span> Tiket
                     </div>
                 </div>
 
@@ -82,22 +82,22 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-input" value="Andi Pratama" disabled>
+                        <input type="text" class="form-input" id="profile_name" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">NIK / ID</label>
-                        <input type="text" class="form-input" value="TECH-005" disabled>
+                        <label class="form-label">ID User</label>
+                        <input type="text" class="form-input" id="profile_id" disabled>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">Email Perusahaan</label>
-                        <input type="email" class="form-input" value="andi.tech@arwanacitra.com" disabled>
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="profile_email" disabled>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Divisi / Spesialisasi</label>
-                        <input type="text" class="form-input" value="Maintenance - Mechanical" disabled>
+                        <label class="form-label">Nomor Telepon</label>
+                        <input type="text" class="form-input" id="profile_phone" disabled>
                     </div>
                 </div>
 
@@ -144,5 +144,70 @@
             icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
+
+    // Load profile data from sessionStorage
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            const authUserJson = sessionStorage.getItem('auth_user');
+            const authRolesJson = sessionStorage.getItem('auth_roles');
+            
+            if (!authUserJson) {
+                console.warn('No auth_user found in sessionStorage');
+                return;
+            }
+
+            const user = JSON.parse(authUserJson);
+            const roles = authRolesJson ? JSON.parse(authRolesJson) : [];
+            
+            // Update profile display
+            const nameDisplay = document.getElementById('profile_name_display');
+            const roleDisplay = document.getElementById('profile_role');
+            const avatarImg = document.getElementById('profile_avatar');
+            const statusEl = document.getElementById('profile_status');
+            const ticketsCountEl = document.getElementById('profile_tickets_count');
+
+            // Update form inputs
+            const nameInput = document.getElementById('profile_name');
+            const idInput = document.getElementById('profile_id');
+            const emailInput = document.getElementById('profile_email');
+            const phoneInput = document.getElementById('profile_phone');
+
+            if (nameDisplay) nameDisplay.textContent = user.name || '-';
+            if (roleDisplay) roleDisplay.textContent = (roles && roles.length > 0) ? roles[0] : 'Technician';
+            if (avatarImg) avatarImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=2e7d32&color=fff&size=256`;
+            if (statusEl) statusEl.textContent = user.is_active ? 'Available' : 'Offline';
+
+            if (nameInput) nameInput.value = user.name || '';
+            if (idInput) idInput.value = user.id || '';
+            if (emailInput) emailInput.value = user.email || '';
+            if (phoneInput) phoneInput.value = user.phone || '';
+
+            // Fetch resolved tickets count from API
+            try {
+                const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+                const resolvedRes = await fetch(`/api/users/${user.id}/resolved-tickets`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (resolvedRes.ok) {
+                    const resolvedJson = await resolvedRes.json();
+                    const totalResolved = resolvedJson.data?.total_resolved || 0;
+                    if (ticketsCountEl) ticketsCountEl.textContent = totalResolved;
+                } else {
+                    if (ticketsCountEl) ticketsCountEl.textContent = '-';
+                }
+            } catch (error) {
+                console.error('Error fetching resolved tickets:', error);
+                if (ticketsCountEl) ticketsCountEl.textContent = '-';
+            }
+
+        } catch (error) {
+            console.error('Error loading profile from sessionStorage:', error);
+        }
+    });
 </script>
 @endsection

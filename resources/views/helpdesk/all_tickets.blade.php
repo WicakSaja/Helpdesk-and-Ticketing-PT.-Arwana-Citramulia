@@ -149,9 +149,5 @@
 @endsection
 
 @section('scripts')
-    <script>
-        // Definisi Global API URL (Backup jika belum ada)
-        if (typeof API_URL === 'undefined') var API_URL = 'http://127.0.0.1:8000';
-    </script>
     <script src="{{ asset('js/helpdesk-all-tickets.js') }}?v={{ time() }}"></script>
 @endsection

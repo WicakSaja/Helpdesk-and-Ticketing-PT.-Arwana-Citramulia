@@ -61,6 +61,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/tickets/{ticket}/logs', [TicketController::class, 'logs']);
 
+    Route::get('/technician/tickets', [TicketController::class, 'technicianTickets'])
+        ->middleware('role:technician');
+    
+    Route::get('/technician/completed-tickets', [TicketController::class, 'technicianCompletedTickets'])
+        ->middleware('role:technician');
+
     // Ticket Assignment (Helpdesk/Supervisor)
     Route::post('/tickets/{ticket}/assign', [TicketController::class, 'assign'])
         ->middleware('permission:ticket.assign');
@@ -91,9 +97,13 @@ Route::middleware('auth:sanctum', 'permission:user.view')->group(function () {
     Route::get('/users/by-role/{roleName}', [UserManagementController::class, 'getUsersByRole']);
     Route::get('/users/{user}', [UserManagementController::class, 'show'])
         ->whereNumber('user');
+    Route::get('/technicians/active', [UserManagementController::class, 'getActiveTechnicians']);
+});
+
+// GET Resolved Tickets (Master Admin + Helpdesk + Technician viewing their own)
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{user}/resolved-tickets', [UserManagementController::class, 'resolvedTickets'])
         ->whereNumber('user');
-    Route::get('/technicians/active', [UserManagementController::class, 'getActiveTechnicians']);
 });
 
 // POST/PUT/DELETE Endpoints (Master Admin Only)
