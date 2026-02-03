@@ -76,28 +76,16 @@ document.addEventListener("DOMContentLoaded", function () {
       '<tr><td colspan="5" style="text-align:center; padding:40px 0; color:#666">Memuat tiket...</td></tr>';
 
     try {
-      const res = await fetchWithAuth(
-        `${API_URL}/api/tickets?page=${page}&per_page=${PER_PAGE}&status=open`,
-      );
-      if (!res || !res.ok) throw new Error("Gagal load data");
+      // Use the same source as Dashboard for unassigned tickets
+      const res = await fetchWithAuth(`${API_URL}/api/dashboard`);
+      if (!res || !res.ok) throw new Error("Gagal load data dashboard");
 
       const json = await res.json();
-      let tickets = json.data || (Array.isArray(json) ? json : []);
-      const meta = json.meta || null;
+      const data = json.data || {};
+      let tickets = data.unassigned_tickets || [];
 
-      // Filter: Status Open + Not Assigned
-      tickets = tickets.filter((t) => {
-        const statusVal = t.status?.name || t.status || "";
-        const status = (
-          typeof statusVal === "string" ? statusVal : ""
-        ).toLowerCase();
-        const isAssigned = t.assignment || t.assigned_to || t.technician_id;
-        return (status === "open" || status === "new") && !isAssigned;
-      });
-
-      // Always update badge count (even if 0)
+      // Update badge count based on dashboard count
       updateBadgeCount(tickets.length);
-      // Also trigger global badge update for sidebar
       if (window.updateOpenUnassignedCount) {
         window.updateOpenUnassignedCount();
       }
@@ -109,81 +97,24 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Render using fields returned by dashboard API
       ticketsBody.innerHTML = tickets.map(renderTicketRow).join("");
 
-      // Bind assign buttons only (use selector that excludes refresh button)
+      // Update requester/department if some data missing
+      tickets.forEach((t) => updateRequesterDetails(t));
+
+      // Bind assign buttons
       document
         .querySelectorAll("button.btn-assign[data-ticket-id]")
         .forEach((btn) => {
           btn.addEventListener("click", function () {
+            // Use ticket id (numeric) and subject from data attributes
             openAssignModal(this.dataset.ticketId, this.dataset.subject);
           });
         });
 
-      renderPagination(meta, tickets.length);
-
-      // Fetch full ticket details to populate requester & department
-      Promise.all(
-        tickets.map((t) =>
-          fetchWithAuth(`${API_URL}/api/tickets/${t.id}`)
-            .then((r) => (r && r.ok ? r.json() : null))
-            .then(async (json) => {
-              if (!json) return;
-              const ticket = json.data || json.ticket || json;
-
-              // Log first ticket for debugging
-              if (tickets.indexOf(t) === 0) {
-                console.log("📌 First ticket detail structure:", {
-                  id: ticket.id,
-                  requester_name: ticket.requester?.name,
-                  requester_department: ticket.requester?.department?.name,
-                  ticket_department: ticket.department?.name,
-                });
-              }
-
-              // Update requester name in DOM
-              const reqEl = document.getElementById(`req-${t.id}`);
-              if (reqEl && ticket.requester?.name) {
-                reqEl.innerText = escapeHtml(ticket.requester.name);
-              }
-              // Update department in DOM with multiple fallback paths
-              const deptEl = document.getElementById(`dept-${t.id}`);
-              if (deptEl) {
-                let deptName =
-                  ticket.requester?.department?.name ||
-                  ticket.department?.name ||
-                  ticket.requester?.departemen ||
-                  ticket.departemen ||
-                  null;
-
-                // If department still not found, fetch user detail
-                if (!deptName && ticket.requester?.id) {
-                  try {
-                    const userRes = await fetchWithAuth(
-                      `${API_URL}/api/users/${ticket.requester.id}`,
-                    );
-                    if (userRes && userRes.ok) {
-                      const userData = await userRes.json();
-                      const user = userData.data || userData.user || userData;
-                      deptName =
-                        user.department?.name || user.departemen || null;
-                      console.log(
-                        `✨ Fetched user dept for ${t.id}:`,
-                        deptName,
-                      );
-                    }
-                  } catch (e) {
-                    console.warn("Failed to fetch user for department", e);
-                  }
-                }
-                deptEl.innerText = escapeHtml(deptName || "-");
-              }
-            })
-            .catch((e) =>
-              console.warn(`Failed to fetch detail for ticket ${t.id}`, e),
-            ),
-        ),
-      ).catch((e) => console.warn("Promise.all error", e));
+      // Dashboard response does not include pagination meta for tickets; keep it simple
+      renderPagination(null, tickets.length);
     } catch (err) {
       console.error("Error loading tickets", err);
       ticketsBody.innerHTML =
@@ -192,23 +123,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderTicketRow(t) {
-    const ticketNum = t.ticket_number || `#${t.id}`;
+    const ticketNum =
+      t.ticket_number || t.ticketNumber || (t.id ? `#${t.id}` : "-");
     const subject = escapeHtml(t.subject || t.title || "-");
-    const category = escapeHtml(t.category?.name || "-");
-    const requester = escapeHtml(t.requester?.name || t.requester_name || "-");
-    const date = timeAgo(t.created_at || t.createdAt);
+    const category = escapeHtml(t.category?.name || t.category || "-");
+    const requester = escapeHtml(
+      t.requester?.name || t.requester_name || t.requester_name_text || "-",
+    );
+    const date = timeAgo(t.created_at || t.createdAt || t.created_at_text);
+
+    // department: prefer ticket.department.name then requester.department
+    const deptName = escapeHtml(
+      t.department?.name ||
+        t.requester?.department?.name ||
+        t.department ||
+        "-",
+    );
 
     return `
       <tr id="ticket-row-${t.id}">
         <td>
-          <div style="font-weight:700; font-size:15px; margin-bottom:6px">${subject}</div>
-          <div style="font-size:12px; color:#888">${ticketNum} • Requester: <span id="req-${t.id}">${requester}</span></div>
+          <div class="ticket-subject">${subject}</div>
+          <div style="font-size:12px; color:#999">${ticketNum} • User: <span id="req-${t.id}">${requester}</span></div>
         </td>
-        <td><span class="badge-dept bg-blue" id="dept-${t.id}">-</span></td>
+        <td><span class="badge-dept bg-blue" id="dept-${t.id}">${deptName}</span></td>
         <td>${category}</td>
         <td>${date}</td>
         <td>
-          <button class="btn-assign" data-ticket-id="${t.id}" data-subject="${subject}">
+          <button class="btn-assign" data-ticket-id="${t.id}" data-subject="${subject}" data-ticket-number="${ticketNum}">
             <i class="fa-solid fa-user-plus"></i> Pilih Teknisi
           </button>
         </td>
@@ -252,10 +194,10 @@ document.addEventListener("DOMContentLoaded", function () {
     modalTicketSubject.innerText = subject;
     assignModal.style.display = "flex";
 
-    document.getElementById("modalAssignedTo").innerText =
-      "Requester: Loading...";
+    document.getElementById("modalAssignedTo").innerText = "User: Loading...";
+    document.getElementById("modalTicketDesc").innerText = "Loading...";
 
-    // Fetch ticket detail to get ticket_number and requester
+    // Fetch ticket detail to get ticket_number, requester, and description
     fetchWithAuth(`${API_URL}/api/tickets/${id}`)
       .then((r) => {
         if (!r || !r.ok) throw new Error("Detail fetch failed");
@@ -265,9 +207,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const t = json.data || json.ticket || json;
         const ticketNum = t.ticket_number || `#${t.id}`;
         const rName = t.requester?.name || t.requester_name || "-";
+        const description = t.description || "-";
         modalTicketId.innerText = ticketNum;
-        document.getElementById("modalAssignedTo").innerText =
-          `Requester: ${rName}`;
+        document.getElementById("modalAssignedTo").innerText = `User: ${rName}`;
+        document.getElementById("modalTicketDesc").innerText =
+          escapeHtml(description);
         // Preselect tech if already assigned
         if (t.assignment?.technician?.id && _techniciansCache) {
           techSelect.value = t.assignment.technician.id;
@@ -276,6 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((e) => {
         console.warn("Detail fetch error", e);
         modalTicketId.innerText = `#${id}`;
+        document.getElementById("modalTicketDesc").innerText = "-";
       });
 
     // Load tech list
@@ -310,7 +255,11 @@ document.addEventListener("DOMContentLoaded", function () {
       techLoading.style.display = "none";
     }
   }
-
+  {
+    const deptName = u.department?.name || u.departemen || "-";
+    const displayText = `${escapeHtml(u.name)} (${escapeHtml(deptName)})`;
+    return `<option value="${u.id}">${displayText}</option>`;
+  }
   function populateTechSelect(users) {
     techSelect.innerHTML =
       '<option value="">-- Pilih Personil --</option>' +
@@ -337,24 +286,33 @@ document.addEventListener("DOMContentLoaded", function () {
     saveBtn.disabled = true;
 
     try {
+      // Log ticketId/techId for debugging
+      console.log("Assigning ticket", ticketId, "to tech", techId);
+
       const res = await fetchWithAuth(
         `${API_URL}/api/tickets/${ticketId}/assign`,
         {
           method: "POST",
-          body: JSON.stringify({ assigned_to: techId }), // Adjust payload key if needed (e.g. technician_id)
+          body: JSON.stringify({ assigned_to: techId }),
         },
       );
 
       if (res && res.ok) {
+        const responseData = await res.json();
+        console.log("Assign success response:", responseData);
         Swal.fire("Berhasil", "Tiket berhasil ditugaskan.", "success");
         closeAssignModal();
-        loadTickets(currentPage); // Refresh list
+        loadTickets(currentPage); // Refresh incoming list
+        // Refresh dashboard if available
+        if (typeof window.loadDashboard === "function") window.loadDashboard();
       } else {
         const err = await res.json();
+        console.error("Assign error:", err);
         Swal.fire("Gagal", err.message || "Gagal assign tiket.", "error");
       }
     } catch (e) {
-      Swal.fire("Error", "Terjadi kesalahan sistem.", "error");
+      console.error("Assignment error:", e);
+      Swal.fire("Error", e.message || "Terjadi kesalahan sistem.", "error");
     } finally {
       saveBtn.innerText = "Simpan & Kirim";
       saveBtn.disabled = false;

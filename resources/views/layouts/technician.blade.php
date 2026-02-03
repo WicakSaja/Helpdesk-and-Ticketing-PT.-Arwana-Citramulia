@@ -10,9 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     @vite(['resources/css/global.css'])
-    <style>
-        @yield('css')
-    </style>
+    @yield('css')
 </head>
 
 <body>
