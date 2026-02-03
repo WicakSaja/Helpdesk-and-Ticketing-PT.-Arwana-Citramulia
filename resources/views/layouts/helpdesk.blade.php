@@ -90,7 +90,11 @@
                         const tickets = result.data ? result.data : (Array.isArray(result) ? result : []);
 
                         // Filter manual (jaga-jaga API balikin semua)
-                        count = tickets.filter(t => (t.status && t.status.toLowerCase() === 'pending')).length;
+                        count = tickets.filter(t => {
+                            let s = t.status;
+                            if (typeof s !== 'string') s = s && s.name ? s.name : '';
+                            return (s || '').toLowerCase() === 'pending';
+                        }).length;
 
                         if (count > 0) {
                             badge.innerText = count;

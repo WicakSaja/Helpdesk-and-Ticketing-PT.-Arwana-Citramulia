@@ -55,6 +55,8 @@
                         <div class="modal-desc-title">Deskripsi</div>
                         <div id="modalTicketDesc" class="modal-desc-text">-</div>
                     </div>
+
+
                 </div>
             </div>
 
@@ -79,7 +81,11 @@
 
 @section('scripts')
     <script>
-        window.API_URL = 'http://127.0.0.1:8000'; // Or use {{ url('/') }} in Blade
+        // Base API endpoints (use same URLs as dashboard for consistency)
+        window.API_URL = '{{ url('') }}';
+        window.DASHBOARD_API = '{{ url('/api/dashboard') }}';
+        window.TICKET_API_BASE = '{{ url('/api/tickets') }}';
+        window.TECHNICIANS_API = '{{ url('/api/users/by-role/technician') }}';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/helpdesk-incoming.js') }}?v={{ time() }}"></script>

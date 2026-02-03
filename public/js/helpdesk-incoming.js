@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const refreshBtn = document.getElementById("refreshTicketsBtn");
 
   let _techniciansCache = null;
+  // Pending preselection when ticket detail loads before tech list
+  let _pendingAssignedTechId = null;
   // Use a map for caching user details to reduce redundant network calls
   const _userCache = new Map();
 
@@ -77,7 +79,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       // Use the same source as Dashboard for unassigned tickets
-      const res = await fetchWithAuth(`${API_URL}/api/dashboard`);
+      const dashboardUrl = window.DASHBOARD_API || `${API_URL}/api/dashboard`;
+      console.debug("loadTickets: fetching dashboard from", dashboardUrl);
+      const res = await fetchWithAuth(dashboardUrl);
       if (!res || !res.ok) throw new Error("Gagal load data dashboard");
 
       const json = await res.json();
@@ -100,8 +104,12 @@ document.addEventListener("DOMContentLoaded", function () {
       // Render using fields returned by dashboard API
       ticketsBody.innerHTML = tickets.map(renderTicketRow).join("");
 
-      // Update requester/department if some data missing
-      tickets.forEach((t) => updateRequesterDetails(t));
+      // Update requester/department if some data missing (and enrich rows with full ticket detail)
+      tickets.forEach((t) => {
+        updateRequesterDetails(t);
+        // Also fetch full ticket detail to ensure ticket_number, requester and department display correctly in the row
+        populateRowDetailsIncoming(t.id);
+      });
 
       // Bind assign buttons
       document
@@ -161,9 +169,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Poll for new tickets without full reload
   async function checkForNewTickets() {
     try {
-      const res = await fetchWithAuth(
-        `${API_URL}/api/tickets?status=open&per_page=1`,
-      );
+      const pollUrl = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}?status=open&per_page=1`;
+      const res = await fetchWithAuth(pollUrl);
       if (!res || !res.ok) return;
 
       const json = await res.json();
@@ -198,7 +205,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("modalTicketDesc").innerText = "Loading...";
 
     // Fetch ticket detail to get ticket_number, requester, and description
-    fetchWithAuth(`${API_URL}/api/tickets/${id}`)
+    const ticketDetailUrl = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}/${id}`;
+    console.debug("Fetching ticket detail from", ticketDetailUrl);
+
+    fetchWithAuth(ticketDetailUrl)
       .then((r) => {
         if (!r || !r.ok) throw new Error("Detail fetch failed");
         return r.json();
@@ -212,9 +222,14 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("modalAssignedTo").innerText = `User: ${rName}`;
         document.getElementById("modalTicketDesc").innerText =
           escapeHtml(description);
-        // Preselect tech if already assigned
-        if (t.assignment?.technician?.id && _techniciansCache) {
-          techSelect.value = t.assignment.technician.id;
+
+        // Preselect tech if already assigned (if tech list not yet loaded, store pending id)
+        if (t.assignment?.technician?.id) {
+          if (_techniciansCache) {
+            techSelect.value = t.assignment.technician.id;
+          } else {
+            _pendingAssignedTechId = t.assignment.technician.id;
+          }
         }
       })
       .catch((e) => {
@@ -239,9 +254,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     techLoading.style.display = "block";
     try {
-      const res = await fetchWithAuth(
-        `${API_URL}/api/users/by-role/technician`,
-      );
+      const techUrl =
+        window.TECHNICIANS_API || `${API_URL}/api/users/by-role/technician`;
+      console.debug("loadTechnicians: fetching from", techUrl);
+      const res = await fetchWithAuth(techUrl);
       if (!res || !res.ok) throw new Error("Gagal fetch teknisi");
 
       const json = await res.json();
@@ -255,17 +271,43 @@ document.addEventListener("DOMContentLoaded", function () {
       techLoading.style.display = "none";
     }
   }
-  {
-    const deptName = u.department?.name || u.departemen || "-";
-    const displayText = `${escapeHtml(u.name)} (${escapeHtml(deptName)})`;
-    return `<option value="${u.id}">${displayText}</option>`;
-  }
+
   function populateTechSelect(users) {
-    techSelect.innerHTML =
-      '<option value="">-- Pilih Personil --</option>' +
-      users
-        .map((u) => `<option value="${u.id}">${escapeHtml(u.name)}</option>`)
-        .join("");
+    console.debug("populateTechSelect: received", users?.length);
+    if (!Array.isArray(users)) users = [];
+
+    // dedupe by id
+    const uniq = Array.from(new Map(users.map((u) => [u.id, u])).values());
+
+    // Clear existing options
+    techSelect.options.length = 0;
+
+    // Default placeholder
+    const defaultOpt = document.createElement("option");
+    defaultOpt.value = "";
+    defaultOpt.text = "-- Pilih Personil --";
+    techSelect.appendChild(defaultOpt);
+
+    // Add options with department and emoji
+    uniq.forEach((u) => {
+      const deptName =
+        u.department?.name ||
+        u.department_name ||
+        u.departemen ||
+        u.dept ||
+        "N/A";
+      const display = `👨‍🔧 ${u.name} (${deptName})`;
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.text = display;
+      techSelect.appendChild(opt);
+    });
+
+    // If we had a pending selected technician, apply it now
+    if (_pendingAssignedTechId) {
+      techSelect.value = _pendingAssignedTechId;
+      _pendingAssignedTechId = null;
+    }
   }
 
   async function saveAssignment() {
@@ -289,26 +331,56 @@ document.addEventListener("DOMContentLoaded", function () {
       // Log ticketId/techId for debugging
       console.log("Assigning ticket", ticketId, "to tech", techId);
 
-      const res = await fetchWithAuth(
-        `${API_URL}/api/tickets/${ticketId}/assign`,
-        {
-          method: "POST",
-          body: JSON.stringify({ assigned_to: techId }),
-        },
-      );
+      const assignUrl = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}/${ticketId}/assign`;
+      console.debug("Assign POST to", assignUrl, "payload", {
+        assigned_to: techId,
+      });
+      const res = await fetchWithAuth(assignUrl, {
+        method: "POST",
+        body: JSON.stringify({ assigned_to: techId }),
+      });
 
       if (res && res.ok) {
-        const responseData = await res.json();
+        // Some APIs return 204 No Content; handle empty response gracefully
+        let responseData = null;
+        try {
+          if (res.status !== 204) {
+            responseData = await res.json();
+          }
+        } catch (parseErr) {
+          console.debug("Assign response parse error (non-fatal):", parseErr);
+        }
+
         console.log("Assign success response:", responseData);
         Swal.fire("Berhasil", "Tiket berhasil ditugaskan.", "success");
         closeAssignModal();
         loadTickets(currentPage); // Refresh incoming list
-        // Refresh dashboard if available
         if (typeof window.loadDashboard === "function") window.loadDashboard();
       } else {
-        const err = await res.json();
-        console.error("Assign error:", err);
-        Swal.fire("Gagal", err.message || "Gagal assign tiket.", "error");
+        // Safely parse error body (may not be JSON)
+        let errBody = null;
+        let errText = `Request failed with status ${res ? res.status : "unknown"}`;
+        try {
+          if (res) {
+            errBody = await res.clone().json();
+            errText = errBody.message || JSON.stringify(errBody) || errText;
+          }
+        } catch (parseErr) {
+          try {
+            errText = res ? await res.text() : errText;
+          } catch (_) {}
+        }
+
+        console.error(
+          "Assign error:",
+          res ? res.status : "no response",
+          errBody || errText,
+        );
+        Swal.fire(
+          "Gagal",
+          errBody?.message || errText || "Gagal assign tiket.",
+          "error",
+        );
       }
     } catch (e) {
       console.error("Assignment error:", e);
@@ -320,6 +392,39 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- HELPERS ---
+
+  // Fetch full ticket detail to enrich the rendered row (shows ticket_number, requester name, department)
+  async function populateRowDetailsIncoming(id) {
+    try {
+      const url = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}/${id}`;
+      console.debug("populateRowDetailsIncoming fetching", url);
+      const r = await fetchWithAuth(url);
+      if (!r || !r.ok) return;
+      const json = await r.json();
+      const t = json.data || json.ticket || json;
+
+      const requesterName = t.requester?.name || t.requester_name || "-";
+      const deptName =
+        t.requester?.department?.name ||
+        t.department?.name ||
+        t.department_name ||
+        "-";
+      const ticketNumber = t.ticket_number || `#${t.id}`;
+
+      const reqEl = document.getElementById(`req-${id}`);
+      const deptEl = document.getElementById(`dept-${id}`);
+
+      if (reqEl) {
+        // Update parent line to show ticket number and user
+        const parent = reqEl.parentNode;
+        parent.innerHTML = `${escapeHtml(ticketNumber)} • User: <span id="req-${id}">${escapeHtml(requesterName)}</span>`;
+      }
+
+      if (deptEl) deptEl.innerText = escapeHtml(deptName);
+    } catch (e) {
+      console.warn("populateRowDetailsIncoming error", e);
+    }
+  }
 
   async function updateRequesterDetails(ticket) {
     const reqEl = document.getElementById(`req-${ticket.id}`);

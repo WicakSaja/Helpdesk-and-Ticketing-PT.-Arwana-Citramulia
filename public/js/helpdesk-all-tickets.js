@@ -134,7 +134,6 @@ document.addEventListener("DOMContentLoaded", function () {
       tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#d62828;"><i class="fa-solid fa-circle-exclamation"></i> <br />Gagal memuat data tiket.<br /><small style="font-size:11px; color:#999;">${escapeHtml(e.message)}</small></td></tr>`;
     }
   }
-
   // === 2. RENDER TABLE ===
   function renderTable(page) {
     currentPage = page;
@@ -267,19 +266,27 @@ document.addEventListener("DOMContentLoaded", function () {
         deptEl.innerText = deptName || "-";
       }
 
-      // 3. Update Technician
+      // 3. Update Technician (include department if available)
       if (techEl) {
+        let techText = "-";
         if (
           detail.assignment &&
           detail.assignment.technician &&
           detail.assignment.technician.name
-        )
-          techEl.innerText = detail.assignment.technician.name;
-        else if (detail.technician && detail.technician.name)
-          techEl.innerText = detail.technician.name;
-        else if (detail.assigned_to_name)
-          techEl.innerText = detail.assigned_to_name;
-        else techEl.innerText = "-";
+        ) {
+          const tech = detail.assignment.technician;
+          const techDept =
+            tech.department?.name || tech.department_name || tech.dept || null;
+          techText = techDept ? `${tech.name} (${techDept})` : tech.name;
+        } else if (detail.technician && detail.technician.name) {
+          const tech = detail.technician;
+          const techDept =
+            tech.department?.name || tech.department_name || tech.dept || null;
+          techText = techDept ? `${tech.name} (${techDept})` : tech.name;
+        } else if (detail.assigned_to_name) {
+          techText = detail.assigned_to_name;
+        }
+        techEl.innerText = techText;
       }
     }
   }
