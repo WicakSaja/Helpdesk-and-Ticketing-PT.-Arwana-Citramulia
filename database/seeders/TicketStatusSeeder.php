@@ -15,32 +15,32 @@ class TicketStatusSeeder extends Seeder
 
         TicketStatus::insert([
             [
-                'name' => 'Open',
+                'name' => 'open',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'In Progress',
+                'name' => 'in progress',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Assigned',
+                'name' => 'assigned',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Closed',
+                'name' => 'closed',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Waiting',
+                'name' => 'waiting',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'name' => 'Resolved',
+                'name' => 'resolved',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],

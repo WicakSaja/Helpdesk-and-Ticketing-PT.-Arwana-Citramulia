@@ -16,7 +16,7 @@ class TicketCrudService
      */
     public function createTicket(array $validated, int $requesterId): Ticket
     {
-        $status = TicketStatus::where('name', 'Open')->firstOrFail();
+        $status = TicketStatus::where('name', 'open')->firstOrFail();
 
         $ticket = Ticket::create([
             'ticket_number' => '',
@@ -41,7 +41,7 @@ class TicketCrudService
     public function closeTicket(Ticket $ticket): Ticket
     {
         $ticket->update([
-            'status_id' => TicketStatus::where('name', 'Closed')->first()->id,
+            'status_id' => TicketStatus::where('name', 'closed')->first()->id,
             'closed_at' => now(),
         ]);
 
@@ -65,7 +65,7 @@ class TicketCrudService
             );
 
             $ticket->update([
-                'status_id' => TicketStatus::where('name', 'Assigned')->firstOrFail()->id
+                'status_id' => TicketStatus::where('name', 'assigned')->firstOrFail()->id
             ]);
         });
 
@@ -89,12 +89,12 @@ class TicketCrudService
             return ['error' => 'You are not assigned to this ticket', 'status' => 403];
         }
 
-        if ($ticket->status->name !== 'Assigned') {
-            return ['error' => 'Ticket is not in Assigned status', 'status' => 422];
+        if ($ticket->status->name !== 'assigned') {
+            return ['error' => 'Ticket is not in assigned status', 'status' => 422];
         }
 
         $ticket->update([
-            'status_id' => TicketStatus::where('name', 'In Progress')->firstOrFail()->id
+            'status_id' => TicketStatus::where('name', 'in progress')->firstOrFail()->id
         ]);
 
         return ['ticket' => $ticket];
@@ -115,15 +115,15 @@ class TicketCrudService
             return ['error' => 'You are not assigned to this ticket', 'status' => 403];
         }
 
-        if ($ticket->status->name !== 'Assigned') {
-            return ['error' => 'Ticket is not in Assigned status', 'status' => 422];
+        if ($ticket->status->name !== 'assigned') {
+            return ['error' => 'Ticket is not in assigned status', 'status' => 422];
         }
 
         DB::transaction(function () use ($ticket) {
             $ticket->assignment()->delete();
 
             $ticket->update([
-                'status_id' => TicketStatus::where('name', 'Open')->firstOrFail()->id
+                'status_id' => TicketStatus::where('name', 'open')->firstOrFail()->id
             ]);
         });
 
@@ -137,8 +137,8 @@ class TicketCrudService
     {
         $ticket->load(['status', 'assignment']);
 
-        if ($ticket->status->name !== 'Resolved') {
-            return ['error' => 'Ticket is not in Resolved status', 'status' => 422];
+        if ($ticket->status->name !== 'resolved') {
+            return ['error' => 'Ticket is not in resolved status', 'status' => 422];
         }
 
         if (!$ticket->assignment) {
@@ -146,7 +146,7 @@ class TicketCrudService
         }
 
         $ticket->update([
-            'status_id' => TicketStatus::where('name', 'In Progress')->firstOrFail()->id
+            'status_id' => TicketStatus::where('name', 'in progress')->firstOrFail()->id
         ]);
 
         return ['ticket' => $ticket];
@@ -167,8 +167,8 @@ class TicketCrudService
             return ['error' => 'You are not assigned to this ticket', 'status' => 403];
         }
 
-        if ($ticket->status->name !== 'In Progress') {
-            return ['error' => 'Ticket must be in In Progress status to be resolved', 'status' => 422];
+        if ($ticket->status->name !== 'in progress') {
+            return ['error' => 'Ticket must be in in progress status to be resolved', 'status' => 422];
         }
 
         DB::transaction(function () use ($ticket, $technicianId, $solutionText) {
@@ -189,7 +189,7 @@ class TicketCrudService
             ]);
 
             $ticket->update([
-                'status_id' => TicketStatus::where('name', 'Resolved')->firstOrFail()->id,
+                'status_id' => TicketStatus::where('name', 'resolved')->firstOrFail()->id,
             ]);
         });
 
@@ -202,7 +202,7 @@ class TicketCrudService
     private function generateTicketNumber(int $ticketId): string
     {
         $year = date('Y');
-        $number = str_pad($ticketId, 6, '0', STR_PAD_LEFT);
+        $number = str_pad($ticketId, 5, '0', STR_PAD_LEFT);
         return "TKT-{$year}-{$number}";
     }
 }

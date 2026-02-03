@@ -31,11 +31,11 @@ class RequesterDashboard
      */
     private function getSummary(): array
     {
-        $openStatusId = TicketStatus::where('name', 'Open')->value('id');
-        $assignedStatusId = TicketStatus::where('name', 'Assigned')->value('id');
-        $inProgressStatusId = TicketStatus::where('name', 'In Progress')->value('id');
-        $resolvedStatusId = TicketStatus::where('name', 'Resolved')->value('id');
-        $closedStatusId = TicketStatus::where('name', 'Closed')->value('id');
+        $openStatusId = TicketStatus::where('name', 'open')->value('id');
+        $assignedStatusId = TicketStatus::where('name', 'assigned')->value('id');
+        $inProgressStatusId = TicketStatus::where('name', 'in progress')->value('id');
+        $resolvedStatusId = TicketStatus::where('name', 'resolved')->value('id');
+        $closedStatusId = TicketStatus::where('name', 'closed')->value('id');
 
         return [
             'total' => Ticket::where('requester_id', $this->requester->id)->count(),
@@ -60,7 +60,8 @@ class RequesterDashboard
             ->with([
                 'status:id,name,created_at,updated_at',
                 'category:id,name,description,created_at,updated_at',
-                'requester:id,name,email',
+                'requester:id,name,email,department_id',
+                'requester.department',
                 'assignment' => function ($q) {
                     $q->with('technician:id,name,email');
                 },
@@ -98,6 +99,10 @@ class RequesterDashboard
                         'id' => $ticket->requester->id,
                         'name' => $ticket->requester->name,
                         'email' => $ticket->requester->email,
+                        'department' => $ticket->requester->department ? [
+                            'id' => $ticket->requester->department->id,
+                            'name' => $ticket->requester->department->name,
+                        ] : null,
                     ] : null,
                     'assignment' => $ticket->assignment ? [
                         'id' => $ticket->assignment->id,

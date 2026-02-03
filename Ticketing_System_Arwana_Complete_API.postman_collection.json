@@ -326,6 +326,27 @@
         },
         {
           "name": "Get Ticket Detail",
+          "id": "5c6b69cf-8303-465a-a719-04683d4c4f16",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}"
+              ]
+            },
+            "description": "Mendapatkan detail ticket termasuk:\n- Data ticket lengkap\n- Comments\n- History/Logs\n- Assigned technician\n- Solution (jika sudah resolved)\n\nPermission: ticket.view"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket by status",
           "id": "2800be3b-8234-4a31-966d-777dafd1c6ab",
           "request": {
             "method": "GET",
@@ -1269,37 +1290,37 @@
   },
   "variable": [
     {
-      "id": "8d373d12-28b8-47f0-b98d-f17647e698db",
+      "id": "4a9401bd-9937-4747-8521-11dd046c76af",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "33f860f2-aefa-42ac-8ab2-70b3a4ad00d5",
+      "id": "5fb87377-95d2-4050-8e56-203c07b1e700",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "6889f7de-879e-4852-8779-951e91a2b860",
+      "id": "3bd6137c-770b-4b1d-b54d-d0f7758f4e00",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "5faee8bf-39ff-4b92-abe9-f7b04410753c",
+      "id": "44eb71d8-cd4d-4764-87f8-61620ceb1159",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "0a128561-be5b-41cf-818d-0c96d2969873",
+      "id": "12e9bfe7-ab96-429d-8b07-1887005d6d06",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "7220630d-bebe-4338-95c7-dd0168083926",
+      "id": "1d8a51a1-d5dd-4a1d-8cc6-f3e84cd4925c",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

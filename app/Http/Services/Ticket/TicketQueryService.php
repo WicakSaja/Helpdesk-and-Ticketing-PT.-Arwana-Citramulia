@@ -12,7 +12,7 @@ class TicketQueryService
      */
     public function listTickets(User $user)
     {
-        return Ticket::with(['status', 'category'])
+        return Ticket::with(['status', 'category', 'requester.department'])
             ->when($user->hasRole('requester'), fn ($q) =>
                 $q->where('requester_id', $user->id)
             )
@@ -31,7 +31,7 @@ class TicketQueryService
     public function myTickets(User $user)
     {
         return Ticket::where('requester_id', $user->id)
-            ->with(['status', 'category', 'requester:id,name,email', 'assignment.technician:id,name,email'])
+            ->with(['status', 'category', 'requester:id,name,email,department_id', 'requester.department', 'assignment.technician:id,name,email'])
             ->latest()
             ->get();
     }
@@ -42,7 +42,8 @@ class TicketQueryService
     public function getTicketDetail(Ticket $ticket): Ticket
     {
         $ticket->load([
-            'requester:id,name,email',
+            'requester:id,name,email,department_id',
+            'requester.department',
             'category:id,name',
             'status:id,name',
             'assignment.technician:id,name,email',
@@ -62,5 +63,27 @@ class TicketQueryService
         $ticket->load(['technicianHistories.technician:id,name,email']);
 
         return $ticket;
+    }
+
+    /**
+     * Get all tickets by status
+     * Query parameter: status (contoh: open, assigned, in progress, resolved, closed)
+     */
+    public function byStatus(string $status, User $user)
+    {
+        return Ticket::whereHas('status', fn ($q) =>
+            $q->where('name', strtolower($status))
+        )
+        ->with(['status', 'category', 'requester:id,name,email,department_id', 'requester.department', 'assignment.technician:id,name,email'])
+        ->when($user->hasRole('requester'), fn ($q) =>
+            $q->where('requester_id', $user->id)
+        )
+        ->when($user->hasRole('technician'), fn ($q) =>
+            $q->whereHas('assignments', fn ($a) =>
+                $a->where('technician_id', $user->id)
+            )
+        )
+        ->latest()
+        ->get();
     }
 }

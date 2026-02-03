@@ -33,8 +33,8 @@ class TechnicianDashboard
      */
     private function getSummary(): array
     {
-        $assignedStatusId = TicketStatus::where('name', 'Assigned')->value('id');
-        $inProgressStatusId = TicketStatus::where('name', 'In Progress')->value('id');
+        $assignedStatusId = TicketStatus::where('name', 'assigned')->value('id');
+        $inProgressStatusId = TicketStatus::where('name', 'in progress')->value('id');
         $today = Carbon::now()->startOfDay();
 
         return [
@@ -60,14 +60,15 @@ class TechnicianDashboard
      */
     private function getMyTickets(): array
     {
-        $closedStatusId = TicketStatus::where('name', 'Closed')->value('id');
+        $closedStatusId = TicketStatus::where('name', 'closed')->value('id');
 
         return Ticket::whereHas('assignment', function ($q) {
             $q->where('assigned_to', $this->technician->id);
         })
         ->where('status_id', '!=', $closedStatusId)
         ->with([
-            'requester:id,name,email',
+            'requester:id,name,email,department_id',
+            'requester.department',
             'status:id,name',
             'category:id,name',
         ])
@@ -77,6 +78,7 @@ class TechnicianDashboard
             return [
                 'id' => $ticket->id,
                 'requester' => $ticket->requester ? $ticket->requester->name : 'Unknown',
+                'requester_department' => $ticket->requester && $ticket->requester->department ? $ticket->requester->department->name : null,
                 'ticket_number' => $ticket->ticket_number,
                 'subject' => $ticket->subject,
                 'category' => $ticket->category ? $ticket->category->name : 'Unknown',

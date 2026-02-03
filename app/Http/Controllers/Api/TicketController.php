@@ -221,4 +221,23 @@ class TicketController extends Controller
         ]);
     }
 
+    /**
+     * GET /tickets/by-status/{status}
+     * Ambil semua ticket berdasarkan status (OPEN, ASSIGNED, IN PROGRESS, RESOLVED, CLOSED)
+     */
+    public function byStatus(Request $request, string $status)
+    {
+        $user = $request->user();
+        $tickets = $this->queryService->byStatus($status, $user);
+
+        return response()->json([
+            'message' => 'Tickets by status retrieved successfully',
+            'data' => [
+                'status' => strtolower($status),
+                'total' => count($tickets),
+                'tickets' => $tickets
+            ]
+        ]);
+    }
+
 }

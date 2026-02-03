@@ -56,6 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/my-tickets', [TicketController::class, 'myTickets']);
     
+    Route::get('/tickets/by-status/{status}', [TicketController::class, 'byStatus'])
+        ->middleware('permission:ticket.view');
+    
     Route::get('/tickets/{ticket}/completion-history', [TicketController::class, 'completionHistory'])
         ->middleware('permission:ticket.view');
 

@@ -50,7 +50,7 @@ class MasterAdminDashboard
     {
         $trend = [];
         $today = Carbon::now();
-        $closedStatusId = TicketStatus::where('name', 'Closed')->value('id') ?? 5;
+        $closedStatusId = TicketStatus::where('name', 'closed')->value('id') ?? 5;
 
         for ($i = 6; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
@@ -124,7 +124,8 @@ class MasterAdminDashboard
     private function getLatestTickets(): array
     {
         return Ticket::with([
-            'requester:id,name,email',
+            'requester:id,name,email,department_id',
+            'requester.department',
             'status:id,name',
             'category:id,name',
             'assignment' => function ($q) {
@@ -146,6 +147,10 @@ class MasterAdminDashboard
                     'id' => $ticket->requester->id,
                     'name' => $ticket->requester->name,
                     'email' => $ticket->requester->email,
+                    'department' => $ticket->requester->department ? (object)[
+                        'id' => $ticket->requester->department->id,
+                        'name' => $ticket->requester->department->name,
+                    ] : null,
                 ] : null,
                 'technician' => $ticket->assignment && $ticket->assignment->technician ? (object)[
                     'id' => $ticket->assignment->technician->id,
