@@ -38,9 +38,8 @@
                 <i class="fa-solid fa-users-gear"></i> Daftar Teknisi
             </a>
 
-            <a href="{{ route('helpdesk.all') }}" 
-               class="menu-item {{ Route::is('helpdesk.all') ? 'active' : '' }}">
-                <i class="fa-solid fa-layer-group"></i> Semua Data
+            <a href="{{ route('helpdesk.all') }}" class="menu-item {{ Route::is('helpdesk.all') ? 'active' : '' }}">
+                <i class="fa-solid fa-layer-group"></i> Semua Data Tiket
             </a>
         </div>
 
@@ -66,48 +65,49 @@
     <script src="{{ asset('js/logout-handler.js') }}"></script>
     <script src="{{ asset('js/role-protection.js') }}"></script>
     <script src="{{ asset('js/page-protection.js') }}"></script>
-    
+
     <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-        const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-        const badge = document.getElementById('pendingCount');
-        
-        if(token && badge) {
-            try {
-                // Fetch hanya tiket dengan status 'pending'
-                const response = await fetch('/api/tickets?status=pending', {
-                    headers: { 
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json' 
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+            const badge = document.getElementById('pendingCount');
+
+            if (token && badge) {
+                try {
+                    // Fetch hanya tiket dengan status 'pending'
+                    const response = await fetch('/api/tickets?status=pending', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+
+                        // Logic hitung jumlah data
+                        let count = 0;
+                        // Handle jika response pagination atau array langsung
+                        const tickets = result.data ? result.data : (Array.isArray(result) ? result : []);
+
+                        // Filter manual (jaga-jaga API balikin semua)
+                        count = tickets.filter(t => (t.status && t.status.toLowerCase() === 'pending')).length;
+
+                        if (count > 0) {
+                            badge.innerText = count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
                     }
-                });
-                
-                if(response.ok) {
-                    const result = await response.json();
-                    
-                    // Logic hitung jumlah data
-                    let count = 0;
-                    // Handle jika response pagination atau array langsung
-                    const tickets = result.data ? result.data : (Array.isArray(result) ? result : []);
-                    
-                    // Filter manual (jaga-jaga API balikin semua)
-                    count = tickets.filter(t => (t.status && t.status.toLowerCase() === 'pending')).length;
-                    
-                    if(count > 0) {
-                        badge.innerText = count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
+                } catch (error) {
+                    console.error('Gagal update badge:', error);
                 }
-            } catch (error) {
-                console.error('Gagal update badge:', error);
             }
-        }
-    });
+        });
     </script>
 
     @yield('scripts')
 
 </body>
+
 </html>
