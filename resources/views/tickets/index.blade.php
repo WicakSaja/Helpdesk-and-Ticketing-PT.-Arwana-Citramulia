@@ -25,7 +25,7 @@
                     <th>Kategori</th>
                     <th>Status</th>
                     <th>Update Terakhir</th>
-                    <th class="text-right">Aksi</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody id="ticketTableBody">
