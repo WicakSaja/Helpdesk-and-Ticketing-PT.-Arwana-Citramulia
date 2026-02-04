@@ -1412,37 +1412,37 @@
   },
   "variable": [
     {
-      "id": "6a94df13-b5fe-4224-ac32-725b750d0b70",
+      "id": "a260e805-1a96-42d0-9ffc-38c705bdef6c",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "8c22d27c-dd6a-45b0-a039-81effd03c468",
+      "id": "823f0a35-f528-4e0c-8948-8456d0aa2220",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "51bfc5de-71cf-4148-90b6-2e1550042828",
+      "id": "9a6a4a52-998d-4039-a3bd-f7fdcb4bdf8a",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "8925d628-7c15-4776-ac71-9c2ec796ec2d",
+      "id": "66078315-1c19-46a2-b092-326e16999b34",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "893e8e20-3e76-44f1-afe2-d931e52f5e2f",
+      "id": "c72a6ca4-c013-4b11-a0d7-1f3bda1d551d",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "353315d8-6e4d-41ab-b911-d0c642241afb",
+      "id": "826ef44e-0ccf-4aac-b006-4ad10cef6906",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

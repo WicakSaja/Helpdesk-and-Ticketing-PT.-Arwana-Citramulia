@@ -72,10 +72,11 @@
         if (totalItems === 0) {
             html = `<tr><td colspan="3" class="loading-row"><i class="fa-solid fa-folder-open" style="font-size: 24px;"></i><p style="margin-top: 10px;">Belum ada data departemen.</p></td></tr>`;
         } else {
-            pageData.forEach(dept => {
+            pageData.forEach((dept, index) => {
+                const rowNumber = startIndex + index + 1;
                 html += `
                     <tr>
-                        <td>${dept.id}</td>
+                        <td>${rowNumber}</td>
                         <td><strong>${dept.name}</strong></td>
                         <td style="text-align: right;">
                             <button type="button" class="btn-icon btn-edit" onclick="openEdit(${dept.id}, '${dept.name}')" title="Edit">

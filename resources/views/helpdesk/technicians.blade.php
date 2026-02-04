@@ -274,7 +274,7 @@ function renderTickets(tickets) {
     return tickets.map(assignment => {
         const ticket = assignment.ticket;
         const status = ticket.status?.name || 'Unknown';
-        const statusColor = status === 'Closed' ? '#2e7d32' : status === 'IN_PROGRESS' ? '#f57c00' : '#d62828';
+        const statusColor = status === 'closed' ? '#2e7d32' : status === 'in progress' ? '#f57c00' : '#d62828';
         
         return `
             <div class="detail-item">

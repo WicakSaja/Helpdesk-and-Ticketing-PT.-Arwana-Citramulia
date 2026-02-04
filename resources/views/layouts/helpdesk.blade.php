@@ -32,7 +32,7 @@
                 <i class="fa-solid fa-inbox"></i> Tiket Masuk
                 <span class="menu-badge" id="pendingCount" style="display: none;">0</span>
             </a>
-            <a href=""
+            <a href="{{ route('helpdesk.actions') }}"
                 class="menu-item {{ Route::is('helpdesk.actions') ? 'active' : '' }}">
                 <i class="fa-solid fa-check-double"></i> Validasi Resolved
             </a>

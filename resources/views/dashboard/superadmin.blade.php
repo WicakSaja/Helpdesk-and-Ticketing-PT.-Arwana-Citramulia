@@ -89,42 +89,11 @@
                             </div>
                             <canvas id="trendChart" style="height: 300px; width: 100%;"></canvas>
                         </div>
-
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <div class="chart-title">👥 Distribusi Role</div>
-                            </div>
-                            <div class="role-distribution">
-                                <div class="role-item">
-                                    <strong>Master Admin</strong>
-                                    <span>${data.role_distribution.master_admin}</span>
-                                </div>
-                                <div class="role-item">
-                                    <strong>Supervisor</strong>
-                                    <span>${data.role_distribution.supervisor}</span>
-                                </div>
-                                <div class="role-item">
-                                    <strong>Helpdesk</strong>
-                                    <span>${data.role_distribution.helpdesk}</span>
-                                </div>
-                                <div class="role-item">
-                                    <strong>Technician</strong>
-                                    <span>${data.role_distribution.technician}</span>
-                                </div>
-                                <div class="role-item">
-                                    <strong>Requester</strong>
-                                    <span>${data.role_distribution.requester}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="charts-wrapper">
                         <div class="chart-card">
                             <div class="chart-header">
                                 <div class="chart-title">📊 Kategori Masalah</div>
                             </div>
-                            <canvas id="categoryChart" style="height: 250px; width: 100%;"></canvas>
+                            <canvas id="categoryChart" style="height: 300px; width: 100%;"></canvas>
                         </div>
                     </div>
 

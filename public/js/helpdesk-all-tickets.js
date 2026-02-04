@@ -61,10 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (noData) noData.style.display = "none";
 
     try {
-      // Use server-side pagination - data already complete from API
       const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : "";
       const apiUrl = `${API_URL}/api/tickets?page=${page}&per_page=${rowsPerPage}${searchParam}`;
-      console.log("Fetching tickets from:", apiUrl);
       const res = await fetchWithAuth(apiUrl);
 
       if (!res) {
@@ -75,12 +73,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const json = await res.json();
-      console.log("API Response:", json);
-      
       const rawData = json.data || [];
       paginationMeta = json.pagination || json.meta || null;
 
-      // Map data - no need for additional fetching, data is complete
       currentTickets = rawData.map((t) => ({
         id: t.id,
         ticket_number: t.ticket_number || `T-${t.id}`,
@@ -95,12 +90,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }));
 
       renderTable();
-      console.log(`Successfully loaded ${currentTickets.length} tickets (page ${page})`);
     } catch (e) {
       console.error("Load Error:", e);
       tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#d62828;"><i class="fa-solid fa-circle-exclamation"></i> <br />Gagal memuat data tiket.<br /><small style="font-size:11px; color:#999;">${escapeHtml(e.message)}</small></td></tr>`;
     }
   }
+
   // === 2. RENDER TABLE (Direct from API data) ===
   function renderTable() {
     tableBody.innerHTML = "";
@@ -113,9 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (noData) noData.style.display = "none";
 
-    // Render directly - data is already complete from API
     currentTickets.forEach((t) => {
-      // Mapping Status Class
       let statusClass = "status-pending";
       const s = String(t.status).toLowerCase();
       if (s.includes("open")) statusClass = "status-open";
@@ -124,13 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
       else if (s.includes("resolved")) statusClass = "status-resolved";
       else if (s.includes("close")) statusClass = "status-closed";
       else if (s.includes("reject")) statusClass = "status-rejected";
-
-      // Format Tanggal
-      const dateStr = new Date(t.date).toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
 
       const techDisplay = t.tech_dept ? `${t.tech} (${t.tech_dept})` : t.tech;
 
@@ -240,112 +226,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // === 6. MODAL DETAIL ===
-  window.openDetailById = async function (id) {
-    const modal = document.getElementById("detailModal");
-
-    // Tampilkan modal loading
-    modal.style.display = "flex";
-    document.getElementById("mTimeline").innerHTML =
-      '<div style="text-align:center; padding:20px;">Memuat...</div>';
-
-    // Cek Cache Detail dulu (karena mungkin sudah di-load row tadi)
-    let detail = _detailCache.get(id);
-
-    if (!detail) {
-      try {
-        const res = await fetchWithAuth(`${API_URL}/api/tickets/${id}`);
-        if (res && res.ok) {
-          const json = await res.json();
-          detail = json.data || json.ticket || json;
-          _detailCache.set(id, detail);
-        }
-      } catch (e) {
-        console.warn("Detail fetch failed", e);
-      }
-    }
-
-    if (detail) {
-      // Get data
-      const requesterName = escapeHtml(
-        detail.requester?.name || detail.requester_name || "-",
-      );
-      const technicianName = escapeHtml(
-        (detail.assignment &&
-          detail.assignment.technician &&
-          detail.assignment.technician.name) ||
-          detail.technician_name ||
-          "-",
-      );
-      let deptTxt = "-";
-      if (detail.requester?.department?.name)
-        deptTxt = detail.requester.department.name;
-      else if (detail.department?.name) deptTxt = detail.department.name;
-
-      const currentStatus = detail.status?.name || detail.status || "-";
-      const isResolved = currentStatus.toUpperCase() === "RESOLVED";
-
-      // Update header
-      document.getElementById("mId").innerText =
-        `#${detail.ticket_number || detail.id}`;
-      document.getElementById("mSubject").innerText = escapeHtml(
-        detail.title || detail.subject || "-",
-      );
-      document.getElementById("mDept").innerText =
-        `${deptTxt} • Status: ${currentStatus}`;
-
-      // Render detail info
-      const detailContent = document.getElementById("modalDetailContent");
-      detailContent.innerHTML =
-        `
-        <div style="margin-bottom: 20px;">
-          <h4 id="mSubject" style="font-size: 18px; font-weight: 700; color: #333;">` +
-        escapeHtml(detail.title || detail.subject || "-") +
-        `</h4>
-          <p id="mDept" style="color: #666; font-size: 13px;">${deptTxt} • Status: ${currentStatus}</p>
-        </div>
-        
-        <div style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
-          <div style="margin-bottom: 12px;">
-            <label style="font-size: 12px; color: #666; font-weight: 600;">Pengaju</label>
-            <div style="font-size: 14px; color: #333; font-weight: 500;">${requesterName}</div>
-          </div>
-          <div style="margin-bottom: 12px;">
-            <label style="font-size: 12px; color: #666; font-weight: 600;">Departemen</label>
-            <div style="font-size: 14px; color: #333; font-weight: 500;">${deptTxt}</div>
-          </div>
-          <div>
-            <label style="font-size: 12px; color: #666; font-weight: 600;">Teknisi Ditugaskan</label>
-            <div style="font-size: 14px; color: #333; font-weight: 500;">${technicianName}</div>
-          </div>
-        </div>
-
-        <div class="detail-group">
-          <label class="detail-label">Riwayat Perjalanan</label>
-          <div class="timeline" id="mTimeline" style="margin-top: 10px;"></div>
-        </div>
-
-        <div class="detail-group" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e9e9e9;">
-          <div style="display: flex; gap: 10px;">
-            <button id="rejectBtn" class="btn-reject" ${!isResolved ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ""} 
-              onclick="window.rejectTicket(${detail.id})" title="${!isResolved ? "Hanya bisa reject jika status RESOLVED" : "Reject dan buat OPEN kembali"}">
-              <i class="fa-solid fa-times"></i> Reject
-            </button>
-            <button id="closeBtn" class="btn-close" ${!isResolved ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ""}
-              onclick="window.closeTicket(${detail.id})" title="${!isResolved ? "Hanya bisa close jika status RESOLVED" : "Tutup tiket"}">
-              <i class="fa-solid fa-check"></i> Close
-            </button>
-          </div>
-        </div>
-      `;
-
-      // Render Timeline
-      const logs = detail.logs || detail.histories || [];
-      renderTimeline(logs, currentStatus);
-
-      // Store detail for action buttons
-      window._currentTicketDetail = detail;
-    }
+  // === 6. DETAIL PAGE REDIRECT ===
+  window.openDetailById = function (id) {
+    window.location.href = `/helpdesk/tickets/${id}`;
   };
 
   function renderTimeline(logs, currentStatus) {

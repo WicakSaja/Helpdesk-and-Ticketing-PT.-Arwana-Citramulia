@@ -17,7 +17,7 @@
         <table class="dept-table">
             <thead>
                 <tr>
-                    <th style="width: 80px;">ID</th>
+                    <th style="width: 80px;">No.</th>
                     <th>Nama Departemen</th>
                     <th style="text-align: right;">Aksi</th>
                 </tr>

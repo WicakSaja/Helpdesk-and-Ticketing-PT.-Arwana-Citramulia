@@ -132,7 +132,7 @@ class UserQueryService
 
                     foreach ($user->assignedTickets as $assignment) {
                         $statusName = $assignment->ticket->status->name ?? '';
-                        if ($statusName === 'Closed') {
+                        if ($statusName === 'closed') {
                             $completedCount++;
                         } else {
                             $inProgressCount++;
