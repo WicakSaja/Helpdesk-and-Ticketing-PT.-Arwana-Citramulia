@@ -240,8 +240,8 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+    <!-- <script src="{{ asset('js/auth-token-manager.js') }}"></script>
     <script src="{{ asset('js/role-protection.js') }}"></script>
-    <script src="{{ asset('js/page-protection.js') }}"></script>
+    <script src="{{ asset('js/page-protection.js') }}"></script> -->
     <script src="{{ asset('js/ticket-create.js') }}?v={{ time() }}"></script>
 @endsection

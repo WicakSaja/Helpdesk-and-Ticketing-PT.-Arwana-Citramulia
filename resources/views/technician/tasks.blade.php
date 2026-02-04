@@ -132,6 +132,24 @@
             background: #1b5e20;
         }
 
+        .btn-confirm {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #0d47a1;
+        }
+
+        .btn-reject {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #b71c1c;
+        }
+
         /* Warna Kategori */
         .bd-mech {
             border-left-color: #d62828;
@@ -262,41 +280,10 @@
         </div>
     </div>
 
-    <div id="modalDetail" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3 class="modal-title">Detail Tiket</h3>
-                <button class="btn-close" onclick="closeModal('modalDetail')">&times;</button>
-            </div>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <table style="width: 100%; font-size: 14px;">
-                    <tr>
-                        <td style="color:#666; padding: 5px 0; width: 120px;">No. Tiket</td>
-                        <td style="font-weight:700;" id="dId">...</td>
-                    </tr>
-                    <tr>
-                        <td style="color:#666; padding: 5px 0;">Requester</td>
-                        <td style="font-weight:600;" id="dUser">...</td>
-                    </tr>
-                    <tr>
-                        <td style="color:#666; padding: 5px 0;">Departemen</td>
-                        <td style="font-weight:600;" id="dDept">...</td>
-                    </tr>
-                </table>
-            </div>
-            <h4 style="font-size: 16px; margin-bottom: 10px; color: #333;">Deskripsi Masalah</h4>
-            <p id="dDesc" style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 25px;">...</p>
-            <div style="text-align: right;">
-                <button onclick="closeModal('modalDetail')"
-                    style="background:#eee; border:none; padding:10px 25px; border-radius:8px; cursor:pointer;">Tutup</button>
-            </div>
-        </div>
-    </div>
-
     <div id="modalUpdate" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header">
-                <h3 class="modal-title">Update Pengerjaan</h3>
+                <h3 class="modal-title">Selesaikan Tiket</h3>
                 <button class="btn-close" onclick="closeModal('modalUpdate')">&times;</button>
             </div>
 
@@ -306,19 +293,17 @@
                     <strong style="color: #2e7d32; font-size: 13px;">Tiket: <span id="uSubject">...</span></strong>
                 </div>
 
+                <input type="hidden" id="resolveTicketId">
+
                 <div class="form-group">
-                    <label class="form-label">Status Pengerjaan</label>
-                    <select class="form-select" id="uStatus">
-                        <option value="On Progress">Sedang Dikerjakan (On Progress)</option>
-                        <option value="Waiting Sparepart">Menunggu Sparepart</option>
-                        <option value="Pending Vendor">Pending Vendor</option>
-                        <option value="Resolved">Selesai (Resolved)</option>
-                    </select>
+                    <label class="form-label">Tanggal & Waktu Selesai</label>
+                    <input type="datetime-local" class="form-input" id="resolvedAt" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tindakan Perbaikan / Catatan Teknisi</label>
-                    <textarea class="form-textarea" placeholder="Contoh: Sudah dilakukan penggantian bearing, mesin normal kembali."
+                    <label class="form-label">Solusi / Tindakan Perbaikan</label>
+                    <textarea class="form-textarea" id="solutionText" 
+                        placeholder="Contoh: Sudah dicek kabel power ternyata tidak terpasang dengan baik. Sudah dipasang kembali dengan benar dan komputer sudah bisa menyala normal."
                         required></textarea>
                 </div>
 
@@ -326,8 +311,9 @@
                     <button type="button" onclick="closeModal('modalUpdate')"
                         style="background:white; border:1px solid #ddd; padding:10px 20px; border-radius:8px; cursor:pointer; margin-right: 10px;">Batal</button>
                     <button type="submit"
-                        style="background:#2e7d32; color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:600;">Simpan
-                        Laporan</button>
+                        style="background:#2e7d32; color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:600;">
+                        <i class="fa-solid fa-check-circle"></i> Selesaikan Tiket
+                    </button>
                 </div>
             </form>
         </div>
@@ -392,6 +378,45 @@
                 const cardClass = getCategoryClass(categoryName);
                 const textClass = getCategoryTextClass(categoryName);
 
+                // Determine action buttons based on status
+                let actionButtons = '';
+                const statusLower = statusName.toLowerCase();
+                
+                if (statusLower === 'assigned') {
+                    // Status ASSIGNED: Detail + Confirm + Reject
+                    actionButtons = `
+                        <a class="btn-action btn-detail" href="/tickets/${ticket.id}">
+                            <i class="fa-regular fa-eye"></i> Detail
+                        </a>
+                        <button class="btn-action btn-confirm"
+                            onclick="confirmTicket(${ticket.id}, '${escapeHtml(ticket.ticket_number)}')">
+                            <i class="fa-solid fa-check"></i> Konfirmasi
+                        </button>
+                        <button class="btn-action btn-reject" 
+                            onclick="rejectTicket(${ticket.id}, '${escapeHtml(ticket.ticket_number)}')">
+                            <i class="fa-solid fa-times"></i> Tolak
+                        </button>
+                    `;
+                } else if (statusLower === 'in progress') {
+                    // Status IN PROGRESS: Detail + Resolve
+                    actionButtons = `
+                        <a class="btn-action btn-detail" href="/tickets/${ticket.id}">
+                            <i class="fa-regular fa-eye"></i> Detail
+                        </a>
+                        <button class="btn-action btn-update" 
+                            onclick="openResolve(${ticket.id}, '${escapeHtml(ticket.ticket_number)}', '${escapeHtml(ticket.subject)}')">
+                            <i class="fa-solid fa-check-circle"></i> Selesaikan Tiket
+                        </button>
+                    `;
+                } else {
+                    // Status lainnya (resolved, closed, dll): hanya detail
+                    actionButtons = `
+                        <a class="btn-action btn-detail" href="/tickets/${ticket.id}">
+                            <i class="fa-regular fa-eye"></i> Detail
+                        </a>
+                    `;
+                }
+
                 return `
                     <div class="task-card ${cardClass}">
                         <div class="task-header">
@@ -408,13 +433,7 @@
                             </div>
                         </div>
                         <div class="action-group">
-                            <button class="btn-action btn-detail"
-                                onclick="openDetail('#${ticket.ticket_number}', '${escapeHtml(ticket.subject)}', '${escapeHtml(ticket.description || '-')}', '${escapeHtml(requesterDept)}', '${escapeHtml(requesterName)}')">
-                                <i class="fa-regular fa-eye"></i> Detail
-                            </button>
-                            <button class="btn-action btn-update" onclick="openUpdate('#${ticket.ticket_number}', '${escapeHtml(ticket.subject)}')">
-                                <i class="fa-solid fa-pen-to-square"></i> Update Status
-                            </button>
+                            ${actionButtons}
                         </div>
                     </div>
                 `;
@@ -458,41 +477,198 @@
                 .replace(/'/g, '&#039;');
         }
 
-        function openDetail(id, subject, desc, dept, user) {
-            document.getElementById('dId').innerText = id;
-            document.getElementById('dUser').innerText = user;
-            document.getElementById('dDept').innerText = dept;
-            document.getElementById('dDesc').innerText = desc;
-            document.getElementById('modalDetail').style.display = 'flex';
+        function openResolve(ticketId, ticketNumber, subject) {
+            document.getElementById('resolveTicketId').value = ticketId;
+            document.getElementById('uSubject').innerText = '#' + ticketNumber + " - " + subject;
+            
+            // Set default datetime to now
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('resolvedAt').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('solutionText').value = '';
+            
+            document.getElementById('modalUpdate').style.display = 'flex';
         }
 
-        function openUpdate(id, subject) {
-            document.getElementById('uSubject').innerText = id + " - " + subject;
-            document.getElementById('modalUpdate').style.display = 'flex';
+        async function confirmTicket(ticketId, ticketNumber) {
+            const result = await Swal.fire({
+                title: 'Konfirmasi Tiket',
+                text: `Anda akan mengkonfirmasi tiket #${ticketNumber}. Lanjutkan?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1976d2',
+                cancelButtonColor: '#999',
+                confirmButtonText: 'Ya, Konfirmasi',
+                cancelButtonText: 'Batal'
+            });
+
+            if (!result.isConfirmed) return;
+
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            
+            try {
+                const response = await fetch(`{{ url('/api/tickets') }}/${ticketId}/confirm`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Tiket berhasil dikonfirmasi. Status berubah menjadi "In Progress".',
+                        confirmButtonColor: '#2e7d32'
+                    });
+                    loadTechnicianTasks();
+                } else {
+                    throw new Error(result.message || 'Gagal konfirmasi tiket');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: '#d62828'
+                });
+            }
+        }
+
+        async function rejectTicket(ticketId, ticketNumber) {
+            const result = await Swal.fire({
+                title: 'Tolak Tiket',
+                text: `Anda akan menolak tiket #${ticketNumber}. Tiket akan kembali ke status "Open".`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d32f2f',
+                cancelButtonColor: '#999',
+                confirmButtonText: 'Ya, Tolak',
+                cancelButtonText: 'Batal'
+            });
+
+            if (!result.isConfirmed) return;
+
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            
+            try {
+                const response = await fetch(`{{ url('/api/tickets') }}/${ticketId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Tiket berhasil ditolak. Status kembali ke "Open".',
+                        confirmButtonColor: '#2e7d32'
+                    });
+                    loadTechnicianTasks();
+                } else {
+                    throw new Error(result.message || 'Gagal menolak tiket');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: '#d62828'
+                });
+            }
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
 
-        document.getElementById('updateForm').addEventListener('submit', function(e) {
+        document.getElementById('updateForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            const ticketId = document.getElementById('resolveTicketId').value;
+            const solution = document.getElementById('solutionText').value.trim();
+            const resolvedAt = document.getElementById('resolvedAt').value;
+
+            if (!solution) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Solusi Required',
+                    text: 'Mohon isi solusi/tindakan perbaikan.',
+                    confirmButtonColor: '#d62828'
+                });
+                return;
+            }
+
+            // Convert datetime-local to MySQL format
+            const dateObj = new Date(resolvedAt);
+            const mysqlDateTime = dateObj.getFullYear() + '-' + 
+                String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
+                String(dateObj.getDate()).padStart(2, '0') + ' ' +
+                String(dateObj.getHours()).padStart(2, '0') + ':' +
+                String(dateObj.getMinutes()).padStart(2, '0') + ':00';
+
             closeModal('modalUpdate');
+
             Swal.fire({
                 title: 'Menyimpan...',
-                timer: 1000,
-                timerProgressBar: true,
+                text: 'Sedang menyelesaikan tiket',
+                allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }
-            }).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Status tiket berhasil diperbarui.',
-                    confirmButtonColor: '#2e7d32'
-                });
             });
+
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+
+            try {
+                const response = await fetch(`{{ url('/api/tickets') }}/${ticketId}/solve`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        solution: solution,
+                        resolved_at: mysqlDateTime
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Tiket berhasil diselesaikan. Status berubah menjadi "Resolved".',
+                        confirmButtonColor: '#2e7d32'
+                    });
+                    loadTechnicianTasks();
+                } else {
+                    throw new Error(result.message || 'Gagal menyelesaikan tiket');
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: '#d62828'
+                });
+            }
         });
 
         window.onclick = function(event) {

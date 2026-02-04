@@ -8,7 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/global.css'])
     @yield('css')
 </head>
@@ -29,7 +29,7 @@
             <a href="{{ route('technician.tasks') }}"
                 class="menu-item {{ Route::is('technician.tasks') ? 'active' : '' }}">
                 <i class="fa-solid fa-screwdriver-wrench"></i> Tugas Saya
-                <span class="menu-badge" style="background: white; color: #d62828;">2</span> </a>
+            </a>
 
             <a href="{{ route('technician.history') }}"
                 class="menu-item {{ Route::is('technician.history') ? 'active' : '' }}">
@@ -56,7 +56,7 @@
 
     {{-- Auth Scripts --}}
     <script>
-        const API_URL = 'http://127.0.0.1:8000';
+        const API_URL = "{{ env('API_BASE_URL', 'http://localhost:8000') }}";
     </script>
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
     <script src="{{ asset('js/logout-handler.js') }}"></script>

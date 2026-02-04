@@ -2,7 +2,7 @@
  * Token Manager - Manage authentication token and user data
  * Handles token, user data, and roles in sessionStorage
  */
-const TokenManager = {
+window.TokenManager = window.TokenManager || {
     // Storage keys
     STORAGE_TOKEN: 'auth_token',
     STORAGE_USER: 'auth_user',

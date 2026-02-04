@@ -183,6 +183,32 @@
     background: #1b5e20;
 }
 
+.btn-detail {
+    background: #f5f7ff;
+    color: #2b4b9b;
+    border: 1px solid #d6e0ff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-detail:hover {
+    background: #e8eeff;
+    border-color: #b8c9ff;
+    color: #1f3d8f;
+}
+
+.btn-detail:active {
+    transform: translateY(1px);
+}
+
 /* Modal Styles */
 .modal-overlay {
     position: fixed;

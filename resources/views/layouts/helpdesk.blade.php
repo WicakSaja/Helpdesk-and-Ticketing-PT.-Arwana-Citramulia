@@ -32,7 +32,10 @@
                 <i class="fa-solid fa-inbox"></i> Tiket Masuk
                 <span class="menu-badge" id="pendingCount" style="display: none;">0</span>
             </a>
-
+            <a href=""
+                class="menu-item {{ Route::is('helpdesk.actions') ? 'active' : '' }}">
+                <i class="fa-solid fa-check-double"></i> Validasi Resolved
+            </a>
             <a href="{{ route('helpdesk.technicians') }}"
                 class="menu-item {{ Route::is('helpdesk.technicians') ? 'active' : '' }}">
                 <i class="fa-solid fa-users-gear"></i> Daftar Teknisi
@@ -59,7 +62,7 @@
 
     {{-- Auth Scripts --}}
     <script>
-        const API_URL = 'http://127.0.0.1:8000';
+        const API_URL = "{{ env('API_BASE_URL', 'http://localhost:8000') }}";
     </script>
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
     <script src="{{ asset('js/logout-handler.js') }}"></script>

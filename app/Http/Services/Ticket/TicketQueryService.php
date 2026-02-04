@@ -113,18 +113,24 @@ class TicketQueryService
     }
 
     /**
-     * Ticket detail with relations
+     * Ticket detail with relations (complete info including logs, comments, history)
      */
     public function getTicketDetail(Ticket $ticket): Ticket
     {
         $ticket->load([
-            'requester:id,name,email,department_id',
-            'requester.department',
+            'requester:id,name,email,phone,department_id',
+            'requester.department:id,name',
             'category:id,name',
             'status:id,name',
             'assignment.technician:id,name,email',
             'assignment.assigner:id,name,email',
-            'solution',
+            'solution:id,ticket_id,solved_by,solution_text,solved_at',
+            'solution.solver:id,name,email',
+            'comments:id,ticket_id,user_id,comment,created_at',
+            'comments.user:id,name,email',
+            'logs:id,ticket_id,user_id,action,description,created_at',
+            'logs.user:id,name,email',
+            'technicianHistories:id,ticket_id,technician_id,resolved_at,solution_text',
             'technicianHistories.technician:id,name,email',
         ]);
 

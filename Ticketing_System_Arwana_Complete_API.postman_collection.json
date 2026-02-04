@@ -740,7 +740,7 @@
                 }
               ]
             },
-            "description": "Endpoint khusus untuk teknisi melihat ticket yang sudah diselesaikan (resolved) dan ditutup (closed) yang di-assign ke mereka.\n\nRole: technician only\n\nQuery Parameters:\n- status: Filter spesifik 'resolved' atau 'closed' (optional, default: tampilkan keduanya)\n- category_id: Filter by category (optional)\n- search: Search by ticket_number, subject, atau description (optional)\n- sort_by: Sort by field (default: updated_at)\n- sort_order: asc/desc (default: desc)\n- page: Halaman (default: 1)\n- per_page: Items per halaman (default: 15, max: 100)\n\nResponse:\n- message: Status message\n- data: Array ticket dengan relasi (status, category, requester, department, assignment)\n- pagination: Object pagination (total, per_page, current_page, last_page, from, to)\n\nGunakan endpoint ini untuk teknisi melihat riwayat pekerjaan mereka yang sudah selesai."
+            "description": "Endpoint khusus untuk teknisi melihat ticket yang sudah diselesaikan (resolved) dan ditutup (closed) yang di-assign ke mereka.\n\nRole: technician only\n\nQuery Parameters:\n\n- status: Filter spesifik 'resolved' atau 'closed' (optional, default: tampilkan keduanya)\n    \n- category_id: Filter by category (optional)\n    \n- search: Search by ticket_number, subject, atau description (optional)\n    \n- sort_by: Sort by field (default: updated_at)\n    \n- sort_order: asc/desc (default: desc)\n    \n- page: Halaman (default: 1)\n    \n- per_page: Items per halaman (default: 15, max: 100)\n    \n\nResponse:\n\n- message: Status message\n    \n- data: Array ticket dengan relasi (status, category, requester, department, assignment)\n    \n- pagination: Object pagination (total, per_page, current_page, last_page, from, to)\n    \n\nGunakan endpoint ini untuk teknisi melihat riwayat pekerjaan mereka yang sudah selesai."
           },
           "response": []
         }
@@ -1412,37 +1412,37 @@
   },
   "variable": [
     {
-      "id": "1a3b1a8a-cc9e-487c-b95d-f202770f87fd",
+      "id": "6a94df13-b5fe-4224-ac32-725b750d0b70",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "1fbe9e29-f7c9-41d0-8870-b70c685c5c17",
+      "id": "8c22d27c-dd6a-45b0-a039-81effd03c468",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "0a4a27b4-a09a-4de0-80e0-6ed58ff32f6c",
+      "id": "51bfc5de-71cf-4148-90b6-2e1550042828",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "815e5bd5-0787-4645-8882-4b91e8d2ce1d",
+      "id": "8925d628-7c15-4776-ac71-9c2ec796ec2d",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "8ecf3359-4ce3-42d1-a6df-e3021ef68bc1",
+      "id": "893e8e20-3e76-44f1-afe2-d931e52f5e2f",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "6ff63c7c-ab10-4965-9595-8fd28fa5da13",
+      "id": "353315d8-6e4d-41ab-b911-d0c642241afb",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

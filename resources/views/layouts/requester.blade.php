@@ -54,7 +54,7 @@
 
     {{-- Auth Scripts --}}
     <script>
-        const API_URL = 'http://127.0.0.1:8000';
+        const API_URL = "{{ env('API_BASE_URL', 'http://localhost:8000') }}";
     </script>
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
     <script src="{{ asset('js/logout-handler.js') }}"></script>
