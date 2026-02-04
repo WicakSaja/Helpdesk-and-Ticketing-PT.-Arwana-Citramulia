@@ -100,6 +100,16 @@ Route::prefix('helpdesk')->name('helpdesk.')->group(function () {
     Route::get('/all-tickets', function () { 
         return view('helpdesk.all_tickets'); 
     })->name('all');
+
+    // Halaman untuk melihat detail tiket (tanpa tombol aksi close/reject)
+    Route::get('/tickets/{id}', function ($id) {
+        return view('helpdesk.detail', ['ticket_id' => $id]);
+    })->name('tickets.detail');
+
+    // Halaman gabungan untuk aksi Reject & Close tiket
+    Route::get('/actions', function () {
+        return view('helpdesk.actions');
+    })->name('actions');
 });
 
 // 6. TECHNICIAN ROUTES
