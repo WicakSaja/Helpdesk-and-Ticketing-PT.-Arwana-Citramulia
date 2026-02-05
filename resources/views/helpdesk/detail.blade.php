@@ -1,20 +1,19 @@
-@extends('layouts.helpdesk')
-@section('title', 'Detail Tiket')
+@extends('layouts.helpdesk') {{-- Pastikan layout ini ada --}}
+@section('title', 'Detail Tiket (Helpdesk)')
 
 @section('css')
-    {{-- Library CSS (Tabler & Icons) --}}
+    {{-- Library CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
 
     <style>
-        /* --- Modern Card Styling --- */
+        /* --- Style Konsisten untuk Semua Role --- */
         .card {
             border: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             background: #fff;
             margin-bottom: 24px;
-            transition: transform 0.2s;
         }
 
         .card-header {
@@ -23,8 +22,8 @@
             padding: 20px 24px;
             border-radius: 12px 12px 0 0;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
         }
 
         .card-title {
@@ -34,7 +33,7 @@
             margin: 0;
         }
 
-        /* --- Timeline Styling (Riwayat) --- */
+        /* --- Timeline Styling --- */
         .timeline {
             position: relative;
             padding-left: 30px;
@@ -79,9 +78,9 @@
         .timeline-time {
             font-size: 0.75rem;
             color: #6b7280;
-            margin-bottom: 4px;
-            display: block;
             font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
         }
 
         .timeline-title {
@@ -115,13 +114,6 @@
         .info-group {
             margin-bottom: 24px;
         }
-
-        /* --- Badge Custom --- */
-        .badge-status {
-            font-size: 0.8rem;
-            padding: 6px 10px;
-            border-radius: 6px;
-        }
     </style>
 @endsection
 
@@ -132,7 +124,7 @@
                 <div class="mb-1">
                     <ol class="breadcrumb" aria-label="breadcrumbs">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard.helpdesk') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('helpdesk.all') }}">Tiket</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('helpdesk.all') }}">Semua Tiket</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Detail</li>
                     </ol>
                 </div>
@@ -141,7 +133,10 @@
                 </h2>
             </div>
             <div class="col-auto ms-auto d-print-none">
-                {{-- Tombol Kembali --}}
+                {{-- Tombol Khusus Helpdesk: Assign / Aksi --}}
+                <a href="{{ route('helpdesk.actions') }}" class="btn btn-primary d-none d-sm-inline-block">
+                    <i class="fe fe-check-square me-2"></i> Proses Tiket
+                </a>
                 <a href="javascript:history.back()" class="btn btn-outline-secondary">
                     <i class="fe fe-arrow-left me-2"></i> Kembali
                 </a>
@@ -230,7 +225,7 @@
 @endsection
 
 @section('scripts')
-    {{-- Library Scripts --}}
+    {{-- Script JS Fetch API (Sama dengan Role Lain) --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -238,7 +233,6 @@
     <script>
         // === KONFIGURASI ===
         const TICKET_ID = '{{ $ticket_id }}';
-        // URL API dasar (Tanpa /helpdesk, sesuai perbaikan kita sebelumnya)
         const API_URL_BASE = "http://127.0.0.1:8000/api/tickets";
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -250,15 +244,14 @@
             const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
 
             if (!token) {
-                alert("Sesi habis, silakan login kembali.");
-                window.location.href = "{{ route('login') }}";
+                Swal.fire('Sesi Habis', 'Silakan login kembali', 'warning').then(() => {
+                    window.location.href = "{{ route('login') }}";
+                });
                 return;
             }
 
             try {
                 const url = `${API_URL_BASE}/${TICKET_ID}`;
-                console.log("Fetching Detail:", url);
-
                 const res = await fetch(url, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -285,7 +278,6 @@
                 console.error(error);
                 document.getElementById('ticket-description').innerHTML =
                     `<div class="alert alert-danger">Error: ${error.message}</div>`;
-
                 Swal.fire('Gagal', error.message, 'error');
             }
         }
@@ -334,6 +326,8 @@
                         <i class="fe fe-tool text-muted"></i> 
                         <span class="fw-bold text-dark">${techName}</span>
                      </div>`;
+            } else {
+                document.getElementById('ticket-agent').innerHTML = `<span class="text-warning">Belum ada teknisi</span>`;
             }
 
             // -- Badge Status --
@@ -385,11 +379,12 @@
                 const action = log.action || log.status || 'Update';
                 const note = log.description || log.note || log.message || '';
 
-                // Warna Marker
+                // Warna Marker Timeline
                 let markerColor = '#206bc4'; // Default Blue
-                if (action.toUpperCase().includes('RESOLVED')) markerColor = '#2fb344'; // Green
-                if (action.toUpperCase().includes('REJECT')) markerColor = '#d63939'; // Red
-                if (action.toUpperCase().includes('CLOSED')) markerColor = '#1f2937'; // Dark
+                const act = action.toUpperCase();
+                if (act.includes('RESOLVED')) markerColor = '#2fb344'; // Green
+                if (act.includes('REJECT')) markerColor = '#d63939'; // Red
+                if (act.includes('CLOSED')) markerColor = '#1f2937'; // Dark
 
                 html += `
                     <div class="timeline-item">

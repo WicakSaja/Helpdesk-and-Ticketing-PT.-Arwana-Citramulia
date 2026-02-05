@@ -73,9 +73,12 @@ Route::prefix('tickets')->name('tickets.')->group(function () {
     })->name('create');
     
     // Ticket Detail
+    // Route::get('/{id}', function ($id) { 
+    //     return view('tickets.show', ['ticketId' => $id]); 
+    // })->name('show');
     Route::get('/{id}', function ($id) { 
-        return view('tickets.show', ['ticketId' => $id]); 
-    })->name('show');
+        return view('tickets.detail', ['ticket_id' => $id]); 
+    })->name('detail');
 });
 
 // 5. HELPDESK ROUTES
@@ -98,7 +101,7 @@ Route::prefix('helpdesk')->name('helpdesk.')->group(function () {
 
     // Halaman untuk melihat detail tiket (tanpa tombol aksi close/reject)
     Route::get('/tickets/{id}', function ($id) {
-        return view('helpdesk.detail', ['ticket_id' => $id]);
+        return view('helpdesk.detail', ['ticket_id' => $id]); 
     })->name('tickets.detail');
 
     // Halaman gabungan untuk aksi Reject & Close tiket
@@ -129,6 +132,10 @@ Route::prefix('technician')->name('technician.')->group(function () {
     Route::get('/profile', function () { 
         return view('technician.profile'); 
     })->name('profile');
+
+    Route::get('/tickets/{id}', function ($id) {
+        return view('technician.detail', ['ticket_id' => $id]);
+    })->name('ticket.detail');
 });
 
 // 7. SUPERADMIN ROUTES
@@ -153,6 +160,10 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/reports', function () { 
         return view('superadmin.reports.index'); 
     })->name('reports');
+
+    Route::get('/tickets/{id}', function ($id) {
+        return view('superadmin.detail', ['ticket_id' => $id]);
+    })->name('ticket.detail');
 });
 
 // 8. PROFILE ROUTE
