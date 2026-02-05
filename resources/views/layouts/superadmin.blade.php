@@ -12,58 +12,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @vite(['resources/css/global.css'])
-    <style>
-    .menu-item i {
-    width: 30px;
-    font-size: 16px;
-    }
-
-    .menu-item:hover {
-    background-color: #e3f2fd;
-    color: #1565c0;
-    }
-
-    /* Active State */
-    .menu-item.active {
-    background-color: #1565c0;
-    color: white;
-    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
-    }
-
-    .mt-auto {
-    margin-top: auto;
-    }
-
-    .btn-logout {
-    width: 100%;
-    padding: 12px;
-    background: #fff0f0;
-    color: #d62828;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: left;
-    padding-left: 20px;
-    transition: 0.3s;
-    }
-
-    .btn-logout:hover {
-    background: #d62828;
-    color: white;
-    }
-
-    /* KONTEN UTAMA */
-    .main-content {
-    flex: 1;
-    margin-left: 260px;
-    padding: 35px 40px;
-    }
-    </style>
     @yield('css')
 </head>
 
 <body>
+
+    <div class="mobile-header-bar">
+        <button class="mobile-toggle-btn" id="sidebarToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="mobile-logo-container">
+            <img src="{{ asset('images/logo_arwana.png') }}" alt="Arwana Ceramics" class="mobile-logo-img">
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="sidebar">
         <div class="sidebar-logo">
@@ -119,6 +82,36 @@
         // Protect superadmin pages
         document.addEventListener('DOMContentLoaded', function() {
             requireMasterAdminRole();
+        });
+    </script>
+
+    {{-- Mobile Sidebar Script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
         });
     </script>
 

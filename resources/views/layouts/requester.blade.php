@@ -15,9 +15,23 @@
 
 <body>
 
+    <div class="mobile-header-bar">
+        <button class="mobile-toggle-btn" id="sidebarToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="mobile-logo-container">
+            <img src="{{ asset('images/logo_arwana.png') }}" alt="Arwana Ceramics" class="mobile-logo-img">
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="sidebar">
         <div class="sidebar-logo">
             <img src="{{ asset('images/logo_arwana.png') }}" alt="Logo" class="img-logo">
+            <span
+                style="display:block; font-size:12px; color:#999; margin-top:5px; font-weight:600; letter-spacing:1px;">
+                REQUESTER</span>
         </div>
 
         <div class="menu">
@@ -54,6 +68,7 @@
 
     {{-- Auth Scripts --}}
     <script>
+        // Gunakan API_URL yang sama di semua view
         const API_URL = "{{ env('API_BASE_URL', 'http://localhost:8000') }}";
     </script>
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
@@ -64,6 +79,41 @@
         // Protect requester pages
         document.addEventListener('DOMContentLoaded', function() {
             requireRequesterRole();
+        });
+    </script>
+
+    {{-- Mobile Sidebar Script (UPDATED) --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            // Fungsi Toggle (Buka/Tutup)
+            function toggleSidebar() {
+                // Toggle class 'active' di Sidebar DAN Overlay
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            // Fungsi Tutup Paksa (saat klik overlay)
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+
+            // Event Listener Tombol
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Mencegah klik tembus
+                    toggleSidebar();
+                });
+            }
+
+            // Event Listener Overlay (Klik area gelap untuk tutup)
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
         });
     </script>
 

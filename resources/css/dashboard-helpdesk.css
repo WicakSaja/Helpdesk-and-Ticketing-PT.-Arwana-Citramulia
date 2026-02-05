@@ -1,323 +1,201 @@
-/* Header Flex: Judul Kiri, Notif Kanan */
+/* =========================================================
+   1. HEADER WELCOME
+   ========================================================= */
 .header-welcome {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 60px;
-    padding-right: 140px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
 }
-
 .user-info h2 {
-    font-size: 26px;
-    color: #333;
-    margin-bottom: 8px;
-    font-weight: 700;
+    font-size: 26px; color: #333; margin: 0 0 8px 0; font-weight: 700;
 }
-
 .user-info p {
-    color: #777;
-    font-size: 15px;
+    color: #666; font-size: 15px; margin: 0;
 }
 
-/* Stats Grid */
+/* =========================================================
+   2. STATS CARDS (DESKTOP DEFAULT)
+   ========================================================= */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-    margin-bottom: 50px;
+    grid-template-columns: repeat(4, 1fr); /* Desktop 4 Kolom */
+    gap: 24px;
+    margin-bottom: 40px;
 }
 
 .stat-card {
     background: white;
-    padding: 30px 25px;
+    padding: 24px;
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     border-bottom: 4px solid transparent;
-    transition: transform 0.3s;
+    position: relative; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
-
 .stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
 }
 
+/* Typography Card Desktop */
+.stat-info { z-index: 2; }
 .stat-info h3 {
-    font-size: 32px;
-    color: #333;
-    font-weight: 700;
-    margin-bottom: 5px;
-    line-height: 1;
+    font-size: 32px; color: #1f2937; font-weight: 800; margin: 0; line-height: 1;
 }
-
 .stat-info p {
-    color: #888;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 5px;
+    color: #6b7280; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
 }
 
+/* Icon Box Desktop */
 .stat-icon {
-    width: 55px;
-    height: 55px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
+    width: 54px; height: 54px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0; z-index: 2;
 }
 
-/* Warna Kartu */
-.card-red {
-    border-color: #d32f2f;
-}
+/* Varian Warna Desktop */
+.card-red { border-color: #ef4444; }
+.card-red .stat-icon { background: #fee2e2; color: #ef4444; }
 
-.card-red .stat-icon {
-    background: #ffebee;
-    color: #d32f2f;
-}
+.card-blue { border-color: #3b82f6; }
+.card-blue .stat-icon { background: #dbeafe; color: #3b82f6; }
 
-.card-blue {
-    border-color: #1976d2;
-}
+.card-purple { border-color: #a855f7; }
+.card-purple .stat-icon { background: #f3e8ff; color: #a855f7; }
 
-.card-blue .stat-icon {
-    background: #e3f2fd;
-    color: #1976d2;
-}
+.card-orange { border-color: #f97316; }
+.card-orange .stat-icon { background: #ffedd5; color: #f97316; }
 
-.card-purple {
-    border-color: #7b1fa2;
-}
-
-.card-purple .stat-icon {
-    background: #f3e5f5;
-    color: #7b1fa2;
-}
-
-.card-orange {
-    border-color: #f57c00;
-}
-
-.card-orange .stat-icon {
-    background: #fff3e0;
-    color: #f57c00;
-}
-
-/* Tabel Dashboard */
+/* =========================================================
+   3. TABEL & LAINNYA
+   ========================================================= */
 .table-container {
-    background: white;
-    padding: 35px;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+    background: white; padding: 24px; border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
 }
-
 .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
 }
-
 .urgent-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap;
 }
-
-/* Modal / Assign */
-.modal-info {
-    margin-bottom: 20px;
-    background: #fff5f5;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #ffcdd2;
-}
-
-.modal-ticket-number {
-    font-size: 12px;
-    color: #d62828;
-    font-weight: 600;
-}
-
-.modal-ticket-subject {
-    font-weight: 700;
-    font-size: 15px;
-    color: #333;
-    margin-top: 3px;
-}
-
-.modal-assigned-to {
-    margin-top: 12px;
-    font-size: 13px;
-    color: #333;
-}
-
-.modal-desc {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #ffcdd2;
-}
-
-.modal-desc-title {
-    font-size: 11px;
-    color: #777;
-    font-weight: 600;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-}
-
-.modal-desc-text {
-    font-size: 13px;
-    color: #555;
-    line-height: 1.4;
-}
-
-.ticket-subject {
-    font-weight: 600;
-}
-
 .urgent-table th {
-    text-align: left;
-    color: #999;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+    text-align: left; color: #9ca3af; font-size: 11px; font-weight: 700; padding: 12px 16px; border-bottom: 2px solid #e5e7eb; text-transform: uppercase;
 }
-
 .urgent-table td {
-    padding: 20px 15px;
-    border-bottom: 1px solid #f9f9f9;
-    font-size: 14px;
-    color: #333;
-    vertical-align: middle;
+    padding: 16px; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; vertical-align: middle;
 }
-
-.urgent-table tr:hover td {
-    background-color: #fcfcfc;
-}
-
 .badge-dept {
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    display: inline-block;
-    text-transform: uppercase;
+    padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
 }
-
-.dept-finance {
-    background: #fff3e0;
-    color: #e65100;
-}
-
-.dept-marketing {
-    background: #e3f2fd;
-    color: #1565c0;
-}
-
-.dept-hrd {
-    background: #f3e5f5;
-    color: #7b1fa2;
-}
-
+.dept-hardware { background: #fef3c7; color: #d97706; }
+.dept-account { background: #dcfce7; color: #16a34a; }
+.dept-other { background: #f3f4f6; color: #4b5563; }
 .btn-assign {
-    background: #1976d2;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    background: #e0f2fe; color: #0284c7; padding: 6px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s;
+    display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-assign:hover { background: #0284c7; color: white; }
+.loading { text-align: center; padding: 60px; color: #6b7280; }
+.empty-state { padding: 40px; text-align: center; color: #9ca3af; }
+.empty-state i { font-size: 32px; margin-bottom: 10px; display: block; }
+
+/* =========================================================
+   4. MEDIA QUERIES (TAMPILAN HP: SIDE-BY-SIDE VIBRANT)
+   ========================================================= */
+@media (max-width: 992px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-.btn-assign:hover {
-    background: #1565c0;
-    box-shadow: 0 4px 10px rgba(25, 118, 210, 0.2);
-}
-
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-}
-
-.modal-box {
-    background: white;
-    width: 450px;
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
+@media (max-width: 576px) {
+    .header-welcome { flex-direction: column; align-items: flex-start; margin-bottom: 25px; }
+    .user-info h2 { font-size: 22px; }
+    
+    /* Grid HP 2 Kolom */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px; 
     }
 
-    to {
-        transform: translateY(0);
-        opacity: 1;
+    /* --- CARD HP STYLE (SIDE BY SIDE) --- */
+    .stat-card {
+        padding: 16px;
+        /* KUNCI: Flex Row agar Ikon di samping angka */
+        flex-direction: row; 
+        align-items: center;
+        justify-content: space-between;
+        
+        min-height: 100px;
+        border-bottom: none !important;
+        border: none !important;
+        border-radius: 16px;
+        
+        /* Transisi saat disentuh */
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-}
 
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 25px;
-}
+    /* Typography di HP */
+    .stat-info p { 
+        font-size: 10px; 
+        opacity: 0.9; 
+        margin-bottom: 2px;
+        color: inherit !important; /* Ikut warna kartu */
+    }
+    
+    .stat-info h3 { 
+        font-size: 24px;
+        color: inherit !important; /* Ikut warna kartu */
+    }
 
-.form-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    outline: none;
-    font-size: 14px;
-}
+    /* Icon di HP (Transparan, Sebelah Kanan) */
+    .stat-icon {
+        width: 40px; 
+        height: 40px; 
+        background: rgba(255,255,255,0.25) !important; /* Kotak semi-transparan */
+        font-size: 20px; 
+        margin-left: 10px; /* Jarak dari teks */
+        border-radius: 10px;
+        color: inherit !important; /* Ikut warna kartu */
+        border: 1px solid rgba(255,255,255,0.4); /* Border tipis */
+    }
 
-.btn-save {
-    background: #d62828;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-}
+    /* Efek Sentuh HP */
+    .stat-card:active {
+        transform: scale(0.96);
+        filter: brightness(90%);
+    }
 
-.btn-cancel {
-    background: #f5f5f5;
-    color: #555;
-    padding: 12px 25px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
+    /* --- WARNA VIBRANT & 3D SHADOW (SAMA SEPERTI SEBELUMNYA) --- */
+    /* Merah */
+    .card-red {
+        background: linear-gradient(145deg, #fee2e2, #fff5f5) !important;
+        color: #b91c1c !important; /* Teks Merah Gelap */
+        box-shadow: 0 8px 15px -5px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    /* Biru */
+    .card-blue {
+        background: linear-gradient(145deg, #dbeafe, #f0f7ff) !important;
+        color: #1e40af !important;
+        box-shadow: 0 8px 15px -5px rgba(59, 130, 246, 0.4) !important;
+    }
+
+    /* Ungu */
+    .card-purple {
+        background: linear-gradient(145deg, #f3e8ff, #faf5ff) !important;
+        color: #7e21d4 !important;
+        box-shadow: 0 8px 15px -5px rgba(168, 85, 247, 0.4) !important;
+    }
+
+    /* Oranye */
+    .card-orange {
+        background: linear-gradient(145deg, #ffedd5, #fff7ed) !important;
+        color: #c2410c !important;
+        box-shadow: 0 8px 15px -5px rgba(249, 115, 22, 0.4) !important;
+    }
+
+    .table-container { padding: 15px; }
 }

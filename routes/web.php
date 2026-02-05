@@ -175,3 +175,12 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
 Route::get('/profile', function () { 
     return view('tickets.profile'); 
 })->name('profile');
+
+// Route khusus untuk generate QR Code akses mobile
+Route::get('/mobile-access', function () {
+    // Kita ambil URL saat ini, tapi pastikan ini IP Address
+    // Nanti aksesnya via IP Laptop (192.168.x.x)
+    $targetUrl = url('/'); 
+    
+    return view('qr', compact('targetUrl'));
+});
