@@ -75,10 +75,62 @@ window.TokenManager = window.TokenManager || {
     },
 
     /**
-     * Check if user is authenticated
+     * Check if user is authenticated by validating token with API
+     * Clears session if token is invalid or expired
+     * @returns {Promise<boolean>}
+     */
+
+    
+    async isAuthenticated() {
+        const token = this.getToken();
+        
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const apiUrl = typeof API_URL !== 'undefined' ? API_URL : window.location.origin;
+            const response = await fetch(`${apiUrl}/api/validate-token`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                // Token invalid or expired - clear session
+                console.warn('Token validation failed with status:', response.status);
+                this.clearAuth();
+                return false;
+            }
+
+            const data = await response.json();
+            
+            if (data.valid === true) {
+                return true;
+            } else {
+                // Token is marked as invalid - clear session
+                console.warn('Token marked as invalid by server');
+                this.clearAuth();
+                return false;
+            }
+        } catch (error) {
+            console.error('Token validation error:', error);
+            // Clear session on network error to be safe
+            this.clearAuth();
+            return false;
+        }
+    },
+
+    
+
+    /**
+     * Check if token exists in storage (synchronous check)
      * @returns {boolean}
      */
-    isAuthenticated() {
+    hasToken() {
         return !!this.getToken();
     },
 
@@ -90,6 +142,58 @@ window.TokenManager = window.TokenManager || {
     hasRole(roleName) {
         const roles = this.getRoles();
         return roles.some(role => role.name === roleName || role === roleName);
+    },
+
+    /**
+     * Validate roles in session with API
+     * @returns {Promise<boolean>} - True if roles match, false otherwise
+     */
+    async validateRoles() {
+        const token = this.getToken();
+        const sessionRoles = this.getRoles();
+        
+        if (!token) {
+            console.warn('No token found in session');
+            return false;
+        }
+
+        try {
+            const apiUrl = typeof API_URL !== 'undefined' ? API_URL : window.location.origin;
+            const response = await fetch(`${apiUrl}/api/me`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                console.warn('Failed to fetch user data from API');
+                this.clearAuth();
+                return false;
+            }
+
+            const data = await response.json();
+            const apiRoles = data.roles || [];
+
+            // Convert to role names for comparison
+            const sessionRoleNames = sessionRoles.map(r => r.name || r).sort();
+            const apiRoleNames = apiRoles.map(r => r.name || r).sort();
+
+            // Check if roles match
+            const rolesMatch = JSON.stringify(sessionRoleNames) === JSON.stringify(apiRoleNames);
+
+            if (!rolesMatch) {
+                console.warn('Roles mismatch detected');
+                this.clearAuth();
+            }
+
+            return rolesMatch;
+        } catch (error) {
+            console.error('Error validating roles:', error);
+            return false;
+        }
     },
 
     /**
@@ -131,8 +235,8 @@ window.TokenManager = window.TokenManager || {
         } else if (this.hasRole('requester')) {
             window.location.href = '/dashboard/requester';
         } else {
-            // Default ke requester dashboard
-            window.location.href = '/dashboard/requester';
+            // Default ke login
+            window.location.href = '/login';
         }
     },
 
@@ -155,16 +259,19 @@ window.TokenManager = window.TokenManager || {
             return '/dashboard/helpdesk';
         } else if (this.hasRole('technician')) {
             return '/dashboard/technician';
-        } else {
+        } else if (this.hasRole('requester')) {
             return '/dashboard/requester';
+        } else {
+            return '/login';
         }
     },
 
     /**
      * Protect page - redirect to login if not authenticated
      */
-    requireAuth() {
-        if (!this.isAuthenticated()) {
+    async requireAuth() {
+        const authenticated = await this.isAuthenticated();
+        if (!authenticated) {
             window.location.href = '/login';
             return false;
         }

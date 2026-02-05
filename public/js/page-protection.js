@@ -3,10 +3,28 @@
  * Protect dashboard pages and handle role-based access
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Skip protection for login/register pages
+    const currentPath = window.location.pathname;
+    const guestPages = ['/login', '/register', '/forgot-password'];
+    
+    // Check if current page is a guest page (should not be protected)
+    if (guestPages.some(page => currentPath.includes(page))) {
+        console.log('Guest page detected, skipping protection');
+        return;
+    }
+
     // Check if user is authenticated
-    if (!TokenManager.isAuthenticated()) {
+    const authenticated = await TokenManager.isAuthenticated();
+    const rolesValid = await TokenManager.validateRoles();
+    if (!authenticated) {
         console.log('User not authenticated, redirecting to login...');
+        window.location.href = '/login';
+        return;
+    }
+
+    if (!rolesValid) {
+        console.log('User roles invalid, redirecting to login...');
         window.location.href = '/login';
         return;
     }
@@ -17,6 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup logout buttons
     setupLogoutButtons();
 });
+
+/**
+ * Synchronous check for guest pages (use only for login/register pages)
+ * Returns true if user is NOT authenticated (safe to display guest page)
+ */
+TokenManager.isGuestSafe = function() {
+    // Quick check - if no token, it's safe to show guest page
+    return !this.hasToken();
+};
 
 /**
  * Display user information in the UI

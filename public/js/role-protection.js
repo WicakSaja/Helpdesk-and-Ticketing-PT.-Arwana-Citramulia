@@ -4,10 +4,25 @@
  */
 
 /**
+ * Require Guest (Sync version for login/register pages)
+ * Use this on login/register pages to redirect if already logged in
+ */
+function requireGuestSync() {
+    // Use synchronous check only
+    if (TokenManager.hasToken()) {
+        console.log('User already authenticated, redirecting to dashboard...');
+        TokenManager.redirectToDashboard();
+        return false;
+    }
+    return true;
+}
+
+/**
  * Require Requester Role (default user)
  */
-function requireRequesterRole() {
-    if (!TokenManager.requireAuth()) return;
+async function requireRequesterRole() {
+    const authenticated = await TokenManager.requireAuth();
+    if (!authenticated) return;
     
     const roles = TokenManager.getRoles();
     const allowedRoles = ['requester', 'master-admin'];
@@ -21,11 +36,13 @@ function requireRequesterRole() {
 /**
  * Require Technician Role
  */
-function requireTechnicianRole() {
-    if (!TokenManager.requireAuth()) return;
+async function requireTechnicianRole() {
+    const authenticated = await TokenManager.requireAuth();
+    if (!authenticated) return;
     
     const allowedRoles = ['technician', 'supervisor', 'master-admin'];
-    if (!TokenManager.requireRole(allowedRoles)) {
+    const hasPermission = await TokenManager.requireRole(allowedRoles);
+    if (!hasPermission) {
         return false;
     }
     return true;
@@ -34,11 +51,13 @@ function requireTechnicianRole() {
 /**
  * Require Helpdesk Role
  */
-function requireHelpdeskRole() {
-    if (!TokenManager.requireAuth()) return;
+async function requireHelpdeskRole() {
+    const authenticated = await TokenManager.requireAuth();
+    if (!authenticated) return;
     
     const allowedRoles = ['helpdesk', 'supervisor', 'master-admin'];
-    if (!TokenManager.requireRole(allowedRoles)) {
+    const hasPermission = await TokenManager.requireRole(allowedRoles);
+    if (!hasPermission) {
         return false;
     }
     return true;
@@ -47,11 +66,13 @@ function requireHelpdeskRole() {
 /**
  * Require Supervisor Role
  */
-function requireSupervisorRole() {
-    if (!TokenManager.requireAuth()) return;
+async function requireSupervisorRole() {
+    const authenticated = await TokenManager.requireAuth();
+    if (!authenticated) return;
     
     const allowedRoles = ['supervisor', 'master-admin'];
-    if (!TokenManager.requireRole(allowedRoles)) {
+    const hasPermission = await TokenManager.requireRole(allowedRoles);
+    if (!hasPermission) {
         return false;
     }
     return true;
@@ -60,10 +81,12 @@ function requireSupervisorRole() {
 /**
  * Require Master Admin Role
  */
-function requireMasterAdminRole() {
-    if (!TokenManager.requireAuth()) return;
+async function requireMasterAdminRole() {
+    const authenticated = await TokenManager.requireAuth();
+    if (!authenticated) return;
     
-    if (!TokenManager.requireRole(['master-admin'])) {
+    const hasPermission = await TokenManager.requireRole(['master-admin']);
+    if (!hasPermission) {
         return false;
     }
     return true;

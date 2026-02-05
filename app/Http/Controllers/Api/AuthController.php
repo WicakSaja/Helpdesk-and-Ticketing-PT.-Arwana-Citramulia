@@ -91,4 +91,18 @@ class AuthController extends Controller
         $user = $request->user();
         return response()->json($this->queryService->getCurrentUser($user));
     }
+
+    public function validateToken(Request $request)
+    {
+        $user = $request->user();
+        $userData = $this->queryService->getCurrentUser($user);
+
+        return response()->json([
+            'message' => 'Token is valid',
+            'valid' => true,
+            'user' => $userData['user'],
+            'roles' => $userData['roles'],
+            'permissions' => $userData['permissions'],
+        ]);
+    }
 }

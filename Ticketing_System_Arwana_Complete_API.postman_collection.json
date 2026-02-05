@@ -196,6 +196,26 @@
           "response": []
         },
         {
+          "name": "Validate Token",
+          "id": "3c7f2d8e-4b5a-4c9f-8d6e-9f1a2b3c4d5e",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/validate-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "validate-token"
+              ]
+            },
+            "description": "Validasi token dan cek apakah token masih aktif.\n\nResponse jika valid:\n- message: Token is valid\n- valid: true\n- User data lengkap\n- Roles\n- Permissions\n\nResponse jika invalid:\n- HTTP 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
           "name": "Logout",
           "event": [
             {
@@ -1412,37 +1432,37 @@
   },
   "variable": [
     {
-      "id": "a260e805-1a96-42d0-9ffc-38c705bdef6c",
+      "id": "1935b0bc-74a9-4a39-b260-a9072922be75",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "823f0a35-f528-4e0c-8948-8456d0aa2220",
+      "id": "0016b2e8-aad5-4bb2-945c-3aa2c0b19690",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "9a6a4a52-998d-4039-a3bd-f7fdcb4bdf8a",
+      "id": "37e8d9b3-9ba5-45de-ac06-9d4722afcd14",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "66078315-1c19-46a2-b092-326e16999b34",
+      "id": "16cff230-bbf1-4d41-9676-2303940e7c0e",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "c72a6ca4-c013-4b11-a0d7-1f3bda1d551d",
+      "id": "36b14b2c-5c97-4cb7-9dce-5ebc817eb324",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "826ef44e-0ccf-4aac-b006-4ad10cef6906",
+      "id": "28dcc089-3e21-4991-9120-fc2d2b42b492",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

@@ -29,6 +29,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn(Request $request) => $request->user());
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/validate-token', [AuthController::class, 'validateToken']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
