@@ -115,6 +115,9 @@
         });
     </script>
 
+    <!-- Token Manager for API Authentication -->
+    <script src="{{ asset('js/auth-token-manager.js') }}"></script>
+
     @yield('scripts')
 </body>
 

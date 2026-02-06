@@ -1392,6 +1392,239 @@
       ],
       "id": "4d8246ca-bea5-41b2-9ddc-f3074ef542a3",
       "description": "Endpoint untuk category management (Manajemen Kategori Tiket):\n- List categories dengan pencarian (Public)\n- Get category detail (Public)\n- Create, Update, Delete categories (Admin & Helpdesk only)\n\nProtection:\n- GET: Public - tidak perlu auth\n- POST/PUT/PATCH/DELETE: Hanya Admin & Helpdesk\n- Validasi: Nama kategori harus unique\n- Soft delete protection: Tidak bisa hapus kategori dengan tiket\n\nUse Cases:\n- Master Admin & Helpdesk: Kelola daftar kategori tiket untuk sistem"
+      },
+      {
+        "name": "6. Export Reports",
+        "item": [
+          {
+            "name": "Export All Tickets",
+            "id": "a1b2c3d4-e5f6-47g8-h9i0-j1k2l3m4n5o6",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/export?type=all-tickets&start_date=2026-01-01&end_date=2026-01-31",
+                "host": [
+                  "{{base_url}}"
+                ],
+                "path": [
+                  "api",
+                  "export"
+                ],
+                "query": [
+                  {
+                    "key": "type",
+                    "value": "all-tickets",
+                    "description": "Tipe laporan: all-tickets, by-status, by-technician, by-department"
+                  },
+                  {
+                    "key": "start_date",
+                    "value": "2026-01-01",
+                    "description": "Tanggal awal (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "end_date",
+                    "value": "2026-01-31",
+                    "description": "Tanggal akhir (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "status",
+                    "value": "",
+                    "description": "Filter status: OPEN, ASSIGNED, IN PROGRESS, RESOLVED, CLOSED",
+                    "disabled": true
+                  },
+                  {
+                    "key": "department_id",
+                    "value": "",
+                    "description": "Filter by department ID",
+                    "disabled": true
+                  },
+                  {
+                    "key": "technician_id",
+                    "value": "",
+                    "description": "Filter by technician ID",
+                    "disabled": true
+                  }
+                ]
+              },
+              "description": "Export semua ticket dalam format Excel.\n\nPermission: master-admin, helpdesk\n\nQuery Parameters:\n- type (required): all-tickets\n- start_date (optional): Tanggal awal filter (format: YYYY-MM-DD)\n- end_date (optional): Tanggal akhir filter (format: YYYY-MM-DD)\n- status (optional): Filter berdasarkan status\n- department_id (optional): Filter berdasarkan department\n- technician_id (optional): Filter berdasarkan technician\n\nResponse:\n- File Excel dengan kolom: Nomor, No. Ticket, Tanggal, Requester, Keluhan, Detail, Teknisi, Selesai"
+            },
+            "response": []
+          },
+          {
+            "name": "Export By Status",
+            "id": "b2c3d4e5-f6g7-48h9-i0j1-k2l3m4n5o6p7",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/export?type=by-status&start_date=2026-01-01&end_date=2026-01-31&status=RESOLVED",
+                "host": [
+                  "{{base_url}}"
+                ],
+                "path": [
+                  "api",
+                  "export"
+                ],
+                "query": [
+                  {
+                    "key": "type",
+                    "value": "by-status",
+                    "description": "Tipe laporan grouped by status"
+                  },
+                  {
+                    "key": "start_date",
+                    "value": "2026-01-01",
+                    "description": "Tanggal awal (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "end_date",
+                    "value": "2026-01-31",
+                    "description": "Tanggal akhir (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "status",
+                    "value": "RESOLVED",
+                    "description": "Filter status: OPEN, ASSIGNED, IN PROGRESS, RESOLVED, CLOSED",
+                    "disabled": false
+                  },
+                  {
+                    "key": "department_id",
+                    "value": "",
+                    "description": "Filter by department ID",
+                    "disabled": true
+                  }
+                ]
+              },
+              "description": "Export ticket grouped by status dalam format Excel.\n\nPermission: master-admin, helpdesk\n\nQuery Parameters:\n- type (required): by-status\n- start_date (optional): Tanggal awal filter\n- end_date (optional): Tanggal akhir filter\n- status (optional): Filter berdasarkan status spesifik\n- department_id (optional): Filter berdasarkan department\n\nResponse:\n- File Excel dengan grouping per status\n- Setiap group menampilkan subtotal ticket"
+            },
+            "response": []
+          },
+          {
+            "name": "Export By Technician",
+            "id": "c3d4e5f6-g7h8-49i0-j1k2-l3m4n5o6p7q8",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/export?type=by-technician&start_date=2026-01-01&end_date=2026-01-31",
+                "host": [
+                  "{{base_url}}"
+                ],
+                "path": [
+                  "api",
+                  "export"
+                ],
+                "query": [
+                  {
+                    "key": "type",
+                    "value": "by-technician",
+                    "description": "Tipe laporan grouped by technician"
+                  },
+                  {
+                    "key": "start_date",
+                    "value": "2026-01-01",
+                    "description": "Tanggal awal (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "end_date",
+                    "value": "2026-01-31",
+                    "description": "Tanggal akhir (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "status",
+                    "value": "",
+                    "description": "Filter status",
+                    "disabled": true
+                  },
+                  {
+                    "key": "technician_id",
+                    "value": "",
+                    "description": "Filter by specific technician ID",
+                    "disabled": true
+                  }
+                ]
+              },
+              "description": "Export ticket grouped by technician/assigned user dalam format Excel.\n\nPermission: master-admin, helpdesk\n\nQuery Parameters:\n- type (required): by-technician\n- start_date (optional): Tanggal awal filter\n- end_date (optional): Tanggal akhir filter\n- status (optional): Filter berdasarkan status\n- technician_id (optional): Filter berdasarkan technician spesifik\n\nResponse:\n- File Excel dengan grouping per technician\n- Setiap group menampilkan subtotal ticket yang di-assign\n- Data lengkap technician (nama, email)"
+            },
+            "response": []
+          },
+          {
+            "name": "Export By Department",
+            "id": "d4e5f6g7-h8i9-50j1-k2l3-m4n5o6p7q8r9",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "url": {
+                "raw": "{{base_url}}/api/export?type=by-department&start_date=2026-01-01&end_date=2026-01-31",
+                "host": [
+                  "{{base_url}}"
+                ],
+                "path": [
+                  "api",
+                  "export"
+                ],
+                "query": [
+                  {
+                    "key": "type",
+                    "value": "by-department",
+                    "description": "Tipe laporan grouped by department"
+                  },
+                  {
+                    "key": "start_date",
+                    "value": "2026-01-01",
+                    "description": "Tanggal awal (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "end_date",
+                    "value": "2026-01-31",
+                    "description": "Tanggal akhir (format: YYYY-MM-DD)"
+                  },
+                  {
+                    "key": "status",
+                    "value": "",
+                    "description": "Filter status",
+                    "disabled": true
+                  },
+                  {
+                    "key": "department_id",
+                    "value": "",
+                    "description": "Filter by specific department ID",
+                    "disabled": true
+                  }
+                ]
+              },
+              "description": "Export ticket grouped by department requester dalam format Excel.\n\nPermission: master-admin, helpdesk\n\nQuery Parameters:\n- type (required): by-department\n- start_date (optional): Tanggal awal filter\n- end_date (optional): Tanggal akhir filter\n- status (optional): Filter berdasarkan status\n- department_id (optional): Filter berdasarkan department spesifik\n\nResponse:\n- File Excel dengan grouping per department\n- Setiap group menampilkan subtotal ticket dari department tersebut\n- Data lengkap dengan nama department requester"
+            },
+            "response": []
+          }
+        ],
+        "id": "e5f6g7h8-i9j0-51k1-l2m3-n4o5p6q7r8s9",
+        "description": "Endpoint untuk export report ticket ke format Excel.\n\nFeatures:\n- Export semua ticket\n- Export grouped by status\n- Export grouped by technician\n- Export grouped by department\n- Flexible filtering (date range, status, department, technician)\n- Auto-generated filename dengan timestamp\n\nAuthorization:\n- Role: master-admin, helpdesk only\n- Authentication: Bearer Token (Sanctum)\n\nOutput:\n- Format: Excel (.xlsx)\n- Filename: Laporan_[type]_[timestamp].xlsx\n- Content-Disposition: attachment (auto-download)\n- Columns: Nomor, No. Ticket, Tanggal, Requester, Keluhan, Detail, Teknisi, Selesai"
     },
     {
       "name": "Get Dashboard Data",

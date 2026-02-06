@@ -1422,6 +1422,48 @@
         "description": "Mengambil semua kategori tiket dengan opsional pencarian.\n\nRole: Public (tidak perlu auth)\n\nQuery Parameters:\n- search (optional): Filter kategori berdasarkan nama atau deskripsi"
       },
       "response": []
+    },
+    {
+      "name": "Export Report",
+      "id": "677c07bc-9090-4e7d-8ee9-895d4c9a573e",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}http://localhost:8000/api/export?type=all-tickets&start_date=2026-01-01&end_date=2026-01-31",
+          "protocol": "{{base_url}}http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "export"
+          ],
+          "query": [
+            {
+              "key": "type",
+              "value": "all-tickets"
+            },
+            {
+              "key": "start_date",
+              "value": "2026-01-01"
+            },
+            {
+              "key": "end_date",
+              "value": "2026-01-31"
+            }
+          ]
+        },
+        "description": "Mengambil semua kategori tiket dengan opsional pencarian.\n\nRole: Public (tidak perlu auth)\n\nQuery Parameters:\n- search (optional): Filter kategori berdasarkan nama atau deskripsi"
+      },
+      "response": []
     }
   ],
   "auth": {
@@ -1436,37 +1478,37 @@
   },
   "variable": [
     {
-      "id": "39be0bab-5d5f-4c43-83d8-776225d90f6a",
+      "id": "fa2a11ea-c4d1-4c99-a742-7de1e7733cd3",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "217194dd-305b-4ea1-b31f-5cdcc829f23b",
+      "id": "710749f2-27c7-4da9-8007-5c5644aa4d84",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "328f2902-a9ad-40f0-bfcb-26cacb0d5ccb",
+      "id": "57191ed5-2622-4730-9797-eec78b083005",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "2b2d76ce-28f0-4cf4-9883-e53a465002a0",
+      "id": "f942354d-9825-4b1a-83a4-f476b14398b3",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "23285ea0-318d-4f9e-8753-9ab2196b14a5",
+      "id": "67ab8a11-3724-423e-a80f-4d28c8dbb6e4",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "09326c5a-3541-413a-9a3e-4d32527ee0db",
+      "id": "2bf83080-a1c2-45ef-9889-89eadec3b949",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

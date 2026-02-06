@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UserManagementController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,4 +166,12 @@ Route::middleware('auth:sanctum', 'role:master-admin|helpdesk')->group(function 
     Route::put('/categories/{category}', [CategoryController::class, 'update']);
     Route::patch('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+});
+
+// ============================================================================
+// EXPORT ROUTES
+// ============================================================================
+// Export ticket report ke Excel (Master Admin & Helpdesk only)
+Route::middleware('auth:sanctum', 'role:master-admin|helpdesk')->group(function () {
+    Route::get('/export', [ExportController::class, 'export']);
 });

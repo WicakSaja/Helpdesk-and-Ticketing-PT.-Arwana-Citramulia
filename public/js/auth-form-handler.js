@@ -101,7 +101,7 @@ async function handleRegister(event) {
         if (response.ok && data.token) {
             // Save token, user data, and roles
             const user = data.data || data.user || null;
-            const roles = data.roles || [];
+            const roles = data.roles || ['requester'];
             
             const saved = TokenManager.setAuth(data.token, user, roles);
 
