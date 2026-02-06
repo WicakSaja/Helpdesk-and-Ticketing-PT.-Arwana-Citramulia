@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (tickets.length === 0) {
         ticketsBody.innerHTML =
-          '<tr><td colspan="5" style="text-align:center; padding:40px 0; color:#666">Tidak ada tiket baru.</td></tr>';
+          '<tr><td colspan="5" style="text-align:center; padding:40px 0; color:#666"></td></tr>';
         document.getElementById("ticketsPagination").innerHTML = "";
         return;
       }
@@ -397,7 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateBadgeCount(count) {
     const badge = document.querySelector(".alert-badge span");
     if (badge) {
-      badge.innerText = `${count} Tiket Perlu Tindakan`;
+      badge.innerText = `${count}`;
     }
 
     // Also update sidebar badge if present

@@ -2,145 +2,112 @@
 @section('title', 'Semua Data Tiket')
 
 @section('css')
+    {{-- CSS Eksternal --}}
     @vite(['resources/css/helpdesk-all-tickets.css'])
+    
     <style>
-        .btn-reject {
-            padding: 8px 14px;
-            background-color: #d62828;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        /* TWEAK TAMBAHAN KHUSUS HALAMAN INI */
+        
+        /* Agar baris tabel tidak terlalu rapat di HP */
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 15px; /* Kurangi padding container */
+            }
+            .custom-table th, .custom-table td {
+                padding: 12px 10px; /* Perkecil padding sel */
+            }
         }
 
-        .btn-reject:hover:not(:disabled) {
-            background-color: #b71c1c;
-        }
-
-        .btn-reject:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-close {
-            padding: 8px 14px;
-            background-color: #388e3c;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-close:hover:not(:disabled) {
-            background-color: #2e7d32;
-        }
-
-        .btn-close:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-left: 30px;
-            margin-bottom: 20px;
-        }
-
+        /* Timeline Style (Bawaan) */
+        .timeline { position: relative; padding-left: 30px; margin-top: 15px; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
         .timeline-dot {
-            position: absolute;
-            left: 0;
-            top: 3px;
-            width: 12px;
-            height: 12px;
-            background-color: #999;
+            position: absolute; left: 0; top: 3px;
+            width: 12px; height: 12px;
+            background-color: #d62828; /* Merah Arwana */
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 0 0 2px #999;
+            box-shadow: 0 0 0 2px #ddd;
         }
-
-        .detail-group {
-            margin-bottom: 20px;
-        }
-
-        .detail-label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            color: #555;
-        }
+        .detail-label { font-weight: 600; color: #555; display: block; margin-bottom: 5px; font-size: 0.85rem; }
     </style>
 @endsection
 
 @section('content')
-    <div class="page-header">
-        <h1 class="page-title">Semua Data Tiket</h1>
+    <div class="page-header d-print-none mb-4">
+        {{-- Gunakan Grid System agar Responsif --}}
+        <div class="row g-2 align-items-center">
+            {{-- Judul --}}
+            <div class="col-12 col-md">
+                <h2 class="page-title">Semua Data Tiket</h2>
+                <div class="text-muted mt-1">Pantau seluruh tiket yang masuk ke sistem.</div>
+            </div>
 
-        <div class="search-wrapper">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Cari tiket, subjek, atau pengaju...">
+            {{-- Search Bar --}}
+            <div class="col-12 col-md-auto ms-auto">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari tiket, subjek, atau user...">
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="table-container">
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>No. Tiket</th>
-                    <th>Subjek / Pengaju</th>
-                    <th>Departemen</th>
-                    <th>Teknisi</th>
-                    <th>Status</th>
-                    <th style="text-align: right;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="ticketTableBody">
-                <tr>
-                    <td colspan="6" class="loading-row">
-                        <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i>
-                        <p style="margin-top: 10px;">Menginisialisasi...</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        {{-- Wrapper Table Responsive (Scroll Samping di HP) --}}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>No. Tiket</th>
+                        <th>Subjek / Pengaju</th>
+                        <th>Departemen</th>
+                        <th>Teknisi</th>
+                        <th>Status</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketTableBody">
+                    <tr>
+                        <td colspan="6" class="loading-row">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 text-muted">Memuat data tiket...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <div id="noDataMessage" style="display: none; text-align: center; padding: 30px; color: #888;">
-            <i class="fa-solid fa-folder-open" style="font-size: 24px; margin-bottom: 10px;"></i>
+        {{-- Pesan Data Kosong --}}
+        <div id="noDataMessage" style="display: none; text-align: center; padding: 40px 20px; color: #888;">
+            <div class="empty-img mb-2"><i class="fa-solid fa-folder-open fa-2x"></i></div>
             <p>Tidak ada data tiket ditemukan.</p>
         </div>
 
+        {{-- Pagination --}}
         <div class="pagination-wrapper">
-            <div id="paginationInfo" style="font-size: 13px; color: #666;"></div>
+            <div id="paginationInfo" class="text-muted small"></div>
             <div class="pagination-controls" id="paginationControls"></div>
         </div>
     </div>
 
+    {{-- MODAL DETAIL --}}
     <div id="detailModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Detail Tiket <span id="mId"></span></h3>
+                <h3 class="modal-title">Detail Tiket <span id="mId" class="text-primary"></span></h3>
                 <span class="close-modal" onclick="closeModal()">&times;</span>
             </div>
             <div class="modal-body" id="modalDetailContent">
-                <div style="margin-bottom: 20px;">
-                    <h4 id="mSubject" style="font-size: 18px; font-weight: 700; color: #333;"></h4>
-                    <p id="mDept" style="color: #666; font-size: 13px;"></p>
+                <div class="mb-4">
+                    <h4 id="mSubject" style="font-size: 1.1rem; font-weight: 700; color: #333; margin-bottom: 5px;"></h4>
+                    <div id="mDept" class="text-muted small"></div>
                 </div>
 
                 <div class="detail-group">
-                    <label class="detail-label">Riwayat Perjalanan</label>
+                    <label class="detail-label text-uppercase text-secondary" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                        Riwayat Perjalanan
+                    </label>
                     <div class="timeline" id="mTimeline"></div>
                 </div>
             </div>
@@ -149,5 +116,22 @@
 @endsection
 
 @section('scripts')
+    {{-- JS Helper untuk Sidebar --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/helpdesk-all-tickets.js') }}?v={{ time() }}"></script>
+    
+    <script>
+        // Modal Logic Sederhana (Jika belum ada di file js eksternal)
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+        
+        // Tutup modal jika klik di luar area
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 @endsection

@@ -2,334 +2,510 @@
 @section('title', 'Kelola Teknisi')
 
 @section('css')
-<style>
-    /* 1. HEADER (Jarak ke bawah ditambah biar tidak mepet card) */
-    .page-header { 
-        margin-bottom: 50px; /* Diperbesar dari 35px */
-        padding-right: 140px; 
-    }
-    .page-title { font-size: 26px; font-weight: 700; color: #333; margin-bottom: 5px; }
-    .page-subtitle { color: #777; font-size: 15px; }
-    
-    /* Grid 3 Kolom */
-    .tech-grid { 
-        display: grid; 
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 30px; 
-    }
-    
-    /* 2. CARD STYLE (Padding dikurangi agar lebih compact tapi tetap rapi) */
-    .tech-card { 
-        background: white; 
-        padding: 25px 20px; /* Dikurangi dari 30px jadi 25px */
-        border-radius: 16px; 
-        box-shadow: 0 5px 15px rgba(0,0,0,0.03); 
-        text-align: center; 
-        border-top: 5px solid #eee; 
-        transition: 0.3s; 
-        cursor: pointer; 
-    }
-    .tech-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    .border-ready { border-top-color: #2e7d32; }
-    .border-busy { border-top-color: #d62828; }
+    <style>
+        :root {
+            --primary: #206bc4;
+            --success: #2fb344;
+            --danger: #d63939;
+            --warning: #f59f00;
+            --dark: #1e293b;
+            --muted: #64748b;
+            --bg-surface: #ffffff;
+        }
 
-    /* 3. AVATAR (Diperbesar Signifikan) */
-    .tech-avatar { 
-        width: 90px; height: 90px; /* Diperbesar dari 70px */
-        background: #eee; border-radius: 50%; 
-        margin: 0 auto 15px; 
-        display: flex; align-items: center; justify-content: center; 
-        font-size: 32px; font-weight: 700; /* Font juga diperbesar */
-    }
-    
-    .tech-name { font-weight: 700; color: #333; font-size: 18px; margin-bottom: 5px; }
-    .tech-spec { 
-        font-size: 13px; color: #777; 
-        background: #f4f6f9; padding: 5px 15px; 
-        border-radius: 20px; display: inline-block; 
-        margin-bottom: 15px; 
-    }
-    
-    .tech-status { 
-        font-size: 14px; font-weight: 600; 
-        display: flex; align-items: center; justify-content: center; gap: 8px; 
-    }
-    .st-ready { color: #2e7d32; }
-    .st-busy { color: #d62828; }
-    
-    .task-count { 
-        margin-top: 20px; padding-top: 15px; 
-        border-top: 1px solid #f0f0f0; 
-        display: flex; justify-content: space-between; 
-        font-size: 13px; color: #555; 
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+        }
 
-    /* Modal styles */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 999; overflow-y: auto; }
-    .modal-box { background: white; width: 550px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease; margin: 20px 0; }
-    @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .btn-close-modal { background: #eee; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: 600; color: #555; transition: 0.3s; }
-    .btn-close-modal:hover { background: #ddd; }
-    
-    .detail-header { text-align: center; margin-bottom: 20px; }
-    .detail-avatar { width: 80px; height: 80px; background: #eee; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; }
-    .detail-tasks { background: #f9f9f9; padding: 15px; border-radius: 10px; max-height: 300px; overflow-y: auto; }
-    .detail-item { display: flex; justify-content: space-between; font-size: 13px; padding: 10px; border-bottom: 1px solid #eee; }
-    .detail-item:last-child { border-bottom: none; }
-    .ticket-link { color: #1976d2; font-weight: 600; text-decoration: none; }
-    .ticket-link:hover { text-decoration: underline; }
-    
-    /* Loading */
-    .loading { text-align: center; padding: 40px; color: #777; }
-    .loading-spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1976d2; border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    /* Empty state */
-    .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-    .empty-state img { width: 150px; opacity: 0.5; margin-bottom: 20px; }
-</style>
+        /* --- HEADER --- */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* --- GRID SYSTEM (RESPONSIF & COMPACT) --- */
+        .tech-grid {
+            display: grid;
+            /* Desktop: 4 kolom, Tablet: 3 kolom */
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding-bottom: 40px;
+        }
+
+        /* --- CARD STYLE --- */
+        .tech-card {
+            background: var(--bg-surface);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .tech-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(32, 107, 196, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* Status Badge (Pojok Kanan Atas) */
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #e6fffa;
+            color: #0ca678;
+            border: 1px solid #20c997;
+        }
+
+        .status-inactive {
+            background: #fff5f5;
+            color: #d63939;
+            border: 1px solid #ffcdd2;
+        }
+
+        /* Avatar */
+        .tech-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border: 3px solid #f8fafc;
+            box-shadow: 0 0 0 1px #e2e8f0;
+        }
+
+        /* Nama & Role */
+        .tech-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 2px;
+            /* Truncate text panjang */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .tech-role {
+            font-size: 0.75rem;
+            color: var(--muted);
+            background: #f1f5f9;
+            padding: 2px 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        /* Stats (Hanya Proses & Selesai) */
+        .stats-container {
+            display: flex;
+            width: 100%;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 12px;
+            margin-top: auto;
+        }
+
+        .stat-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* Garis pemisah tengah */
+        .stat-box:first-child {
+            border-right: 1px solid #f1f5f9;
+        }
+
+        .stat-num {
+            font-size: 1.1rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* --- MODAL STYLES (Tetap Rapih) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            z-index: 1050;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #fff;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header-custom {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-body-custom {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-close {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            border: none;
+            border-top: 1px solid #eee;
+            color: #555;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-close:hover {
+            background: #f9f9f9;
+            color: #000;
+        }
+
+        /* --- LOADING --- */
+        .loading-container {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+
+        /* --- MEDIA QUERY KHUSUS HP (TAMPILAN 2 KOLOM) --- */
+        @media (max-width: 576px) {
+            .page-header {
+                margin-bottom: 20px;
+            }
+
+            /* KUNCI: Paksa 2 Kolom di HP */
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                /* Jarak antar kartu lebih rapat */
+            }
+
+            .tech-card {
+                padding: 15px 10px;
+                /* Padding dalam diperkecil */
+            }
+
+            .tech-avatar {
+                width: 56px;
+                /* Avatar diperkecil */
+                height: 56px;
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+
+            .tech-name {
+                font-size: 0.9rem;
+            }
+
+            /* Nama font diperkecil */
+            .tech-role {
+                font-size: 0.65rem;
+                margin-bottom: 10px;
+                padding: 2px 6px;
+            }
+
+            .status-badge {
+                font-size: 0.55rem;
+                padding: 2px 6px;
+                top: 8px;
+                right: 8px;
+            }
+
+            .stat-num {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
     <div class="page-header">
-        <h1 class="page-title">Tim Teknisi Plant 5</h1>
-        <p class="page-subtitle">Monitoring status personel teknisi yang siap bertugas.</p>
+        <h1 class="page-title">Tim Teknisi</h1>
+        <p class="page-subtitle">Monitoring status personel & beban kerja.</p>
     </div>
 
     <div class="tech-grid" id="technicianGrid">
-        <div class="loading">
-            <div class="loading-spinner"></div>
-            <p style="margin-top: 20px;">Memuat data teknisi...</p>
+        <div class="loading-container">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2 small">Memuat data...</div>
         </div>
     </div>
 
+    {{-- MODAL DETAIL --}}
     <div class="modal-overlay" id="detailModal">
         <div class="modal-box">
-            <div class="detail-header">
-                <div class="detail-avatar" id="dAvatar">X</div>
-                <h3 style="margin-bottom: 5px; font-size: 20px;" id="dName">Nama</h3>
-                <p style="margin: 5px 0; color: #777; font-size: 13px;">
-                    <span id="dEmail"></span><br>
-                    <span id="dPhone"></span>
-                </p>
-                <span style="background:#f4f6f9; padding:5px 12px; border-radius:20px; font-size:12px; color:#555;" id="dDept">Departemen</span>
-            </div>
-
-            <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 20px; font-weight: 700; color: #f57c00;" id="dInProgress">0</div>
-                        <div style="font-size: 12px; color: #777; margin-top: 5px;">Sedang Dikerjakan</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 20px; font-weight: 700; color: #2e7d32;" id="dCompleted">0</div>
-                        <div style="font-size: 12px; color: #777; margin-top: 5px;">Selesai</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 20px; font-weight: 700; color: #1976d2;" id="dTotal">0</div>
-                        <div style="font-size: 12px; color: #777; margin-top: 5px;">Total Tiket</div>
-                    </div>
+            <div class="modal-header-custom">
+                <div class="tech-avatar mx-auto" id="dAvatar" style="width: 80px; height: 80px; margin-bottom: 10px;">AB
                 </div>
+                <h3 id="dName" style="margin: 0; color: #1e293b;">Nama</h3>
+                <p id="dDept" style="margin: 5px 0 0; color: #64748b; font-size: 0.9rem;">Departemen</p>
             </div>
-
-            <h4 style="font-size:14px; margin-bottom:10px; color:#555;">Tiket yang Ditugaskan</h4>
-            <div class="detail-tasks" id="ticketsList">
-                <div style="text-align: center; color: #999; padding: 20px;">Tidak ada tiket</div>
+            <div class="modal-body-custom">
+                <h6
+                    style="text-transform: uppercase; font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-bottom: 15px;">
+                    Tiket Sedang Dikerjakan</h6>
+                <div id="ticketsList"></div>
             </div>
-
-            <div style="text-align: center;">
-                <button class="btn-close-modal" onclick="closeDetailModal()">Tutup Detail</button>
-            </div>
+            <button class="btn-close" onclick="closeDetailModal()">Tutup Detail</button>
         </div>
     </div>
 @endsection
 
 @section('scripts')
-<script>
-let allTechnicians = [];
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let allTechnicians = [];
 
+        // Cek helper di layout
+        if (typeof getAuthHeaders === 'undefined') {
+            window.getAuthHeaders = () => {
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                return {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                };
+            };
+        }
 
-// Auth Helper (only declare if not already defined in layout)
-if (typeof getAuthHeaders === 'undefined') {
-    window.getAuthHeaders = () => {
-        const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
-        return {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
-    };
-}
+        if (typeof fetchWithAuth === 'undefined') {
+            window.fetchWithAuth = async (url, options = {}) => {
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        headers: {
+                            ...getAuthHeaders(),
+                            ...options.headers
+                        }
+                    });
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return null;
+                    }
+                    return response;
+                } catch (error) {
+                    console.error(error);
+                    return null;
+                }
+            };
+        }
 
-if (typeof fetchWithAuth === 'undefined') {
-    window.fetchWithAuth = async (url, options = {}) => {
-        const headers = { ...getAuthHeaders(), ...options.headers };
-        try {
-            const response = await fetch(url, { ...options, headers });
-            if (response.status === 401) {
-                window.location.href = '/login';
-                return null;
+        document.addEventListener('DOMContentLoaded', fetchTechnicians);
+
+        async function fetchTechnicians() {
+            try {
+                // Gunakan API_URL global (dari layout)
+                const baseUrl = (typeof API_URL !== 'undefined') ? API_URL : "{{ url('/') }}";
+                const response = await fetchWithAuth(`${baseUrl}/api/users/by-role/technician`);
+
+                if (!response || !response.ok) throw new Error('Gagal mengambil data');
+
+                const data = await response.json();
+                allTechnicians = data.data || [];
+                renderTechnicians(allTechnicians);
+            } catch (error) {
+                document.getElementById('technicianGrid').innerHTML = `
+                <div class="loading-container">
+                    <p class="text-danger fw-bold">Gagal memuat data.</p>
+                    <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">Refresh</button>
+                </div>`;
             }
-            return response;
-        } catch (error) {
-            console.error('Fetch Error:', error);
-            return null;
-        }
-    };
-}
-
-// Fetch technicians on page load
-document.addEventListener('DOMContentLoaded', async function() {
-    await fetchTechnicians();
-});
-
-async function fetchTechnicians() {
-    try {
-        const response = await fetchWithAuth(`${API_URL}/api/users/by-role/technician`);
-
-        if (!response || !response.ok) {
-            throw new Error(`HTTP error! status: ${response?.status || 'unknown'}`);
         }
 
-        const data = await response.json();
-        allTechnicians = data.data || [];
+        function renderTechnicians(technicians) {
+            const grid = document.getElementById('technicianGrid');
 
-        renderTechnicians(allTechnicians);
-    } catch (error) {
-        console.error('Error fetching technicians:', error);
-        showError('Gagal memuat data teknisi. Silakan refresh halaman.');
-    }
-}
+            if (technicians.length === 0) {
+                grid.innerHTML = `<div class="loading-container"><p>Tidak ada teknisi.</p></div>`;
+                return;
+            }
 
-function renderTechnicians(technicians) {
-    const grid = document.getElementById('technicianGrid');
+            grid.innerHTML = technicians.map(tech => {
+                const isActive = !!tech.is_active;
+                const statusLabel = isActive ? 'AKTIF' : 'OFF'; // Label Jelas
+                const statusClass = isActive ? 'status-active' : 'status-inactive';
 
-    if (technicians.length === 0) {
-        grid.innerHTML = `
-            <div style="grid-column: 1 / -1;">
-                <div class="empty-state">
-                    <p>Tidak ada data teknisi tersedia</p>
+                const initials = getInitials(tech.name);
+                const hue = (tech.id * 137.508) % 360;
+                const bgAvatar = `hsl(${hue}, 70%, 90%)`;
+                const textAvatar = `hsl(${hue}, 80%, 30%)`;
+
+                // Statistik
+                const inProgress = tech.ticket_statistics?.in_progress || 0;
+                const completed = tech.ticket_statistics?.completed || 0;
+
+                return `
+                <div class="tech-card" onclick="openDetailModal(${tech.id})">
+                    <div class="status-badge ${statusClass}">${statusLabel}</div>
+
+                    <div class="tech-avatar" style="background-color: ${bgAvatar}; color: ${textAvatar};">
+                        ${initials}
+                    </div>
+                    
+                    <div class="tech-name">${tech.name}</div>
+                    <div class="tech-role">${tech.department?.name || 'Teknisi'}</div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <span class="stat-num" style="color: #f59f00;">${inProgress}</span>
+                            <span class="stat-label">Proses</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-num" style="color: #2fb344;">${completed}</span>
+                            <span class="stat-label">Selesai</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `;
-        return;
-    }
+            `;
+            }).join('');
+        }
 
-    grid.innerHTML = technicians.map(tech => {
-        const avatarColor = getColorForTechnician(tech.id);
-        const isActive = !!tech.is_active;
-        const statusText = isActive ? 'Active' : 'Nonactive';
-        const statusClass = isActive ? 'st-ready' : 'st-busy';
-        const borderClass = isActive ? 'border-ready' : 'border-busy';
+        function openDetailModal(id) {
+            const tech = allTechnicians.find(t => t.id === id);
+            if (!tech) return;
 
-        return `
-            <div class="tech-card ${borderClass}" onclick="openDetailModal(${tech.id})">
-                <div class="tech-avatar" style="background: ${avatarColor.bg}; color: ${avatarColor.text};">
-                    ${getInitials(tech.name)}
-                </div>
-                <div class="tech-name">${tech.name}</div>
-                <div class="tech-spec">${tech.department?.name || 'N/A'}</div>
-                <div class="tech-status ${statusClass}">
-                    <i class="fa-solid fa-circle" style="font-size:10px;"></i> ${statusText}
-                </div>
-                <div class="task-count">
-                    <span>Sedang Dikerjakan: <b>${tech.ticket_statistics.in_progress}</b></span>
-                    <span>Selesai: <b>${tech.ticket_statistics.completed}</b></span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+            document.getElementById('dName').innerText = tech.name;
+            document.getElementById('dDept').innerText = tech.department?.name || 'Umum';
 
-function openDetailModal(technicianId) {
-    const tech = allTechnicians.find(t => t.id === technicianId);
-    if (!tech) return;
+            const hue = (tech.id * 137.508) % 360;
+            const dAvatar = document.getElementById('dAvatar');
+            dAvatar.innerText = getInitials(tech.name);
+            dAvatar.style.backgroundColor = `hsl(${hue}, 70%, 90%)`;
+            dAvatar.style.color = `hsl(${hue}, 80%, 30%)`;
 
-    const avatarColor = getColorForTechnician(tech.id);
+            const listContainer = document.getElementById('ticketsList');
+            const tickets = tech.assigned_tickets || [];
 
-    document.getElementById('dAvatar').innerText = getInitials(tech.name);
-    document.getElementById('dAvatar').style.background = avatarColor.bg;
-    document.getElementById('dAvatar').style.color = avatarColor.text;
-    document.getElementById('dName').innerText = tech.name;
-    document.getElementById('dEmail').innerText = tech.email;
-    document.getElementById('dPhone').innerText = tech.phone;
-    document.getElementById('dDept').innerText = tech.department?.name || 'N/A';
-    document.getElementById('dInProgress').innerText = tech.ticket_statistics.in_progress;
-    document.getElementById('dCompleted').innerText = tech.ticket_statistics.completed;
-    document.getElementById('dTotal').innerText = tech.ticket_statistics.total;
+            if (tickets.length === 0) {
+                listContainer.innerHTML = `<div class="text-center text-muted py-3 small">Tidak ada tiket aktif.</div>`;
+            } else {
+                listContainer.innerHTML = tickets.map(assignment => {
+                    const t = assignment.ticket;
+                    if (!t) return '';
 
-    // Render tickets
-    const ticketsHtml = renderTickets(tech.assigned_tickets);
-    document.getElementById('ticketsList').innerHTML = ticketsHtml;
+                    let color = '#64748b';
+                    const s = (t.status?.name || 'OPEN').toLowerCase();
+                    if (s.includes('progress')) color = '#f59f00';
+                    else if (s.includes('resolved')) color = '#2fb344';
 
-    document.getElementById('detailModal').style.display = 'flex';
-}
+                    return `
+                    <div class="task-item">
+                        <div style="overflow: hidden;">
+                            <div style="font-weight: 700; font-size: 0.85rem; color: #333;">${t.ticket_number}</div>
+                            <div style="font-size: 0.8rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.subject}</div>
+                        </div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: ${color}; text-transform: uppercase;">
+                            ${t.status?.name || 'Unknown'}
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
 
-function renderTickets(tickets) {
-    if (!tickets || tickets.length === 0) {
-        return `<div style="text-align: center; color: #999; padding: 20px;">Tidak ada tiket yang ditugaskan</div>`;
-    }
+            document.getElementById('detailModal').style.display = 'flex';
+        }
 
-    return tickets.map(assignment => {
-        const ticket = assignment.ticket;
-        const status = ticket.status?.name || 'Unknown';
-        const statusColor = status === 'closed' ? '#2e7d32' : status === 'in progress' ? '#f57c00' : '#d62828';
-        
-        return `
-            <div class="detail-item">
-                <div>
-                    <div style="font-weight: 600; color: #333;">${ticket.ticket_number}</div>
-                    <div style="color: #777; margin-top: 3px;">${ticket.subject}</div>
-                </div>
-                <div style="color: ${statusColor}; font-weight: 600; text-align: right;">
-                    ${status}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
 
-function closeDetailModal() {
-    document.getElementById('detailModal').style.display = 'none';
-}
+        function getInitials(name) {
+            if (!name) return 'UN';
+            return name.match(/\b(\w)/g)?.slice(0, 2).join('').toUpperCase() || name.substring(0, 2).toUpperCase();
+        }
 
-function getInitials(name) {
-    return name.match(/\b(\w)/g)?.join('').substring(0, 2).toUpperCase() || 'U';
-}
-
-function getColorForTechnician(id) {
-    const colors = [
-        { bg: '#e8f5e9', text: '#2e7d32' }, // Green
-        { bg: '#ffebee', text: '#d62828' }, // Red
-        { bg: '#e3f2fd', text: '#1976d2' }, // Blue
-        { bg: '#fff3e0', text: '#e65100' }, // Orange
-        { bg: '#f3e5f5', text: '#7b1fa2' }, // Purple
-        { bg: '#e0f2f1', text: '#00897b' }, // Teal
-    ];
-    return colors[(id - 1) % colors.length];
-}
-
-function showError(message) {
-    const grid = document.getElementById('technicianGrid');
-    grid.innerHTML = `
-        <div style="grid-column: 1 / -1;">
-            <div class="empty-state">
-                <p style="color: #d62828; margin-bottom: 20px;">⚠️ ${message}</p>
-                <button onclick="location.reload()" style="background: #1976d2; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                    Coba Lagi
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('detailModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-}
-</script>
+        window.onclick = function(e) {
+            if (e.target === document.getElementById('detailModal')) closeDetailModal();
+        }
+    </script>
 @endsection

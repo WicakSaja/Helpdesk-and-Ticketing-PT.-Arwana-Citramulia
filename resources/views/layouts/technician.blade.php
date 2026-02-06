@@ -15,9 +15,21 @@
 
 <body>
 
+    <div class="mobile-header-bar">
+        <button class="mobile-toggle-btn" id="sidebarToggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="mobile-logo-container">
+            <img src="{{ asset('images/logo_arwana.png') }}" alt="Arwana Ceramics" class="mobile-logo-img">
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="sidebar">
         <div class="sidebar-logo">
             <img src="{{ asset('images/logo_arwana.png') }}" alt="Logo" class="img-logo">
+            <span style="display:block; font-size:12px; color:#999; margin-top:5px; font-weight:600; letter-spacing:1px;">TEKNISI</span>
         </div>
 
         <div class="menu">
@@ -66,6 +78,39 @@
         // Protect technician pages
         document.addEventListener('DOMContentLoaded', function() {
             requireTechnicianRole();
+        });
+    </script>
+
+    {{-- Mobile Sidebar Script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            // Fungsi Toggle (Buka/Tutup)
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            // Fungsi Tutup Paksa
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+
+            // Event Listeners
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
         });
     </script>
 
