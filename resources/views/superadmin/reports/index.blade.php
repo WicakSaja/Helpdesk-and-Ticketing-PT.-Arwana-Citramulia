@@ -2,463 +2,77 @@
 @section('title', 'Laporan Berkala')
 
 @section('css')
-    <style>
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-            margin: 0;
-        }
-
-        .btn-export {
-            background: #2e7d32;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* TAB STYLING */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 1px;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #777;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: 0.3s;
-        }
-
-        .tab-btn:hover {
-            color: #1565c0;
-        }
-
-        .tab-btn.active {
-            color: #1565c0;
-            border-bottom-color: #1565c0;
-        }
-
-        /* TABLE STYLING */
-        .table-container {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
-            display: none;
-        }
-
-        .table-container.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 700;
-            color: #555;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .data-table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .data-table tr:hover {
-            background: #fcfcfc;
-        }
-
-        /* SUMMARY ROW */
-        .summary-row {
-            background: #e3f2fd !important;
-            font-weight: 700;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    @vite(['resources/css/report.css'])
 @endsection
 
 @section('content')
+    {{-- Page Header --}}
     <div class="page-header">
-        <h1 class="page-title">Rekapitulasi Laporan</h1>
-        <button class="btn-export" onclick="exportReport(event)">
-            <i class="fa-solid fa-file-excel"></i> Download Laporan
+        <div>
+            <h1 class="page-title">Rekapitulasi Laporan</h1>
+            <p style="color:#64748b; margin-top:5px; font-size:14px;">Arsip detail tiket dan riwayat pengerjaan</p>
+        </div>
+        <button class="btn-export" onclick="downloadExcel(event)">
+            <i class="fa-solid fa-file-excel"></i> Download Excel
         </button>
     </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('weekly')">Laporan Mingguan</button>
-        <button class="tab-btn" onclick="switchTab('monthly')">Laporan Bulanan</button>
-        <button class="tab-btn" onclick="switchTab('yearly')">Laporan Tahunan</button>
+    {{-- Controls Container --}}
+    <div class="controls-wrapper">
+        {{-- Kiri: Filters --}}
+        <div class="filters-left">
+            <div id="filterYearGroup">
+                <select class="filter-select" id="selectYear">
+                    {{-- Diisi JS --}}
+                </select>
+            </div>
+            <div id="filterMonthGroup">
+                <select class="filter-select" id="selectMonth">
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                </select>
+            </div>
+        </div>
+
+        {{-- Kanan: Tabs --}}
+        <div class="tabs">
+            <button class="tab-btn active" id="tabWeekly">Mingguan</button>
+            <button class="tab-btn" id="tabMonthly">Bulanan</button>
+            <button class="tab-btn" id="tabYearly">Tahunan</button>
+        </div>
     </div>
 
-    <div id="weekly" class="table-container active">
-        <h3 style="margin-bottom: 15px; font-size: 16px;">📅 Data Minggu Ini (28 Jan - 03 Feb)</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Hari</th>
-                    <th>Tiket Masuk</th>
-                    <th>Selesai</th>
-                    <th>Pending</th>
-                    <th>Performa</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Senin</td>
-                    <td>12</td>
-                    <td>10</td>
-                    <td>2</td>
-                    <td>83%</td>
-                </tr>
-                <tr>
-                    <td>Selasa</td>
-                    <td>15</td>
-                    <td>14</td>
-                    <td>1</td>
-                    <td>93%</td>
-                </tr>
-                <tr>
-                    <td>Rabu</td>
-                    <td>8</td>
-                    <td>8</td>
-                    <td>0</td>
-                    <td>100%</td>
-                </tr>
-                <tr>
-                    <td>Kamis</td>
-                    <td>10</td>
-                    <td>7</td>
-                    <td>3</td>
-                    <td>70%</td>
-                </tr>
-                <tr>
-                    <td>Jumat</td>
-                    <td>5</td>
-                    <td>5</td>
-                    <td>0</td>
-                    <td>100%</td>
-                </tr>
-                <tr class="summary-row">
-                    <td>TOTAL</td>
-                    <td>50</td>
-                    <td>44</td>
-                    <td>6</td>
-                    <td>88% (Avg)</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="monthly" class="table-container">
-        <h3 style="margin-bottom: 15px; font-size: 16px;">📅 Data Tahun 2026</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Bulan</th>
-                    <th>Total Tiket</th>
-                    <th>Selesai Tepat Waktu</th>
-                    <th>Terlambat (Overdue)</th>
-                    <th>Kategori Terbanyak</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Januari</td>
-                    <td>120</td>
-                    <td>110</td>
-                    <td>10</td>
-                    <td>Jaringan</td>
-                </tr>
-                <tr>
-                    <td>Februari</td>
-                    <td>98</td>
-                    <td>90</td>
-                    <td>8</td>
-                    <td>Hardware</td>
-                </tr>
-                <tr>
-                    <td>Maret</td>
-                    <td>--</td>
-                    <td>--</td>
-                    <td>--</td>
-                    <td>--</td>
-                </tr>
-                <tr class="summary-row">
-                    <td>TOTAL YTD</td>
-                    <td>218</td>
-                    <td>200</td>
-                    <td>18</td>
-                    <td>-</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="yearly" class="table-container">
-        <h3 style="margin-bottom: 15px; font-size: 16px;">📅 Arsip Tahunan</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Tahun</th>
-                    <th>Total Tiket</th>
-                    <th>Avg. Respon Time</th>
-                    <th>Top Teknisi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>2024</td>
-                    <td>1,450</td>
-                    <td>25 Menit</td>
-                    <td>Andi Saputra</td>
-                </tr>
-                <tr>
-                    <td>2025</td>
-                    <td>1,200</td>
-                    <td>18 Menit</td>
-                    <td>Budi Doremi</td>
-                </tr>
-            </tbody>
-        </table>
+    {{-- Table Card --}}
+    <div class="table-card">
+        <div class="table-header-info">
+            <h3 id="labelPeriode" style="margin: 0; font-size: 16px; color: #1e293b; font-weight:700;">Memuat...</h3>
+            <span style="font-size:12px; color:#94a3b8; font-style:italic;">*Data realtime server</span>
+        </div>
+        
+        {{-- Responsive Wrapper --}}
+        <div class="table-responsive">
+            <table class="report-table">
+                <thead id="tableHead">
+                    {{-- Header Diisi JS --}}
+                </thead>
+                <tbody id="tableBody">
+                    {{-- Body Diisi JS --}}
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection
 
 @section('scripts')
-    <script>
-        function switchTab(tabId) {
-            // 1. Hide semua tabel
-            document.querySelectorAll('.table-container').forEach(el => el.classList.remove('active'));
-            // 2. Remove active class dari semua tombol
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-
-            // 3. Show tabel yg dipilih
-            document.getElementById(tabId).classList.add('active');
-            // 4. Set tombol aktif (cara tricky: cari text tombol yg diklik atau gunakan event target jika mau lebih kompleks, tapi ini simple)
-            event.target.classList.add('active');
-        }
-
-        async function exportReport(evt = null) {
-            try {
-                // Detect tab aktif
-                const activeTab = document.querySelector('.table-container.active').id;
-                
-                // Build parameters berdasarkan tab aktif
-                const params = buildExportParams(activeTab);
-                
-                // Get token dari TokenManager atau sessionStorage
-                const token = (window.TokenManager && window.TokenManager.getToken()) 
-                    || sessionStorage.getItem('auth_token')
-                    || '';
-                
-                if (!token) {
-                    alert('Token autentikasi tidak ditemukan. Silakan login kembali.');
-                    window.location.href = '/login';
-                    return;
-                }
-
-                // Show loading state - cari button secara aman
-                const btn = evt?.target?.closest('.btn-export') || document.querySelector('.btn-export');
-                const originalHTML = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengunduh...';
-
-                // Call API
-                const queryString = new URLSearchParams(params).toString();
-                const apiUrl = window.location.origin;
-                const response = await fetch(`${apiUrl}/api/export?${queryString}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                    }
-                });
-
-                if (!response.ok) {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Export gagal');
-                    } else {
-                        throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
-                    }
-                }
-
-                // Download file
-                const blob = await response.blob();
-                const contentDisposition = response.headers.get('Content-Disposition');
-                const filename = contentDisposition 
-                    ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
-                    : `Laporan_${activeTab}_${new Date().toISOString().slice(0,10)}.xlsx`;
-
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-
-                // Show success message
-                showNotification('Laporan berhasil diunduh!', 'success');
-
-            } catch (error) {
-                console.error('Export error:', error);
-                showNotification('Gagal mengunduh laporan: ' + error.message, 'error');
-            } finally {
-                // Reset button state - cari button secara aman
-                const btn = evt?.target?.closest('.btn-export') || document.querySelector('.btn-export');
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> Download Laporan';
-                }
-            }
-        }
-
-        function buildExportParams(activeTab) {
-            const today = new Date();
-            let params = {
-                type: 'all-tickets' // Default type
-            };
-
-            switch(activeTab) {
-                case 'weekly':
-                    // Get week start (Monday) and end (Sunday)
-                    const dayOfWeek = today.getDay();
-                    const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
-                    
-                    const weekStart = new Date(today);
-                    weekStart.setDate(today.getDate() + diffToMonday);
-                    
-                    const weekEnd = new Date(weekStart);
-                    weekEnd.setDate(weekStart.getDate() + 6);
-                    
-                    params.start_date = formatDate(weekStart);
-                    params.end_date = formatDate(weekEnd);
-                    params.interval = 'weekly';
-                    break;
-
-                case 'monthly':
-                    // Get current month start and end
-                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                    
-                    params.start_date = formatDate(monthStart);
-                    params.end_date = formatDate(monthEnd);
-                    params.interval = 'monthly';
-                    break;
-
-                case 'yearly':
-                    // Get current year start and end
-                    const yearStart = new Date(today.getFullYear(), 0, 1);
-                    const yearEnd = new Date(today.getFullYear(), 11, 31);
-                    
-                    params.start_date = formatDate(yearStart);
-                    params.end_date = formatDate(yearEnd);
-                    params.interval = 'monthly';
-                    break;
-            }
-
-            return params;
-        }
-
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        function showNotification(message, type = 'success') {
-            // Simple notification - bisa diganti dengan library toast notification
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 25px;
-                background: ${type === 'success' ? '#2e7d32' : '#d32f2f'};
-                color: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 9999;
-                animation: slideIn 0.3s ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-    </script>
-
-    <style>
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    </style>
+    <script src="{{ asset('js/report.js') }}?v={{ time() }}"></script>
 @endsection

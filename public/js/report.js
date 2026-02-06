@@ -1,136 +1,195 @@
-(function() {
-    // API Setup
-    const API_EXPORT_URL = '/api/reports/export'; 
+(function () {
+  // === CONFIGURATION ===
+  // GUNAKAN ENDPOINT REPORT YANG BARU KITA BUAT
+  const REPORTS_URL = "/api/reports/raw-data";
+  const EXPORT_URL = "/api/export";
 
-    let currentTab = 'weekly'; 
-    let selectedYear = new Date().getFullYear();
-    let selectedMonth = new Date().getMonth() + 1;
+  // State Variables
+  let currentTab = "weekly";
+  let selectedYear = 2026;
+  let selectedMonth = 1; // Januari
 
-    // Elements
-    const btnWeekly = document.getElementById('tabWeekly');
-    const btnMonthly = document.getElementById('tabMonthly');
-    const btnYearly = document.getElementById('tabYearly');
-    
-    const filterYearGroup = document.getElementById('filterYearGroup');
-    const filterMonthGroup = document.getElementById('filterMonthGroup');
-    const selectYear = document.getElementById('selectYear');
-    const selectMonth = document.getElementById('selectMonth');
-    
-    const tableHead = document.getElementById('tableHead');
-    const tableBody = document.getElementById('tableBody');
-    const labelPeriode = document.getElementById('labelPeriode');
+  // Elements
+  const btnWeekly = document.getElementById("tabWeekly");
+  const btnMonthly = document.getElementById("tabMonthly");
+  const btnYearly = document.getElementById("tabYearly");
 
-    function init() {
-        populateYears();
-        setupEventListeners();
-        switchTab('weekly'); 
+  const filterYearGroup = document.getElementById("filterYearGroup");
+  const filterMonthGroup = document.getElementById("filterMonthGroup");
+  const selectYear = document.getElementById("selectYear");
+  const selectMonth = document.getElementById("selectMonth");
+
+  const tableHead = document.getElementById("tableHead");
+  const tableBody = document.getElementById("tableBody");
+  const labelPeriode = document.getElementById("labelPeriode");
+
+  // === INITIALIZATION ===
+  function init() {
+    populateYears();
+    setupEventListeners();
+
+    selectYear.value = selectedYear;
+    selectMonth.value = selectedMonth;
+
+    switchTab("weekly");
+  }
+
+  function populateYears() {
+    const currentYear = new Date().getFullYear() + 1;
+    selectYear.innerHTML = "";
+    for (let i = currentYear; i >= currentYear - 5; i--) {
+      let option = document.createElement("option");
+      option.value = i;
+      option.innerText = i;
+      selectYear.appendChild(option);
+    }
+  }
+
+  function setupEventListeners() {
+    btnWeekly.addEventListener("click", () => switchTab("weekly"));
+    btnMonthly.addEventListener("click", () => switchTab("monthly"));
+    btnYearly.addEventListener("click", () => switchTab("yearly"));
+
+    selectYear.addEventListener("change", () => {
+      selectedYear = parseInt(selectYear.value);
+      fetchData();
+    });
+    selectMonth.addEventListener("change", () => {
+      selectedMonth = parseInt(selectMonth.value);
+      fetchData();
+    });
+  }
+
+  // === LOGIC TAB & FILTER ===
+  window.switchTab = function (type) {
+    currentTab = type;
+
+    [btnWeekly, btnMonthly, btnYearly].forEach((btn) =>
+      btn.classList.remove("active"),
+    );
+    if (type === "weekly") btnWeekly.classList.add("active");
+    if (type === "monthly") btnMonthly.classList.add("active");
+    if (type === "yearly") btnYearly.classList.add("active");
+
+    if (type === "weekly") {
+      filterYearGroup.style.display = "block";
+      filterMonthGroup.style.display = "block";
+      labelPeriode.innerText = `Data Tiket (${getMonthName(selectedMonth)} ${selectedYear})`;
+    } else if (type === "monthly") {
+      filterYearGroup.style.display = "block";
+      filterMonthGroup.style.display = "none";
+      labelPeriode.innerText = `Data Tiket Tahun ${selectedYear}`;
+    } else {
+      filterYearGroup.style.display = "block";
+      filterMonthGroup.style.display = "none";
+      labelPeriode.innerText = `Arsip Tiket Tahun ${selectedYear}`;
     }
 
-    function populateYears() {
-        const currentYear = new Date().getFullYear();
-        selectYear.innerHTML = '';
-        for (let i = currentYear; i >= currentYear - 4; i--) {
-            let option = document.createElement('option');
-            option.value = i;
-            option.innerText = i;
-            selectYear.appendChild(option);
-        }
-        selectYear.value = currentYear;
-        selectMonth.value = new Date().getMonth() + 1;
+    fetchData();
+  };
+
+  // === LOGIC HITUNG TANGGAL (FIXED) ===
+  function getDateRange() {
+    let startDate, endDate;
+
+    if (currentTab === "weekly") {
+      // Logic: Ambil 1 Bulan Penuh sesuai dropdown
+      // Format: YYYY-MM-DD
+      const lastDay = new Date(selectedYear, selectedMonth, 0).getDate(); // Cari tanggal terakhir bulan itu (28/29/30/31)
+      startDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`;
+      endDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${lastDay}`;
+    } else {
+      // Logic: Ambil 1 Tahun Penuh sesuai dropdown tahun
+      startDate = `${selectedYear}-01-01`;
+      endDate = `${selectedYear}-12-31`;
     }
 
-    function setupEventListeners() {
-        btnWeekly.addEventListener('click', () => switchTab('weekly'));
-        btnMonthly.addEventListener('click', () => switchTab('monthly'));
-        btnYearly.addEventListener('click', () => switchTab('yearly'));
+    return { start_date: startDate, end_date: endDate };
+  }
 
-        selectYear.addEventListener('change', () => { selectedYear = selectYear.value; fetchData(); });
-        selectMonth.addEventListener('change', () => { selectedMonth = selectMonth.value; fetchData(); });
+  // === FETCH DATA ===
+  async function fetchData() {
+    tableBody.innerHTML = `<tr><td colspan="7" class="loading-container"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; color:#d62828; margin-bottom:10px;"></i><br>Mengambil data...</td></tr>`;
+
+    const token =
+      sessionStorage.getItem("auth_token") ||
+      localStorage.getItem("auth_token");
+    const dates = getDateRange();
+
+    // Debugging: Cek di console apakah tanggal benar
+    console.log("Fetching Data Range:", dates);
+
+    const params = new URLSearchParams({
+      start_date: dates.start_date,
+      end_date: dates.end_date,
+      // Kita gunakan ReportController, jadi parameter type bisa dikirim untuk validasi tambahan
+      type: currentTab,
+    });
+
+    try {
+      // Panggil API Report yang baru
+      const response = await fetch(`${REPORTS_URL}?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("Gagal mengambil data dari server");
+
+      const result = await response.json();
+      const tickets = result.data || [];
+
+      renderTable(tickets);
+    } catch (error) {
+      console.error("Error:", error);
+      tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#d62828;">Gagal memuat data.<br><small>${error.message}</small></td></tr>`;
     }
+  }
 
-    window.switchTab = function(type) {
-        currentTab = type;
-        
-        [btnWeekly, btnMonthly, btnYearly].forEach(btn => btn.classList.remove('active'));
-        if(type === 'weekly') btnWeekly.classList.add('active');
-        if(type === 'monthly') btnMonthly.classList.add('active');
-        if(type === 'yearly') btnYearly.classList.add('active');
-
-        if (type === 'weekly') {
-            filterYearGroup.style.display = 'block';
-            filterMonthGroup.style.display = 'block';
-            labelPeriode.innerText = `Data Mingguan (${getMonthName(selectedMonth)} ${selectedYear})`;
-        } else if (type === 'monthly') {
-            filterYearGroup.style.display = 'block';
-            filterMonthGroup.style.display = 'none'; 
-            labelPeriode.innerText = `Data Bulanan (${selectedYear})`;
-        } else {
-            filterYearGroup.style.display = 'none'; 
-            filterMonthGroup.style.display = 'none';
-            labelPeriode.innerText = `Arsip Tahunan`;
-        }
-
-        fetchData();
-    }
-
-    async function fetchData() {
-        // Kolom berkurang jadi 7
-        tableBody.innerHTML = `<tr><td colspan="7" class="loading-container"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; color:#d62828; margin-bottom:10px;"></i><br>Sedang memuat data laporan...</td></tr>`;
-        
-        // Simulasi delay API
-        setTimeout(() => {
-            const data = generateMockData(currentTab); 
-            renderTable(data);
-        }, 500);
-    }
-
-    function renderTable(data) {
-        // 1. SETUP HEADER (Sesuai Permintaan)
-        let headerHtml = `
-            <th width="50">No.</th>
+  // === RENDER TABEL ===
+  function renderTable(data) {
+    let headerHtml = `
+            <th width="50" style="text-align:center;">No.</th>
             <th>Nomor Tiket</th>
-            <th>Tanggal Dibuat</th>
+            <th>Tanggal</th>
             <th>Requester</th>
-            <th>Keluhan</th>
+            <th>Keluhan Utama</th>
             <th>Teknisi</th>
-            <th>Tanggal Selesai</th>
+            <th>Selesai</th>
         `;
-        tableHead.innerHTML = headerHtml;
+    tableHead.innerHTML = headerHtml;
 
-        // 2. RENDER BODY
-        let html = '';
+    let html = "";
 
-        if (data.length === 0) {
-            html = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">Tidak ada data tiket pada periode ini.</td></tr>`;
-        } else {
-            data.forEach((row, index) => {
-                // Inisial untuk Avatar
-                const initial = row.requester.charAt(0).toUpperCase();
-                
-                // HTML Teknisi
-                let techHtml = `<span class="no-tech">Belum ditugaskan</span>`;
-                if(row.technician) {
-                    techHtml = `<div class="tech-badge"><i class="fa-solid fa-screwdriver-wrench"></i> ${row.technician}</div>`;
-                }
+    if (!data || data.length === 0) {
+      html = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">Tidak ada data tiket pada periode ini.</td></tr>`;
+    } else {
+      data.forEach((row, index) => {
+        // Formatting
+        const requesterName = row.requester || "Unknown";
+        const deptName = row.dept || "-";
 
-                // HTML Tanggal Selesai
-                let dateHtml = `<span style="color:#94a3b8;">-</span>`;
-                if(row.resolved_at) {
-                    dateHtml = `<span style="color:#15803d; font-weight:600;"><i class="fa-solid fa-check"></i> ${row.resolved_at}</span>`;
-                }
+        let techHtml = `<span class="no-tech"><i class="fa-regular fa-clock"></i> Menunggu...</span>`;
+        if (row.technician) {
+          techHtml = `<div class="tech-badge"><i class="fa-solid fa-screwdriver-wrench"></i> ${row.technician}</div>`;
+        }
 
-                html += `
+        let dateHtml = `<span class="date-pending">-</span>`;
+        if (row.resolved_at) {
+          dateHtml = `<span class="date-done"><i class="fa-solid fa-check-circle"></i> ${row.resolved_at}</span>`;
+        }
+
+        html += `
                     <tr>
                         <td style="text-align:center; color:#64748b;">${index + 1}</td>
                         <td><span class="ticket-number">${row.ticket_number}</span></td>
-                        <td style="color:#475569;">${row.created_at}</td>
+                        <td style="color:#475569; font-size:13px;">${row.created_at}</td>
                         <td>
-                            <div class="user-profile">
-                                <div class="avatar-circle">${initial}</div>
-                                <div class="user-info">
-                                    <span class="user-name">${row.requester}</span>
-                                    <span class="user-role">${row.dept}</span>
-                                </div>
+                            <div class="user-info">
+                                <span class="user-name">${requesterName}</span>
+                                <span class="user-dept">${deptName}</span>
                             </div>
                         </td>
                         <td><strong style="color:#334155;">${row.subject}</strong></td>
@@ -138,71 +197,56 @@
                         <td>${dateHtml}</td>
                     </tr>
                 `;
-            });
-        }
-
-        tableBody.innerHTML = html;
+      });
     }
 
-    window.downloadExcel = function() {
-        alert("Fitur download akan mengunduh data: " + currentTab);
-    }
+    tableBody.innerHTML = html;
+  }
 
-    function getMonthName(idx) {
-        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return months[idx - 1] || '';
-    }
+  // === DOWNLOAD EXCEL ===
+  window.downloadExcel = function (evt) {
+    const btn = evt.currentTarget;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
 
-    // --- DATA DUMMY (Tanpa Deskripsi Panjang) ---
-    function generateMockData(type) {
-        return [
-            {
-                ticket_number: 'TKT-2026-082',
-                created_at: '30 Jan 2026, 10:34',
-                requester: 'Yuni Quality',
-                dept: 'Quality Control',
-                subject: 'Tidak bisa akses shared folder',
-                technician: 'Budi Repair',
-                resolved_at: '31 Jan 2026'
-            },
-            {
-                ticket_number: 'TKT-2026-054',
-                created_at: '30 Jan 2026, 09:58',
-                requester: 'Vina Accounting',
-                dept: 'Finance',
-                subject: 'Jaringan LAN putus-putus',
-                technician: 'Candra IT',
-                resolved_at: null 
-            },
-            {
-                ticket_number: 'TKT-2026-081',
-                created_at: '30 Jan 2026, 09:53',
-                requester: 'Rina Finance',
-                dept: 'Finance',
-                subject: 'Keyboard rusak beberapa tombol',
-                technician: 'Candra IT',
-                resolved_at: '01 Feb 2026'
-            },
-            {
-                ticket_number: 'TKT-2026-041',
-                created_at: '29 Jan 2026, 16:19',
-                requester: 'Omar Coord',
-                dept: 'Produksi',
-                subject: 'VPN tidak konek',
-                technician: 'Candra IT',
-                resolved_at: null 
-            },
-            {
-                ticket_number: 'TKT-2026-079',
-                created_at: '29 Jan 2026, 13:23',
-                requester: 'Doni Staff',
-                dept: 'HRGA',
-                subject: 'Email tidak bisa kirim attachment',
-                technician: null, // Contoh belum ada teknisi
-                resolved_at: null
-            }
-        ];
-    }
+    const dates = getDateRange();
+    const params = new URLSearchParams({
+      type: "all-tickets", // Atau sesuaikan dengan logic backend export
+      start_date: dates.start_date,
+      end_date: dates.end_date,
+    });
 
-    document.addEventListener('DOMContentLoaded', init);
+    const token =
+      sessionStorage.getItem("auth_token") ||
+      localStorage.getItem("auth_token");
+    const url = `${EXPORT_URL}?${params.toString()}&token=${token}`;
+
+    window.open(url, "_blank");
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }, 2000);
+  };
+
+  function getMonthName(idx) {
+    const months = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+    return months[idx - 1] || "";
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 })();
