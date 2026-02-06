@@ -55,6 +55,8 @@ class TicketController extends Controller
         $sortOrder = $request->query('sort_order', 'desc');
         $page = (int) $request->query('page', 1);
         $perPage = (int) $request->query('per_page', 15);
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
 
         // Validate page and per_page
         $page = max(1, $page);
@@ -71,7 +73,9 @@ class TicketController extends Controller
             $page,
             $perPage,
             null,
-            null
+            null,
+            $startDate,
+            $endDate
         );
 
         return response()->json([

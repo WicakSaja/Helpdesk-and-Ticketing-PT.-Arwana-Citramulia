@@ -4,6 +4,7 @@ namespace App\Http\Services\Ticket;
 
 use App\Models\Ticket;
 use App\Models\User;
+use Carbon\Carbon;
 
 class TicketQueryService
 {
@@ -17,11 +18,13 @@ class TicketQueryService
      * - sort_by: sort berdasarkan field (created_at, ticket_number, subject) - default: created_at
      * - sort_order: sort order (asc, desc) - default: desc
      * - page: halaman (default: 1)
-     * - per_page: jumlah item per halaman (default: 15)
+    * - per_page: jumlah item per halaman (default: 15)
+    * - start_date: filter tanggal awal (format: YYYY-MM-DD)
+    * - end_date: filter tanggal akhir (format: YYYY-MM-DD)
      * - exclude_status: array status untuk dikecualikan
      * - include_status: array status untuk diinclude (hanya ticket dengan status ini yang akan muncul)
      */
-    public function listTickets(User $user, ?string $status = null, ?int $categoryId = null, ?int $assignedTo = null, ?string $search = null, string $sortBy = 'created_at', string $sortOrder = 'desc', int $page = 1, int $perPage = 15, ?array $excludeStatus = null, ?array $includeStatus = null)
+    public function listTickets(User $user, ?string $status = null, ?int $categoryId = null, ?int $assignedTo = null, ?string $search = null, string $sortBy = 'created_at', string $sortOrder = 'desc', int $page = 1, int $perPage = 15, ?array $excludeStatus = null, ?array $includeStatus = null, ?string $startDate = null, ?string $endDate = null)
     {
         $query = Ticket::with(['status', 'category', 'requester.department', 'assignment.technician']);
 
@@ -76,6 +79,18 @@ class TicketQueryService
                   ->orWhere('ticket_number', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
             );
+        }
+
+        // Filter by created_at date range
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay(),
+            ]);
+        } elseif ($startDate) {
+            $query->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+        } elseif ($endDate) {
+            $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
         }
 
         // Sorting
