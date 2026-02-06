@@ -8,9 +8,9 @@ export default defineConfig({
         "resources/css/app.css",
         "resources/js/app.js",
         "resources/css/auth-style.css",
+        "resources/css/category.css",
 
         "resources/css/create-ticket.css",
-
         "resources/css/dashboard-helpdesk.css",
         "resources/css/dashboard-requester.css",
         "resources/css/dashboard-superadmin.css",
@@ -20,6 +20,7 @@ export default defineConfig({
         "resources/css/helpdesk-all-tickets.css",
         "resources/css/helpdesk-incoming.css",
         "resources/css/profile.css",
+        "resources/css/report.css",
         "resources/css/ticket-style.css",
         "resources/css/users.css",
       ],

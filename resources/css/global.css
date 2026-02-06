@@ -253,8 +253,10 @@ a {
         /* Jarak Hamburger ke Logo */
 
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 65px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 65px;
 
         background: #fff;
         padding: 0 20px;
@@ -265,7 +267,8 @@ a {
 
     /* Tombol Hamburger */
     .mobile-toggle-btn {
-        display: flex; align-items: center;
+        display: flex;
+        align-items: center;
         justify-content: center;
         background: transparent;
         border: none;
@@ -311,4 +314,28 @@ a {
         opacity: 1;
         visibility: visible;
     }
+}
+
+/* =========================================================
+   FIX: SIDEBAR MENU STYLE OVERRIDE
+   (Memastikan tidak ada garis bawah meskipun ada library luar seperti Tabler/Bootstrap)
+   ========================================================= */
+.sidebar .menu-item,
+.sidebar .menu-item:hover,
+.sidebar .menu-item:focus,
+.sidebar .menu-item.active,
+a.menu-item {
+    text-decoration: none !important;
+    outline: none !important;
+    border-bottom: none !important;
+}
+
+/* Pastikan warna ikon & teks konsisten saat hover/active */
+.sidebar .menu-item:hover {
+    color: #d62828 !important;
+    /* Merah Arwana */
+}
+
+.sidebar .menu-item.active {
+    color: white !important;
 }

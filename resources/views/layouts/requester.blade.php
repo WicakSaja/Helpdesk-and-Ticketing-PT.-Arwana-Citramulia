@@ -44,8 +44,13 @@
                 <i class="fa-solid fa-plus-circle"></i> Buat Tiket Baru
             </a>
 
+            {{-- 
+                LOGIKA BARU: 
+                Aktif jika URL dimulai dengan 'tickets' (Index & Detail), 
+                TAPI KECUALI 'tickets/create' (karena sudah punya tombol sendiri di atas).
+            --}}
             <a href="{{ route('tickets.index') }}"
-                class="menu-item {{ Route::is('tickets.index') || Route::is('tickets.show') ? 'active' : '' }}">
+                class="menu-item {{ (Request::is('tickets*') && !Request::is('tickets/create')) ? 'active' : '' }}">
                 <i class="fa-solid fa-list-check"></i> Riwayat Tiket
             </a>
 
@@ -67,10 +72,7 @@
     </div>
 
     {{-- Auth Scripts --}}
-    <script>
-        // Gunakan API_URL yang sama di semua view
-        const API_URL = "{{ env('API_BASE_URL', 'http://localhost:8000') }}";
-    </script>
+
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
     <script src="{{ asset('js/logout-handler.js') }}"></script>
     <script src="{{ asset('js/role-protection.js') }}"></script>

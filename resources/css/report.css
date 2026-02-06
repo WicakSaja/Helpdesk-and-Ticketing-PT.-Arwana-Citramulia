@@ -1,0 +1,197 @@
+/* HEADER & CONTROLS */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+/* FILTER & TABS CONTAINER */
+.controls-wrapper {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #f1f5f9;
+}
+
+/* FILTER GROUPS */
+.filters-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #475569;
+    outline: none;
+    cursor: pointer;
+    background-color: #f8fafc;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.filter-select:hover { border-color: #cbd5e1; }
+.filter-select:focus { border-color: #d62828; background: white; }
+
+/* TABS (Modern Pill Style) */
+.tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #d62828;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* EXPORT BUTTON */
+.btn-export {
+    background: #10b981; /* Green Emerald */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    font-size: 14px;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.btn-export:hover { background: #059669; transform: translateY(-1px); }
+
+/* MODERN TABLE STYLES */
+.table-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-table th {
+    background: #f8fafc;
+    padding: 18px 20px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.report-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.report-table tr:hover td {
+    background-color: #fff1f2; /* Merah sangat muda saat hover */
+}
+
+/* SPECIFIC COLUMN STYLES */
+.ticket-number {
+    font-family: 'Consolas', monospace;
+    color: #d62828;
+    background: #fff5f5;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* User Profile Style (Avatar + Name) */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    background: #eff6ff;
+    color: #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name { font-weight: 600; color: #1e293b; font-size: 14px; }
+.user-role { font-size: 11px; color: #94a3b8; }
+
+/* Technician Badge */
+.tech-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.no-tech {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Loading */
+.loading-container { text-align: center; padding: 60px; color: #94a3b8; }

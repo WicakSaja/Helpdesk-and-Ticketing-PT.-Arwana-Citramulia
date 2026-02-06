@@ -1,103 +1,327 @@
-@extends('layouts.requester') {{-- Menggunakan Layout Requester --}}
-@section('title', 'Detail Tiket Saya')
+@extends('layouts.requester')
+@section('title', 'Detail Tiket')
 
 @section('css')
-    {{-- Style CSS (Sama) --}}
+    {{-- Library CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     <style>
-        /* Style card & timeline sama */
+        /* --- STYLE DASAR --- */
+        body {
+            background-color: #f4f6f9;
+        }
+
         .card {
             border: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            /* Shadow halus */
+            border-radius: 16px;
+            background: #fff;
+            margin-bottom: 24px;
         }
 
         .card-header {
-            background: #fff;
+            background-color: #fff;
             border-bottom: 1px solid #f0f0f0;
-            padding: 15px 20px;
+            padding: 20px 24px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Timeline lebih sederhana untuk user */
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        /* --- TOMBOL KEMBALI MODERN (ARWANA STYLE) --- */
+        .btn-back-custom {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #ffffff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 50px;
+            /* Pill Shape */
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .btn-back-custom:hover {
+            background-color: #fff5f5;
+            /* Merah muda tipis */
+            border-color: #d62828;
+            /* Merah Arwana */
+            color: #d62828;
+            transform: translateX(-3px);
+            box-shadow: 0 4px 10px rgba(214, 40, 40, 0.1);
+            text-decoration: none !important;
+        }
+
+        /* --- TIMELINE --- */
         .timeline {
-            margin-top: 20px;
-            padding-left: 20px;
-            border-left: 2px solid #e5e7eb;
+            position: relative;
+            padding-left: 35px;
+            margin-top: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 5px;
+            bottom: 0;
+            width: 2px;
+            background: #f1f5f9;
         }
 
         .timeline-item {
             position: relative;
-            margin-bottom: 20px;
-            padding-left: 15px;
+            margin-bottom: 30px;
         }
 
-        .timeline-item::before {
-            content: '';
+        .timeline-marker {
             position: absolute;
-            left: -21px;
-            top: 5px;
-            width: 10px;
-            height: 10px;
-            background: #206bc4;
+            left: -32px;
+            top: 4px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            border: 2px solid #fff;
+            background: #fff;
+            border: 3px solid #206bc4;
+            z-index: 2;
+            box-shadow: 0 0 0 4px #fff;
+        }
+
+        .timeline-content {
+            background: #ffffff;
+            padding: 0 5px;
         }
 
         .timeline-time {
             font-size: 0.75rem;
-            color: #999;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .timeline-title {
-            font-weight: bold;
+            font-weight: 700;
+            color: #334155;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.6;
+            background: #f8fafc;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+            display: inline-block;
+            min-width: 50%;
+        }
+
+        /* --- INFO SIDEBAR --- */
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .info-group {
+            margin-bottom: 28px;
+        }
+
+        /* --- STATUS BADGE VIBRANT --- */
+        .badge-status-lg {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .bg-red-solid {
+            background-color: #d62828 !important;
+        }
+
+        .bg-blue-solid {
+            background-color: #0d6efd !important;
+        }
+
+        .bg-green-solid {
+            background-color: #198754 !important;
+        }
+
+        .bg-grey-solid {
+            background-color: #6c757d !important;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .page-header {
+                margin-top: 10px;
+                margin-bottom: 20px;
+            }
+
+            .page-header .row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .page-header .col-auto {
+                width: 100%;
+            }
+
+            .btn-back-custom {
+                width: 100%;
+            }
+
+            .timeline-desc {
+                width: 100%;
+            }
         }
     </style>
 @endsection
 
 @section('content')
-    <div class="container-xl">
-        <div class="page-header d-print-none mb-4">
-            <div class="row align-items-center">
-                <div class="col">
-                    <ol class="breadcrumb" aria-label="breadcrumbs">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Tiket Saya</a></li>
-                        <li class="breadcrumb-item active">Detail</li>
-                    </ol>
-                    <h2 class="page-title">Tiket #<span id="ticket-id-display">{{ $ticket_id }}</span></h2>
+    <div class="page-header d-print-none mb-4">
+        <div class="row align-items-center">
+
+            {{-- JUDUL TIKET (KIRI) --}}
+            <div class="col">
+                <h2 class="page-title d-flex align-items-center gap-2">
+                    <span class="text-truncate">Detail Tiket</span>
+                    <span class="text-muted fw-normal" id="ticket-id-display"
+                        style="font-size: 0.8em; opacity: 0.7;">#Loading</span>
+                </h2>
+                <div class="text-muted small mt-1">Informasi lengkap permasalahan dan riwayat penanganan.</div>
+            </div>
+
+            {{-- TOMBOL KEMBALI (KANAN) --}}
+            <div class="col-auto ms-auto d-print-none">
+                <a href="{{ route('tickets.index') }}" class="btn-back-custom">
+                    <i class="feather icon-arrow-left"></i> Kembali
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cards">
+        {{-- KOLOM UTAMA (KIRI) --}}
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Informasi Masalah</h3>
+                    {{-- Badge Status Akan Muncul Disini --}}
+                    <div id="ticket-status-badge">
+                        <div class="spinner-border spinner-border-sm text-secondary"></div>
+                    </div>
                 </div>
-                <div class="col-auto ms-auto">
-                    <a href="javascript:history.back()" class="btn btn-ghost-secondary">Kembali</a>
+
+                <div class="card-body">
+                    {{-- Subjek --}}
+                    <h2 class="mb-3" id="ticket-subject" style="color:#1e293b; font-size: 1.5rem; line-height:1.4;">
+                        Memuat Data...
+                    </h2>
+
+                    {{-- Deskripsi --}}
+                    <div class="p-4 bg-light rounded-3 mb-5" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                        <div id="ticket-description" style="color: #334155; line-height: 1.7; font-size: 0.95rem;">
+                            <div class="d-flex align-items-center gap-2 text-muted">
+                                <div class="spinner-border spinner-border-sm"></div>
+                                <span>Memuat deskripsi...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hr-text text-muted small mt-5 mb-4 fw-bold text-uppercase"
+                        style="letter-spacing:1px; color: #94a3b8;">
+                        Riwayat Aktivitas
+                    </div>
+
+                    {{-- Timeline --}}
+                    <div id="ticket-timeline">
+                        <div class="text-center py-4 text-muted">
+                            <div class="spinner-border spinner-border-sm mb-2"></div>
+                            <div>Memuat riwayat...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row row-cards">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-3">
-                            <h2 id="ticket-subject">...</h2>
-                            <div id="ticket-status-badge"></div>
-                        </div>
-                        <div class="p-3 bg-light border rounded" id="ticket-description">...</div>
-
-                        <h3 class="mt-4">Riwayat Progress</h3>
-                        <div id="ticket-timeline"></div>
-                    </div>
+        {{-- KOLOM SIDEBAR (KANAN) --}}
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h3 class="card-title text-secondary"
+                        style="font-size: 0.85rem; text-transform:uppercase; letter-spacing: 0.5px;">Meta Data</h3>
                 </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title">Informasi</h3>
-                        <div class="mb-2"><strong>Kategori:</strong> <span id="ticket-category">-</span></div>
-                        <div class="mb-2"><strong>Prioritas:</strong> <span id="ticket-priority">-</span></div>
-                        <div class="mb-2"><strong>Dibuat:</strong> <span id="ticket-created-at">-</span></div>
-                        <hr>
-                        <div class="mb-2"><strong>Teknisi:</strong> <span id="ticket-agent" class="text-muted">Belum
-                                ada</span></div>
+                <div class="card-body">
+                    {{-- Requester --}}
+                    <div class="info-group">
+                        <div class="info-label">Requester (Pengaju)</div>
+                        <div class="d-flex align-items-center gap-3 mt-2">
+                            <span class="avatar avatar-md rounded bg-blue-lt fw-bold" id="req-initial"
+                                style="font-size: 1.2rem; width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:#e3f2fd; color:#0d6efd;">-</span>
+                            <div>
+                                <div class="info-value text-dark" id="ticket-requester">Memuat...</div>
+                                <div class="small text-muted" id="ticket-dept">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Kategori --}}
+                    <div class="info-group">
+                        <div class="info-label">Kategori</div>
+                        <div class="info-value" id="ticket-category">-</div>
+                    </div>
+
+                    {{-- Tanggal --}}
+                    <div class="info-group">
+                        <div class="info-label">Dibuat Pada</div>
+                        <div class="info-value" id="ticket-created-at">-</div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    {{-- Teknisi --}}
+                    <div class="info-group">
+                        <div class="info-label">Teknisi (Solver)</div>
+                        <div class="mt-2" id="ticket-agent">
+                            <span class="text-muted fst-italic small">Belum ditugaskan</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -106,34 +330,161 @@
 @endsection
 
 @section('scripts')
-    {{-- Gunakan script JS Fetch yang sama persis seperti di Helpdesk --}}
-    {{-- Salin block <script> dari file Helpdesk di sini --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-        // ... PASTE LOGIC JS DARI HELPDESK ...
-        // Logic fetch data sama karena endpoint API-nya sama.
-        // Tampilan akan otomatis mengisi elemen dengan ID yang sesuai.
-
         const TICKET_ID = '{{ $ticket_id }}';
-        const API_URL_BASE = "http://127.0.0.1:8000/api/tickets";
+        // Pastikan URL ini benar sesuai route API Anda
+        const API_URL_BASE = "{{ url('/api/tickets') }}";
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTicketDetail();
-        });
+        document.addEventListener('DOMContentLoaded', loadTicketDetail);
 
-        // Fungsi fetch loadTicketDetail() ... copy dari helpdesk
         async function loadTicketDetail() {
-            // Placeholder logic
-            const token = localStorage.getItem('auth_token'); // Biasanya user simpan di local
-            // Fetch logic here...
-            // Render logic here... (renderTicket, renderTimeline)
-            // Pastikan nama ID element HTML (ticket-subject, dll) sama dengan di HTML Requester di atas.
+            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
 
-            // UNTUK SEMENTARA SAYA PANGGIL ALERT AGAR ANDA INGAT MENGCOPY LOGICNYA
-            console.log("Load script logic from helpdesk file");
+            if (!token) {
+                Swal.fire('Sesi Habis', 'Silakan login kembali', 'warning')
+                    .then(() => window.location.href = "{{ route('login') }}");
+                return;
+            }
+
+            try {
+                // Fetch Data Tiket
+                const res = await fetch(`${API_URL_BASE}/${TICKET_ID}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!res.ok) throw new Error("Gagal mengambil data tiket.");
+
+                const json = await res.json();
+                const ticket = json.data || json.ticket || json;
+                renderTicket(ticket);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('ticket-description').innerHTML =
+                    `<div class="text-danger">Gagal memuat data: ${error.message}</div>`;
+            }
         }
 
-        // ... Copy fungsi renderTicket & renderTimeline ...
+        function renderTicket(t) {
+            // 1. Header Info
+            document.getElementById('ticket-id-display').innerText = `#${t.ticket_number || t.id}`;
+            document.getElementById('ticket-subject').innerText = t.subject || '(Tanpa Subjek)';
+
+            // 2. Deskripsi (Aman XSS & Newline)
+            const rawDesc = t.description || 'Tidak ada deskripsi.';
+            const safeDesc = rawDesc
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\n/g, '<br>');
+            document.getElementById('ticket-description').innerHTML = safeDesc;
+
+            // 3. Sidebar Info
+            const reqName = t.requester?.name || t.requester_name || 'User';
+            document.getElementById('ticket-requester').innerText = reqName;
+            document.getElementById('req-initial').innerText = reqName.charAt(0).toUpperCase();
+
+            // Departemen (Optional, cek kalau ada datanya)
+            const deptName = t.requester?.department?.name || t.department?.name || '';
+            document.getElementById('ticket-dept').innerText = deptName;
+
+            document.getElementById('ticket-category').innerText = t.category?.name || '-';
+
+            // Format Tanggal
+            if (t.created_at) {
+                const d = new Date(t.created_at);
+                document.getElementById('ticket-created-at').innerText = d.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // Teknisi Info
+            const techName = t.technician?.name || t.assignment?.technician?.name;
+            if (techName) {
+                document.getElementById('ticket-agent').innerHTML =
+                    `<div class="d-flex align-items-center gap-2 p-3 rounded" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+                        <i class="feather icon-check-circle text-success fs-4"></i> 
+                        <span class="fw-bold text-dark">${techName}</span>
+                     </div>`;
+            } else {
+                document.getElementById('ticket-agent').innerHTML =
+                    `<div class="text-muted small fst-italic border rounded p-2 text-center bg-light">Belum ada teknisi</div>`;
+            }
+
+            // 4. Status Badge (Vibrant Colors)
+            const status = (t.status?.name || t.status || 'OPEN').toUpperCase();
+            let badgeHtml = '';
+
+            if (status === 'OPEN') {
+                badgeHtml = `<span class="badge-status-lg bg-red-solid">OPEN</span>`;
+            } else if (status === 'IN_PROGRESS' || status === 'ASSIGNED' || status.includes('PROGRESS')) {
+                badgeHtml = `<span class="badge-status-lg bg-blue-solid">ON PROGRESS</span>`;
+            } else if (status === 'RESOLVED') {
+                badgeHtml = `<span class="badge-status-lg bg-green-solid">RESOLVED</span>`;
+            } else if (status === 'CLOSED') {
+                badgeHtml = `<span class="badge-status-lg bg-grey-solid">CLOSED</span>`;
+            } else {
+                badgeHtml = `<span class="badge-status-lg bg-grey-solid">${status}</span>`;
+            }
+
+            document.getElementById('ticket-status-badge').innerHTML = badgeHtml;
+
+            // 5. Timeline Logic
+            const logs = t.logs || t.histories || [];
+            renderTimeline(logs);
+        }
+
+        function renderTimeline(logs) {
+            const container = document.getElementById('ticket-timeline');
+
+            if (!logs || logs.length === 0) {
+                container.innerHTML = `<div class="text-center py-3 text-muted small">Belum ada aktivitas.</div>`;
+                return;
+            }
+
+            // Urutkan log dari yang terbaru
+            logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            let html = '<div class="timeline">';
+            logs.forEach(log => {
+                const date = new Date(log.created_at);
+                const dateStr = date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const action = (log.action || log.status || 'Update').toUpperCase();
+
+                // Warna Marker Timeline Berdasarkan Aksi
+                let color = '#206bc4'; // Default Blue
+                if (action.includes('RESOLVED')) color = '#198754'; // Green
+                if (action.includes('CLOSED')) color = '#64748b'; // Grey
+                if (action.includes('REJECT') || action.includes('OPEN')) color = '#d62828'; // Red
+                if (action.includes('ASSIGN') || action.includes('PROGRESS')) color = '#f59f00'; // Orange
+
+                html += `
+                <div class="timeline-item">
+                    <div class="timeline-marker" style="border-color: ${color};"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-time">${dateStr}</span>
+                        <div class="timeline-title" style="color:${color}">${action}</div>
+                        <div class="timeline-desc">${log.description || log.note || '-'}</div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
     </script>
 @endsection

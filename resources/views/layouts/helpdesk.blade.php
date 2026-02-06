@@ -9,14 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    {{-- Global CSS --}}
     @vite(['resources/css/global.css'])
-    @yield('head')
     @yield('css')
-
 </head>
 
 <body>
 
+    {{-- MOBILE HEADER --}}
     <div class="mobile-header-bar">
         <button class="mobile-toggle-btn" id="sidebarToggle">
             <i class="fa-solid fa-bars"></i>
@@ -28,36 +28,49 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+    {{-- SIDEBAR --}}
     <div class="sidebar">
         <div class="sidebar-logo">
-            <img src="{{ asset('images/logo_arwana.png') }}" alt="Arwana Ceramics" class="img-logo">
+            <img src="{{ asset('images/logo_arwana.png') }}" alt="Logo" class="img-logo">
             <span
                 style="display:block; font-size:12px; color:#999; margin-top:5px; font-weight:600; letter-spacing:1px;">
-                HELPDESK</span>
+                HELPDESK</span> {{-- Label diganti jadi HELPDESK --}}
         </div>
 
         <div class="menu">
+            {{-- Dashboard --}}
             <a href="{{ route('dashboard.helpdesk') }}"
                 class="menu-item {{ Route::is('dashboard.helpdesk') ? 'active' : '' }}">
                 <i class="fa-solid fa-house"></i> Dashboard
             </a>
 
+            {{-- Tiket Masuk --}}
             <a href="{{ route('helpdesk.incoming') }}"
                 class="menu-item {{ Route::is('helpdesk.incoming') ? 'active' : '' }}">
                 <i class="fa-solid fa-inbox"></i> Tiket Masuk
+                {{-- Badge Counter (Optional) --}}
                 <span class="menu-badge" id="pendingCount" style="display: none;">0</span>
             </a>
 
+            {{-- Action (Reject/Close) --}}
             <a href="{{ route('helpdesk.actions') }}"
                 class="menu-item {{ Route::is('helpdesk.actions') ? 'active' : '' }}">
-                <i class="fa-solid fa-check-double"></i> Aksi Tiket
+                <i class="fa-solid fa-check-double"></i> Action
             </a>
 
+            {{-- MENU MANAJEMEN KATEGORI --}}
+            <a href="{{ route('helpdesk.categories') }}"
+                class="menu-item {{ Route::is('helpdesk.categories') ? 'active' : '' }}">
+                <i class="fa-solid fa-tags"></i> Manajemen Kategori
+            </a>
+
+            {{-- Daftar Teknisi --}}
             <a href="{{ route('helpdesk.technicians') }}"
                 class="menu-item {{ Route::is('helpdesk.technicians') ? 'active' : '' }}">
                 <i class="fa-solid fa-users-gear"></i> Daftar Teknisi
             </a>
 
+            {{-- Semua Tiket --}}
             <a href="{{ route('helpdesk.all') }}" class="menu-item {{ Route::is('helpdesk.all') ? 'active' : '' }}">
                 <i class="fa-solid fa-layer-group"></i> Semua Data Tiket
             </a>
@@ -73,22 +86,39 @@
         </div>
     </div>
 
+    {{-- MAIN CONTENT --}}
     <div class="main-content">
         @yield('content')
     </div>
 
-    {{-- Auth Scripts --}}
+    {{-- SCRIPTS --}}
     <script>
-        const API_URL = 'http://127.0.0.1:8000';
+        const API_URL = "{{ env('API_BASE_URL', 'http://localhost:8000') }}";
     </script>
     <script src="{{ asset('js/auth-token-manager.js') }}"></script>
     <script src="{{ asset('js/logout-handler.js') }}"></script>
     <script src="{{ asset('js/role-protection.js') }}"></script>
     <script src="{{ asset('js/page-protection.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Protect Helpdesk pages
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pastikan Anda punya fungsi ini di role-protection.js
+            // Jika belum ada, buat logic cek role 'helpdesk' atau 'admin'
+            if (typeof requireHelpdeskRole === 'function') {
+                requireHelpdeskRole();
+            } else {
+                // Fallback: Cek login standar
+                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                if (!token) window.location.href = '/login';
+            }
+        });
+    </script>
+
+    {{-- Script Hitung Tiket Pending (Opsional) --}}
+    <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            // Skip if page sets flag to disable this fetch
             if (window.SKIP_PENDING_COUNT_FETCH) return;
 
             const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
@@ -96,7 +126,6 @@
 
             if (token && badge) {
                 try {
-                    // Fetch hanya count (lightweight endpoint)
                     const response = await fetch('/api/tickets/count?status=open', {
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -122,30 +151,26 @@
         });
     </script>
 
-    {{-- Mobile Sidebar Script (UPDATED) --}}
+    {{-- Mobile Sidebar Toggle --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const toggleBtn = document.getElementById('sidebarToggle');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.getElementById('sidebarOverlay');
 
-            // Fungsi Toggle (Buka/Tutup)
             function toggleSidebar() {
-                // Kita mainkan Class 'active' saja, biar CSS yang atur animasi
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
             }
 
-            // Fungsi Tutup Paksa (saat klik overlay)
             function closeSidebar() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
             }
 
-            // Event Listener
             if (toggleBtn) {
                 toggleBtn.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Mencegah klik tembus
+                    e.stopPropagation();
                     toggleSidebar();
                 });
             }
@@ -155,8 +180,8 @@
             }
         });
     </script>
+
     @yield('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

@@ -879,7 +879,7 @@
                 }
               ]
             },
-            "description": "List semua users dengan pagination dan filter.\n\nRole: master-admin only\n\nQuery Parameters:\n- page: Page number\n- per_page: Items per page (default: 15)\n- role: Filter by role (helpdesk, technician)\n- department_id: Filter by department\n- search: Search by name, email, or phone",
+            "description": "List semua users dengan pagination dan filter.\n\nRole: master-admin only\n\nQuery Parameters:\n- page: Page number\n- per_page: Items per page (default: 15)\n- role: Filter by role (helpdesk, technician)\n- department_id: Filter by department\n- search: Search by name, email, or phone"
           },
           "response": []
         },
