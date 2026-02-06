@@ -52,7 +52,7 @@ class Handler extends ExceptionHandler
         $this->renderable(function (\Illuminate\Validation\ValidationException $e, $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
-                    'message' => 'The given data was invalid.',
+                    'message' => $e->getMessage() ?: 'The given data was invalid.',
                     'errors' => $e->errors()
                 ], 422);
             }

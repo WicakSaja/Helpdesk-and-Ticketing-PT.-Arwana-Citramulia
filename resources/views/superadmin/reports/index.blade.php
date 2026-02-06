@@ -123,7 +123,7 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">Rekapitulasi Laporan</h1>
-        <button class="btn-export" onclick="alert('Fitur download excel akan segera aktif!')">
+        <button class="btn-export" onclick="exportReport(event)">
             <i class="fa-solid fa-file-excel"></i> Download Laporan
         </button>
     </div>
@@ -280,5 +280,185 @@
             // 4. Set tombol aktif (cara tricky: cari text tombol yg diklik atau gunakan event target jika mau lebih kompleks, tapi ini simple)
             event.target.classList.add('active');
         }
+
+        async function exportReport(evt = null) {
+            try {
+                // Detect tab aktif
+                const activeTab = document.querySelector('.table-container.active').id;
+                
+                // Build parameters berdasarkan tab aktif
+                const params = buildExportParams(activeTab);
+                
+                // Get token dari TokenManager atau sessionStorage
+                const token = (window.TokenManager && window.TokenManager.getToken()) 
+                    || sessionStorage.getItem('auth_token')
+                    || '';
+                
+                if (!token) {
+                    alert('Token autentikasi tidak ditemukan. Silakan login kembali.');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Show loading state - cari button secara aman
+                const btn = evt?.target?.closest('.btn-export') || document.querySelector('.btn-export');
+                const originalHTML = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengunduh...';
+
+                // Call API
+                const queryString = new URLSearchParams(params).toString();
+                const apiUrl = window.location.origin;
+                const response = await fetch(`${apiUrl}/api/export?${queryString}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    }
+                });
+
+                if (!response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Export gagal');
+                    } else {
+                        throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+                    }
+                }
+
+                // Download file
+                const blob = await response.blob();
+                const contentDisposition = response.headers.get('Content-Disposition');
+                const filename = contentDisposition 
+                    ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+                    : `Laporan_${activeTab}_${new Date().toISOString().slice(0,10)}.xlsx`;
+
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Show success message
+                showNotification('Laporan berhasil diunduh!', 'success');
+
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification('Gagal mengunduh laporan: ' + error.message, 'error');
+            } finally {
+                // Reset button state - cari button secara aman
+                const btn = evt?.target?.closest('.btn-export') || document.querySelector('.btn-export');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-file-excel"></i> Download Laporan';
+                }
+            }
+        }
+
+        function buildExportParams(activeTab) {
+            const today = new Date();
+            let params = {
+                type: 'all-tickets' // Default type
+            };
+
+            switch(activeTab) {
+                case 'weekly':
+                    // Get week start (Monday) and end (Sunday)
+                    const dayOfWeek = today.getDay();
+                    const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+                    
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() + diffToMonday);
+                    
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    
+                    params.start_date = formatDate(weekStart);
+                    params.end_date = formatDate(weekEnd);
+                    params.interval = 'weekly';
+                    break;
+
+                case 'monthly':
+                    // Get current month start and end
+                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    
+                    params.start_date = formatDate(monthStart);
+                    params.end_date = formatDate(monthEnd);
+                    params.interval = 'monthly';
+                    break;
+
+                case 'yearly':
+                    // Get current year start and end
+                    const yearStart = new Date(today.getFullYear(), 0, 1);
+                    const yearEnd = new Date(today.getFullYear(), 11, 31);
+                    
+                    params.start_date = formatDate(yearStart);
+                    params.end_date = formatDate(yearEnd);
+                    params.interval = 'monthly';
+                    break;
+            }
+
+            return params;
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function showNotification(message, type = 'success') {
+            // Simple notification - bisa diganti dengan library toast notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#2e7d32' : '#d32f2f'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
     </script>
+
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
 @endsection
