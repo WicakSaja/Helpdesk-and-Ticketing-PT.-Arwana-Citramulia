@@ -3,6 +3,7 @@
 @section('title', 'Dashboard - Helpdesk Arwana')
 
 @section('css')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @vite(['resources/css/dashboard-helpdesk.css'])
 @endsection
 
@@ -73,7 +74,20 @@
                         <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
                     </div>
                 </div>
-
+                <div class="charts-wrapper">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">📈 Trend Ticket - 7 hari terakhir</div>
+                        </div>
+                        <canvas id="trendChart" style="height: 300px; width: 100%;"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">📊 Tren Masalah - sebulan terakhir</div>
+                        </div>
+                            <canvas id="categoryChart" style="height: 300px; width: 100%;"></canvas>
+                    </div>
+                    </div>
                 <div class="table-container">
                     <div class="section-title">
                         <i class="fa-solid fa-bullseye" style="color:#ef4444;"></i> 
@@ -135,7 +149,8 @@
                 </div>`;
 
             document.getElementById('dashboardContent').innerHTML = html;
-
+            // Initialize charts after content is rendered
+            initCharts(data);
         } catch (error) {
             console.error('Error:', error);
             document.getElementById('dashboardContent').innerHTML = `
@@ -152,5 +167,145 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadDashboard();
     });
+
+     function initCharts(data) {
+            // 1. CHART TREN TIKET (Line Chart - Modern)
+            const ctxTrend = document.getElementById('trendChart');
+            if (ctxTrend) {
+                new Chart(ctxTrend.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.ticket_trend.map(t => `${t.day_name.substring(0, 3)}\n${t.date.substring(5)}`),
+                        datasets: [{
+                                label: 'Tiket Masuk',
+                                data: data.ticket_trend.map(t => t.incoming),
+                                borderColor: '#1565c0',
+                                backgroundColor: 'rgba(21, 101, 192, 0.15)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#1565c0',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
+                            },
+                            {
+                                label: 'Tiket Selesai',
+                                data: data.ticket_trend.map(t => t.solved),
+                                borderColor: '#2e7d32',
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                borderDash: [8, 4],
+                                pointRadius: 5,
+                                pointBackgroundColor: '#2e7d32',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: 13,
+                                        weight: '600'
+                                    },
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            filler: {
+                                propagate: true
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. CHART KATEGORI (Doughnut - Modern)
+            const ctxCat = document.getElementById('categoryChart');
+            if (ctxCat) {
+                // Store raw data for tooltip access
+                const categoryData = data.category_distribution;
+
+                new Chart(ctxCat.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: categoryData.map(c => c.name),
+                        datasets: [{
+                            data: categoryData.map(c => c.percentage),
+                            backgroundColor: [
+                                '#ef4444', // Red
+                                '#3b82f6', // Blue
+                                '#f59e0b', // Amber
+                                '#8b5cf6', // Purple
+                                '#10b981' // Green
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 13,
+                                        weight: '600'
+                                    },
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const index = context.dataIndex;
+                                        const count = categoryData[index].count || 0;
+                                        const percentage = categoryData[index].percentage || 0;
+                                        return `Tiket: ${count} (${percentage.toFixed(1)}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+        }
     </script>
 @endsection
