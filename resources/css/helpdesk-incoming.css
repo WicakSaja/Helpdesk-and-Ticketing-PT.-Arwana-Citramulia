@@ -6,12 +6,12 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
-    gap: 15px; 
+    gap: 15px;
 }
 
 .header-left {
-    flex: 1; 
-    min-width: 0; 
+    flex: 1;
+    min-width: 0;
 }
 
 .page-title {
@@ -21,7 +21,7 @@
     margin-bottom: 2px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; 
+    text-overflow: ellipsis;
 }
 
 .page-subtitle {
@@ -37,7 +37,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 
 /* =========================================================
@@ -47,19 +47,20 @@
 /* --- TAMPILAN DESKTOP --- */
 .alert-badge {
     position: relative;
-    
+
     /* Background Merah Muda Tipis (Khas Arwana) */
-    background: #fff5f5; 
+    background: #fff5f5;
     border: 1px solid #ffcdd2;
-    color: #d62828; /* Teks Merah */
-    
+    color: #d62828;
+    /* Teks Merah */
+
     padding: 8px 16px;
     border-radius: 8px;
-    
+
     display: flex;
     align-items: center;
     gap: 8px;
-    
+
     font-weight: 600;
     font-size: 13px;
     white-space: nowrap;
@@ -70,7 +71,7 @@
 /* Ikon Lonceng Merah */
 .alert-badge i {
     font-size: 16px;
-    color: #d62828; 
+    color: #d62828;
 }
 
 /* Hover Effect di Desktop */
@@ -91,116 +92,537 @@
 
 /* --- TOMBOL REFRESH --- */
 .btn-refresh {
-    width: 40px; height: 40px;
+    width: 40px;
+    height: 40px;
     border-radius: 8px;
     border: 1px solid #ddd;
     background: white;
     color: #555;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: 0.2s;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
-.btn-refresh:hover { background: #f5f5f5; color: #333; border-color: #bbb; }
-.btn-refresh i { font-size: 18px; }
+
+.btn-refresh:hover {
+    background: #f5f5f5;
+    color: #333;
+    border-color: #bbb;
+}
+
+.btn-refresh i {
+    font-size: 18px;
+}
 
 
 /* =========================================================
    3. TABEL & MODAL (STANDARD)
    ========================================================= */
-.table-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
-.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.custom-table { width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap; }
-.custom-table th { text-align: left; color: #888; padding: 15px; border-bottom: 2px solid #f0f0f0; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-.custom-table td { padding: 15px; border-bottom: 1px solid #f9f9f9; font-size: 14px; color: #333; vertical-align: middle; }
-.custom-table tr:hover td { background: #fcfcfc; }
-.btn-assign { background: #1976d2; color: white; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-.btn-assign:hover { background: #1565c0; }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 1060; backdrop-filter: blur(3px); padding: 20px; }
-.modal-box { background: white; width: 100%; max-width: 500px; max-height: 90vh; border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2); animation: slideUp 0.3s ease-out; }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-.modal-header h3 { margin: 0; font-size: 18px; font-weight: 700; }
-.close-modal { font-size: 24px; color: #999; cursor: pointer; line-height: 1; } .close-modal:hover { color: #d62828; }
-.ticket-summary { padding: 20px 25px 0 25px; overflow-y: auto; }
-.modal-info { background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffcdd2; }
-.modal-ticket-number { font-size: 12px; color: #d62828; font-weight: 700; }
-.modal-ticket-subject { font-weight: 700; font-size: 15px; color: #333; margin: 4px 0; }
-.modal-assigned-to { font-size: 12px; color: #666; margin-bottom: 10px; }
-.modal-desc { border-top: 1px solid #ffcdd2; padding-top: 10px; margin-top: 10px; }
-.modal-desc-title { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-.modal-desc-text { font-size: 13px; color: #444; line-height: 1.4; white-space: pre-wrap; }
-.form-group { padding: 15px 25px; }
-.form-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: #555; }
-.form-select, .form-textarea { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; font-family: inherit; appearance: none; -webkit-appearance: none; background-color: white; }
-.form-select:focus, .form-textarea:focus { border-color: #1976d2; }
-.form-textarea { min-height: 80px; resize: vertical; }
-.select-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; font-size: 12px; }
-.loading-text { font-size: 12px; color: #666; margin-top: 5px; }
-.modal-footer { padding: 20px 25px; background: #fcfcfc; border-top: 1px solid #eee; border-radius: 0 0 16px 16px; display: flex; justify-content: flex-end; gap: 10px; }
-.btn-save { background: #d62828; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-.btn-save:hover { background: #b71c1c; }
-.btn-cancel { background: white; color: #666; border: 1px solid #ddd; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; }
-.btn-cancel:hover { background: #f5f5f5; }
-.footer-actions { margin-top: 20px; display: flex; justify-content: flex-end; }
-.pagination-container { display: flex; gap: 5px; }
+.table-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    white-space: nowrap;
+}
+
+.custom-table th {
+    text-align: left;
+    color: #888;
+    padding: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.custom-table td {
+    padding: 15px;
+    border-bottom: 1px solid #f9f9f9;
+    font-size: 14px;
+    color: #333;
+    vertical-align: middle;
+}
+
+.custom-table tr:hover td {
+    background: #fcfcfc;
+}
+
+.btn-assign {
+    background: #1976d2;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-assign:hover {
+    background: #1565c0;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1060;
+    backdrop-filter: blur(3px);
+    padding: 20px;
+}
+
+.modal-box {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.close-modal {
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    color: #d62828;
+}
+
+.ticket-summary {
+    padding: 20px 25px 0 25px;
+    overflow-y: auto;
+}
+
+.modal-info {
+    background: #fff5f5;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ffcdd2;
+}
+
+.modal-ticket-number {
+    font-size: 12px;
+    color: #d62828;
+    font-weight: 700;
+}
+
+.modal-ticket-subject {
+    font-weight: 700;
+    font-size: 15px;
+    color: #333;
+    margin: 4px 0;
+}
+
+.modal-assigned-to {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.modal-desc {
+    border-top: 1px solid #ffcdd2;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.modal-desc-title {
+    font-size: 10px;
+    color: #888;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.modal-desc-text {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+.form-group {
+    padding: 15px 25px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+}
+
+.form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: white;
+}
+
+.form-select:focus, .form-textarea:focus {
+    border-color: #1976d2;
+}
+
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.select-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+    font-size: 12px;
+}
+
+.loading-text {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.modal-footer {
+    padding: 20px 25px;
+    background: #fcfcfc;
+    border-top: 1px solid #eee;
+    border-radius: 0 0 16px 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-save {
+    background: #d62828;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-save:hover {
+    background: #b71c1c;
+}
+
+.btn-cancel {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-cancel:hover {
+    background: #f5f5f5;
+}
+
+.footer-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* --- PAGINATION (ARWANA THEME) --- */
+.pagination-container {
+    padding: 20px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.pagination-info strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    transition: 0.2s;
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+    border-color: #d62828;
+    color: #d62828;
+    background: #fff5f5;
+}
+
+.pagination-btn.active {
+    background: #d62828;
+    color: white;
+    border-color: #d62828;
+    box-shadow: 0 4px 6px rgba(214, 40, 40, 0.15);
+}
+
+.pagination-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background: #f8fafc;
+}
+
+.pagination-btn i {
+    margin-right: 4px;
+}
+
+/* --- EMPTY STATE --- */
+.empty-state-cell {
+    text-align: center;
+    padding: 60px 20px !important;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    color: #e0e0e0;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.empty-state-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #555;
+    margin: 0 0 5px 0;
+}
+
+.empty-state-sub {
+    font-size: 13px;
+    color: #999;
+    margin: 0;
+}
+
+/* --- REJECT BUTTON --- */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-reject-ticket {
+    background: white;
+    color: #d62828;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #ffcdd2;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-reject-ticket:hover {
+    background: #d62828;
+    color: white;
+    border-color: #d62828;
+}
 
 /* =========================================================
    4. MOBILE RESPONSIVE (TAMPILAN DI HP)
    ========================================================= */
 @media (max-width: 992px) {
+
     /* Layout Header Mobile */
-    .page-title { font-size: 18px; }
-    
+    .page-title {
+        font-size: 18px;
+    }
+
     /* --- UBAH TAMPILAN BADGE JADI LONCENG KOTAK --- */
     .alert-badge {
         /* Warna Dasar Kotak: Sedikit merah muda pudar biar ga polos */
-        background: #fffafa; 
-        border: 1px solid #ffcdd2; /* Border Merah Muda Tipis */
-        
-        width: 40px; 
+        background: #fffafa;
+        border: 1px solid #ffcdd2;
+        /* Border Merah Muda Tipis */
+
+        width: 40px;
         height: 40px;
         padding: 0;
         border-radius: 8px;
-        
+
         /* Centering */
         justify-content: center;
-        
+
         color: inherit;
     }
 
     /* Ikon Lonceng: MERAH ARWANA */
     .alert-badge i {
-        color: #d62828; /* Merah Arwana */
+        color: #d62828;
+        /* Merah Arwana */
         font-size: 20px;
     }
 
     /* Sembunyikan Teks */
-    .badge-text { display: none !important; }
+    .badge-text {
+        display: none !important;
+    }
 
     /* --- DOT MERAH MELAYANG (ANGKA) --- */
     #pendingCountNum {
         position: absolute;
-        top: -6px; right: -6px; 
-        
-        background: #d62828; /* Merah Arwana */
+        top: -6px;
+        right: -6px;
+
+        background: #d62828;
+        /* Merah Arwana */
         color: white;
         font-size: 10px;
         font-weight: 700;
-        
+
         /* Bulat Sempurna */
-        width: 18px; 
+        width: 18px;
         height: 18px;
         border-radius: 50%;
-        
-        display: flex; align-items: center; justify-content: center;
-        border: 2px solid white; 
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
         z-index: 10;
-        
+
         /* Cegah bocor */
-        overflow: hidden; 
+        overflow: hidden;
     }
 
-    .table-card { padding: 15px; }
-    .form-group { padding: 10px 20px; }
+    .table-card {
+        padding: 15px;
+    }
+
+    .form-group {
+        padding: 10px 20px;
+    }
+
+    .pagination-container {
+        padding: 12px 15px;
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .pagination-info {
+        font-size: 12px;
+        width: 100%;
+    }
+
+    .pagination-buttons {
+        width: 100%;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 8px;
+    }
+
+    .pagination-btn {
+        min-width: 36px;
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .btn-reject-ticket {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
 }

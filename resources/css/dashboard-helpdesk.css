@@ -2,13 +2,23 @@
    1. HEADER WELCOME
    ========================================================= */
 .header-welcome {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
 }
+
 .user-info h2 {
-    font-size: 26px; color: #333; margin: 0 0 8px 0; font-weight: 700;
+    font-size: 26px;
+    color: #333;
+    margin: 0 0 8px 0;
+    font-weight: 700;
 }
+
 .user-info p {
-    color: #666; font-size: 15px; margin: 0;
+    color: #666;
+    font-size: 15px;
+    margin: 0;
 }
 
 /* =========================================================
@@ -16,56 +26,79 @@
    ========================================================= */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Desktop 4 Kolom */
+    grid-template-columns: repeat(4, 1fr);
+    /* Desktop 4 Kolom */
     gap: 24px;
     margin-bottom: 40px;
 }
 
 .stat-card {
-    background: white;
-    padding: 24px;
     border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    color: white;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border-bottom: 4px solid transparent;
-    position: relative; overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    align-items: center;
+    min-height: 110px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
 .stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2);
 }
 
 /* Typography Card Desktop */
-.stat-info { z-index: 2; }
+.stat-info {
+    z-index: 2;
+}
+
 .stat-info h3 {
-    font-size: 32px; color: #1f2937; font-weight: 800; margin: 0; line-height: 1;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1;
 }
+
 .stat-info p {
-    color: #6b7280; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 5px 0;
+    opacity: 0.9;
 }
 
-/* Icon Box Desktop */
+/* Icon Desktop */
 .stat-icon {
-    width: 54px; height: 54px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; flex-shrink: 0; z-index: 2;
+    font-size: 32px;
+    opacity: 0.25;
+    transform: rotate(-10deg);
+    position: absolute;
+    right: 15px;
+    bottom: 10px;
+    z-index: 1;
 }
 
-/* Varian Warna Desktop */
-.card-red { border-color: #ef4444; }
-.card-red .stat-icon { background: #fee2e2; color: #ef4444; }
+/* Warna Card */
+.card-red {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
 
-.card-blue { border-color: #3b82f6; }
-.card-blue .stat-icon { background: #dbeafe; color: #3b82f6; }
+.card-blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
 
-.card-purple { border-color: #a855f7; }
-.card-purple .stat-icon { background: #f3e8ff; color: #a855f7; }
+.card-purple {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+}
 
-.card-orange { border-color: #f97316; }
-.card-orange .stat-icon { background: #ffedd5; color: #f97316; }
+.card-orange {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+}
 
 /* =========================================================
    3. TABEL & LAINNYA
@@ -98,37 +131,109 @@
 }
 
 .table-container {
-    background: white; padding: 24px; border-radius: 16px;
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
+
 .section-title {
-    font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
 .urgent-table {
-    width: 100%; border-collapse: separate; border-spacing: 0; white-space: nowrap;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    white-space: nowrap;
 }
+
 .urgent-table th {
-    text-align: left; color: #9ca3af; font-size: 11px; font-weight: 700; padding: 12px 16px; border-bottom: 2px solid #e5e7eb; text-transform: uppercase;
+    text-align: left;
+    color: #9ca3af;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e5e7eb;
+    text-transform: uppercase;
 }
+
 .urgent-table td {
-    padding: 16px; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151; vertical-align: middle;
+    padding: 16px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    color: #374151;
+    vertical-align: middle;
 }
+
 .badge-dept {
-    padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
-.dept-hardware { background: #fef3c7; color: #d97706; }
-.dept-account { background: #dcfce7; color: #16a34a; }
-.dept-other { background: #f3f4f6; color: #4b5563; }
+
+.dept-hardware {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.dept-account {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.dept-other {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
 .btn-assign {
-    background: #e0f2fe; color: #0284c7; padding: 6px 14px; border-radius: 8px;
-    font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s;
-    display: inline-flex; align-items: center; gap: 5px;
+    background: #e0f2fe;
+    color: #0284c7;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
-.btn-assign:hover { background: #0284c7; color: white; }
-.loading { text-align: center; padding: 60px; color: #6b7280; }
-.empty-state { padding: 40px; text-align: center; color: #9ca3af; }
-.empty-state i { font-size: 32px; margin-bottom: 10px; display: block; }
+
+.btn-assign:hover {
+    background: #0284c7;
+    color: white;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    color: #6b7280;
+}
+
+.empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.empty-state i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    display: block;
+}
 
 /* =========================================================
    4. MEDIA QUERIES (TAMPILAN HP: SIDE-BY-SIDE VIBRANT)
@@ -140,55 +245,50 @@
 }
 
 @media (max-width: 576px) {
-    .header-welcome { flex-direction: column; align-items: flex-start; margin-bottom: 25px; }
-    .user-info h2 { font-size: 22px; }
-    
+    .header-welcome {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 25px;
+    }
+
+    .user-info h2 {
+        font-size: 22px;
+    }
+
     /* Grid HP 2 Kolom */
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px; 
+        gap: 15px;
     }
 
-    /* --- CARD HP STYLE (SIDE BY SIDE) --- */
+    /* --- CARD HP STYLE (STACKED, FULL GRADIENT) --- */
     .stat-card {
-        padding: 16px;
-        /* KUNCI: Flex Row agar Ikon di samping angka */
-        flex-direction: row; 
-        align-items: center;
-        justify-content: space-between;
-        
-        min-height: 100px;
-        border-bottom: none !important;
-        border: none !important;
-        border-radius: 16px;
-        
-        /* Transisi saat disentuh */
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 15px;
+        min-height: 90px;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
     }
 
     /* Typography di HP */
-    .stat-info p { 
-        font-size: 10px; 
-        opacity: 0.9; 
+    .stat-info p {
+        font-size: 9px;
         margin-bottom: 2px;
-        color: inherit !important; /* Ikut warna kartu */
-    }
-    
-    .stat-info h3 { 
-        font-size: 24px;
-        color: inherit !important; /* Ikut warna kartu */
     }
 
-    /* Icon di HP (Transparan, Sebelah Kanan) */
+    .stat-info h3 {
+        font-size: 24px;
+    }
+
+    /* Icon di HP (Relative, Di Atas Angka) */
     .stat-icon {
-        width: 40px; 
-        height: 40px; 
-        background: rgba(255,255,255,0.25) !important; /* Kotak semi-transparan */
-        font-size: 20px; 
-        margin-left: 10px; /* Jarak dari teks */
-        border-radius: 10px;
-        color: inherit !important; /* Ikut warna kartu */
-        border: 1px solid rgba(255,255,255,0.4); /* Border tipis */
+        position: relative;
+        right: auto;
+        bottom: auto;
+        font-size: 24px;
+        margin-bottom: 8px;
+        transform: rotate(0deg);
+        opacity: 0.8;
     }
 
     /* Efek Sentuh HP */
@@ -197,34 +297,28 @@
         filter: brightness(90%);
     }
 
-    /* --- WARNA VIBRANT & 3D SHADOW (SAMA SEPERTI SEBELUMNYA) --- */
-    /* Merah */
+    /* --- WARNA MENYALA (BRIGHTER GRADIENT + GLOW) --- */
     .card-red {
-        background: linear-gradient(145deg, #fee2e2, #fff5f5) !important;
-        color: #b91c1c !important; /* Teks Merah Gelap */
-        box-shadow: 0 8px 15px -5px rgba(239, 68, 68, 0.4) !important;
+        background: linear-gradient(135deg, #f87171, #ef4444);
+        box-shadow: 0 8px 20px -5px rgba(239, 68, 68, 0.5);
     }
 
-    /* Biru */
     .card-blue {
-        background: linear-gradient(145deg, #dbeafe, #f0f7ff) !important;
-        color: #1e40af !important;
-        box-shadow: 0 8px 15px -5px rgba(59, 130, 246, 0.4) !important;
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        box-shadow: 0 8px 20px -5px rgba(59, 130, 246, 0.5);
     }
 
-    /* Ungu */
     .card-purple {
-        background: linear-gradient(145deg, #f3e8ff, #faf5ff) !important;
-        color: #7e21d4 !important;
-        box-shadow: 0 8px 15px -5px rgba(168, 85, 247, 0.4) !important;
+        background: linear-gradient(135deg, #c084fc, #a855f7);
+        box-shadow: 0 8px 20px -5px rgba(168, 85, 247, 0.5);
     }
 
-    /* Oranye */
     .card-orange {
-        background: linear-gradient(145deg, #ffedd5, #fff7ed) !important;
-        color: #c2410c !important;
-        box-shadow: 0 8px 15px -5px rgba(249, 115, 22, 0.4) !important;
+        background: linear-gradient(135deg, #fb923c, #f97316);
+        box-shadow: 0 8px 20px -5px rgba(249, 115, 22, 0.5);
     }
 
-    .table-container { padding: 15px; }
+    .table-container {
+        padding: 15px;
+    }
 }

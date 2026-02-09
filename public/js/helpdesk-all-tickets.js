@@ -61,7 +61,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (noData) noData.style.display = "none";
 
     try {
-      const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : "";
+      const searchParam = searchQuery
+        ? `&search=${encodeURIComponent(searchQuery)}`
+        : "";
       const apiUrl = `${API_URL}/api/tickets?page=${page}&per_page=${rowsPerPage}${searchParam}`;
       const res = await fetchWithAuth(apiUrl);
 
@@ -145,78 +147,93 @@ document.addEventListener("DOMContentLoaded", function () {
     renderPaginationControls();
   }
 
-  // === 4. PAGINATION CONTROLS (Server-side) ===
+  // === 4. PAGINATION CONTROLS (Server-side - Arwana Theme) ===
   function renderPaginationControls() {
-    paginationControls.innerHTML = "";
-    
-    if (!paginationMeta) return;
+    const container = document.getElementById("paginationControls");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (!paginationMeta) {
+      container.parentElement.style.display = "none";
+      return;
+    }
 
     const { current_page, last_page, total, from, to } = paginationMeta;
 
-    const info = document.getElementById("paginationInfo");
-    if (info) {
-      info.innerText = `Menampilkan ${from || 0}-${to || 0} dari ${total || 0} tiket (Halaman ${current_page} dari ${last_page})`;
+    if (last_page <= 1) {
+      container.parentElement.style.display = "none";
+      return;
     }
 
-    if (last_page <= 1) return;
+    // Info text
+    const infoEl = document.getElementById("paginationInfo");
+    if (infoEl) {
+      infoEl.innerHTML = `Menampilkan <strong>${from || 0}</strong> hingga <strong>${to || 0}</strong> dari <strong>${total || 0}</strong> data`;
+    }
 
     // Previous button
-    const prev = createBtn(
-      '<i class="fa-solid fa-chevron-left"></i> Prev',
-      current_page === 1,
-      () => {
-        if (current_page > 1) loadTickets(current_page - 1);
-      },
-    );
-    paginationControls.appendChild(prev);
+    let html = `<button type="button" class="pagination-btn" data-page="prev" ${current_page === 1 ? "disabled" : ""}>
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>`;
 
-    // Page numbers (show first, last, and pages around current)
-    for (let i = 1; i <= last_page; i++) {
-      if (i === 1 || i === last_page || (i >= current_page - 2 && i <= current_page + 2)) {
-        const pageBtn = createBtn(
-          String(i),
-          false,
-          () => loadTickets(i),
-          i === current_page
-        );
-        paginationControls.appendChild(pageBtn);
-      } else if (i === current_page - 3 || i === current_page + 3) {
-        const dots = document.createElement("span");
-        dots.innerText = "...";
-        dots.style.cssText = "padding: 0 8px; color: #999;";
-        paginationControls.appendChild(dots);
+    // Page buttons (max 5 visible)
+    const maxButtons = 5;
+    let startPage = Math.max(1, current_page - Math.floor(maxButtons / 2));
+    let endPage = Math.min(last_page, startPage + maxButtons - 1);
+    if (endPage - startPage + 1 < maxButtons) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+
+    if (startPage > 1) {
+      html += `<button type="button" class="pagination-btn" data-page="1">1</button>`;
+      if (startPage > 2) {
+        html += `<span class="pagination-btn" style="cursor:default; border:none; padding:0;">...</span>`;
       }
     }
 
+    for (let i = startPage; i <= endPage; i++) {
+      html += `<button type="button" class="pagination-btn ${i === current_page ? "active" : ""}" data-page="${i}">${i}</button>`;
+    }
+
+    if (endPage < last_page) {
+      if (endPage < last_page - 1) {
+        html += `<span class="pagination-btn" style="cursor:default; border:none; padding:0;">...</span>`;
+      }
+      html += `<button type="button" class="pagination-btn" data-page="${last_page}">${last_page}</button>`;
+    }
+
     // Next button
-    const next = createBtn(
-      'Next <i class="fa-solid fa-chevron-right"></i>',
-      current_page === last_page,
-      () => {
-        if (current_page < last_page) loadTickets(current_page + 1);
-      },
-    );
-    paginationControls.appendChild(next);
+    html += `<button type="button" class="pagination-btn" data-page="next" ${current_page === last_page ? "disabled" : ""}>
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>`;
+
+    container.innerHTML = html;
+    container.parentElement.style.display = "flex";
+
+    // Bind pagination clicks
+    container.querySelectorAll(".pagination-btn[data-page]").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const p = this.getAttribute("data-page");
+        let newPage = current_page;
+        if (p === "prev") newPage = Math.max(1, current_page - 1);
+        else if (p === "next") newPage = Math.min(last_page, current_page + 1);
+        else newPage = Number(p);
+
+        if (newPage !== current_page) {
+          loadTickets(newPage);
+        }
+      });
+    });
   }
 
-  function createBtn(html, disabled, onClick, isActive = false) {
-    const div = document.createElement("div");
-    div.className = `page-btn ${disabled ? "disabled" : ""} ${isActive ? "active" : ""}`;
-    let styles = "";
-    if (disabled) styles = "opacity: 0.5; cursor: not-allowed;";
-    else if (isActive) styles = "background-color: #1976d2; color: white; font-weight: 600;";
-    div.style.cssText = styles;
-    div.innerHTML = html;
-    if (!disabled) div.onclick = onClick;
-    return div;
-  }
+  // === HELPER: No longer needed - removed createBtn ===
 
   // === 5. SEARCH (Client-side for current page, or trigger reload for server-side) ===
   if (searchInput) {
     let searchTimeout;
     searchInput.addEventListener("input", function (e) {
       const q = e.target.value.trim();
-      
+
       // Debounce search to avoid too many requests
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => {

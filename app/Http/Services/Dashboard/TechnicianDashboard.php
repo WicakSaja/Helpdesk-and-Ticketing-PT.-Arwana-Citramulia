@@ -60,12 +60,12 @@ class TechnicianDashboard
      */
     private function getMyTickets(): array
     {
-        $closedStatusId = TicketStatus::where('name', 'closed')->value('id');
+        $StatusId = TicketStatus::where('name', 'assigned')->value('id');
 
         return Ticket::whereHas('assignment', function ($q) {
             $q->where('assigned_to', $this->technician->id);
         })
-        ->where('status_id', '!=', $closedStatusId)
+        ->where('status_id', $StatusId)
         ->with([
             'requester:id,name,email,department_id',
             'requester.department',

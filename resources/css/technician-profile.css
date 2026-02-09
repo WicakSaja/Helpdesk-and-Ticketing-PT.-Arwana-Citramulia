@@ -1,0 +1,292 @@
+/* =========================================================
+   TECHNICIAN PROFILE PAGE
+   ========================================================= */
+
+/* HEADER */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+/* =========================================================
+   LAYOUT: 2-COLUMN GRID
+   ========================================================= */
+.profile-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+/* =========================================================
+   LEFT CARD (AVATAR & INFO)
+   ========================================================= */
+.profile-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+    text-align: center;
+}
+
+.avatar-wrapper {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 25px;
+    position: relative;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #fff0f0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.user-role {
+    font-size: 13px;
+    color: #2e7d32;
+    background: #e8f5e9;
+    padding: 6px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    font-weight: 600;
+}
+
+/* Status & Tickets Info Card */
+.profile-stats {
+    margin-top: 30px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-stat-item {
+    text-align: left;
+}
+
+.profile-stat-item:last-child {
+    text-align: right;
+}
+
+.profile-stat-label {
+    color: #999;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.profile-stat-value {
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-stat-value.status-active {
+    color: #2e7d32;
+}
+
+.profile-stat-value.status-offline {
+    color: #999;
+}
+
+.profile-stat-divider {
+    width: 1px;
+    height: 30px;
+    background: #ddd;
+}
+
+/* =========================================================
+   RIGHT CARD (FORM)
+   ========================================================= */
+.settings-card {
+    background: white;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: #d62828;
+}
+
+/* FORM GRID */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    color: #333;
+    background: #fcfcfc;
+}
+
+.form-input:focus {
+    border-color: #d62828;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(214, 40, 40, 0.05);
+}
+
+.form-input:disabled {
+    background: #f8f9fa;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+/* PASSWORD */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 45px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #bbb;
+    transition: 0.3s;
+}
+
+.toggle-password:hover {
+    color: #d62828;
+}
+
+/* SAVE BUTTON */
+.btn-save {
+    background: #d62828;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    float: right;
+}
+
+.btn-save:hover {
+    background: #b01f1f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(214, 40, 40, 0.2);
+}
+
+/* =========================================================
+   MOBILE RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .profile-card {
+        padding: 30px 20px;
+    }
+
+    .avatar-wrapper {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 20px;
+    }
+
+    .user-name {
+        font-size: 18px;
+    }
+
+    .settings-card {
+        padding: 25px 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+    }
+
+    .btn-save {
+        width: 100%;
+        justify-content: center;
+        float: none;
+        margin-top: 10px;
+    }
+}

@@ -5,11 +5,14 @@ export default defineConfig({
   plugins: [
     laravel({
       input: [
+        "resources/css/action-tickets.css",
         "resources/css/app.css",
+
         "resources/js/app.js",
+        "resources/js/bootstrap.js",
+
         "resources/css/auth-style.css",
         "resources/css/category.css",
-
         "resources/css/create-ticket.css",
         "resources/css/dashboard-helpdesk.css",
         "resources/css/dashboard-requester.css",
@@ -21,7 +24,9 @@ export default defineConfig({
         "resources/css/helpdesk-incoming.css",
         "resources/css/profile.css",
         "resources/css/report.css",
-        "resources/css/action-tickets.css",
+        "resources/css/technician-history.css",
+        "resources/css/technician-profile.css",
+        "resources/css/technician-tasks.css",
         "resources/css/ticket-detail.css",
         "resources/css/ticket-style.css",
         "resources/css/users.css",

@@ -52,33 +52,33 @@
                 // Build HTML
                 let html = `
                     <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon bg-blue"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-card card-blue">
                             <div class="stat-info">
-                                <h3>${data.summary.users}</h3>
                                 <p>Total User</p>
+                                <h3>${data.summary.users}</h3>
                             </div>
+                            <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-icon bg-green"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                        <div class="stat-card card-green">
                             <div class="stat-info">
-                                <h3>${data.summary.technicians}</h3>
                                 <p>Teknisi Aktif</p>
+                                <h3>${data.summary.technicians}</h3>
                             </div>
+                            <div class="stat-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-icon bg-orange"><i class="fa-solid fa-ticket"></i></div>
+                        <div class="stat-card card-orange">
                             <div class="stat-info">
-                                <h3>${data.summary.tickets_month}</h3>
                                 <p>Tiket Bulan Ini</p>
+                                <h3>${data.summary.tickets_month}</h3>
                             </div>
+                            <div class="stat-icon"><i class="fa-solid fa-ticket"></i></div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-icon bg-red"><i class="fa-solid fa-building"></i></div>
+                        <div class="stat-card card-red">
                             <div class="stat-info">
-                                <h3>${data.summary.departments}</h3>
                                 <p>Departemen</p>
+                                <h3>${data.summary.departments}</h3>
                             </div>
+                            <div class="stat-icon"><i class="fa-solid fa-building"></i></div>
                         </div>
                     </div>
 
@@ -116,15 +116,15 @@
                                 </thead>
                                 <tbody>
                                     ${data.latest_tickets.map(ticket => `
-                                            <tr>
-                                                <td><strong>${ticket.ticket_number}</strong></td>
-                                                <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
-                                                <td>${ticket.requester?.name || 'Unknown'}</td>
-                                                <td>${ticket.category}</td>
-                                                <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
-                                                <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
-                                            </tr>
-                                        `).join('')}
+                                                <tr>
+                                                    <td><strong>${ticket.ticket_number}</strong></td>
+                                                    <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
+                                                    <td>${ticket.requester?.name || 'Unknown'}</td>
+                                                    <td>${ticket.category}</td>
+                                                    <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
+                                                    <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
+                                                </tr>
+                                            `).join('')}
                                 </tbody>
                             </table>
                         </div>

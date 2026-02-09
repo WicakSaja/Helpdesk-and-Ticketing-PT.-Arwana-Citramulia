@@ -94,9 +94,16 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (tickets.length === 0) {
-        ticketsBody.innerHTML =
-          '<tr><td colspan="5" style="text-align:center; padding:40px 0; color:#666"></td></tr>';
-        document.getElementById("ticketsPagination").innerHTML = "";
+        ticketsBody.innerHTML = `<tr><td colspan="5" class="empty-state-cell">
+            <i class="fa-solid fa-inbox empty-state-icon"></i>
+            <p class="empty-state-text">Tidak ada tiket masuk saat ini.</p>
+            <p class="empty-state-sub">Semua tiket sudah ditugaskan atau belum ada tiket baru.</p>
+          </td></tr>`;
+        const pagContainer = document.getElementById("ticketsPagination");
+        if (pagContainer) {
+          pagContainer.innerHTML = "";
+          pagContainer.style.display = "none";
+        }
         return;
       }
 
@@ -109,6 +116,19 @@ document.addEventListener("DOMContentLoaded", function () {
         .forEach((btn) => {
           btn.addEventListener("click", function () {
             openAssignModal(this.dataset.ticketId, this.dataset.subject);
+          });
+        });
+
+      // Bind reject buttons
+      document
+        .querySelectorAll("button.btn-reject-ticket[data-ticket-id]")
+        .forEach((btn) => {
+          btn.addEventListener("click", function () {
+            rejectIncomingTicket(
+              this.dataset.ticketId,
+              this.dataset.ticketNumber,
+              this.dataset.subject,
+            );
           });
         });
 
@@ -149,9 +169,14 @@ document.addEventListener("DOMContentLoaded", function () {
         <td>${category}</td>
         <td>${date}</td>
         <td>
-          <button class="btn-assign" data-ticket-id="${t.id}" data-subject="${subject}" data-ticket-number="${ticketNum}">
-            <i class="fa-solid fa-user-plus"></i> Pilih Teknisi
-          </button>
+          <div class="action-buttons">
+            <button class="btn-assign" data-ticket-id="${t.id}" data-subject="${subject}" data-ticket-number="${ticketNum}">
+              <i class="fa-solid fa-user-plus"></i> Pilih Teknisi
+            </button>
+            <button class="btn-reject-ticket" data-ticket-id="${t.id}" data-ticket-number="${ticketNum}" data-subject="${subject}">
+              <i class="fa-solid fa-xmark"></i> Reject
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -329,12 +354,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const payload = {
         assigned_to: techId,
       };
-      
+
       // Include notes if provided
       if (notes) {
         payload.notes = notes;
       }
-      
+
       console.debug("Assign POST to", assignUrl, "payload", payload);
       const res = await fetchWithAuth(assignUrl, {
         method: "POST",
@@ -413,35 +438,80 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!container) return;
 
     container.innerHTML = "";
-    if (!meta || meta.last_page <= 1) return;
+    if (!meta || meta.last_page <= 1) {
+      container.style.display = "none";
+      return;
+    }
 
     const current = meta.current_page || currentPage;
     const last = meta.last_page || 1;
+    const total = meta.total || count;
+    const from = meta.from || (current - 1) * PER_PAGE + 1;
+    const to = meta.to || Math.min(current * PER_PAGE, total);
 
-    let html = '';
-    
+    // Info text
+    let html = `<div class="pagination-info">
+      <span>Menampilkan <strong>${from}</strong> hingga <strong>${to}</strong> dari <strong>${total}</strong> data</span>
+    </div>`;
+
+    // Buttons
+    html += `<div class="pagination-buttons">`;
+
     // Previous button
-    if (current > 1) {
-      html += `<button class="btn btn-sm" onclick="loadTickets(${current - 1})">« Prev</button>`;
+    html += `<button type="button" class="pagination-btn" data-page="prev" ${current === 1 ? "disabled" : ""}>
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>`;
+
+    // Page buttons (max 5 visible)
+    const maxButtons = 5;
+    let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+    let endPage = Math.min(last, startPage + maxButtons - 1);
+    if (endPage - startPage + 1 < maxButtons) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
     }
-    
-    // Page numbers
-    for (let i = 1; i <= last; i++) {
-      if (i === current) {
-        html += `<button class="btn btn-sm btn-primary" disabled>${i}</button>`;
-      } else if (i === 1 || i === last || (i >= current - 2 && i <= current + 2)) {
-        html += `<button class="btn btn-sm" onclick="loadTickets(${i})">${i}</button>`;
-      } else if (i === current - 3 || i === current + 3) {
-        html += `<span style="padding:0 5px">...</span>`;
+
+    if (startPage > 1) {
+      html += `<button type="button" class="pagination-btn" data-page="1">1</button>`;
+      if (startPage > 2) {
+        html += `<span class="pagination-btn" style="cursor:default; border:none; padding:0;">...</span>`;
       }
     }
-    
-    // Next button
-    if (current < last) {
-      html += `<button class="btn btn-sm" onclick="loadTickets(${current + 1})">Next »</button>`;
+
+    for (let i = startPage; i <= endPage; i++) {
+      html += `<button type="button" class="pagination-btn ${i === current ? "active" : ""}" data-page="${i}">${i}</button>`;
     }
 
+    if (endPage < last) {
+      if (endPage < last - 1) {
+        html += `<span class="pagination-btn" style="cursor:default; border:none; padding:0;">...</span>`;
+      }
+      html += `<button type="button" class="pagination-btn" data-page="${last}">${last}</button>`;
+    }
+
+    // Next button
+    html += `<button type="button" class="pagination-btn" data-page="next" ${current === last ? "disabled" : ""}>
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>`;
+
+    html += `</div>`;
+
     container.innerHTML = html;
+    container.style.display = "flex";
+
+    // Bind pagination clicks
+    container.querySelectorAll(".pagination-btn[data-page]").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const p = this.getAttribute("data-page");
+        let newPage = current;
+        if (p === "prev") newPage = Math.max(1, current - 1);
+        else if (p === "next") newPage = Math.min(last, current + 1);
+        else newPage = Number(p);
+
+        if (newPage !== current) {
+          loadTickets(newPage);
+        }
+      });
+    });
   }
 
   function escapeHtml(text) {
@@ -474,4 +544,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Expose loadTickets globally if needed for pagination onclicks
   window.loadTickets = loadTickets;
+
+  // --- REJECT INCOMING TICKET ---
+  async function rejectIncomingTicket(ticketId, ticketNumber, subject) {
+    const { value: reason } = await Swal.fire({
+      title: "Reject Tiket?",
+      html: `<p style="font-size:14px; color:#555; margin-bottom:15px;">Tiket <strong>${escapeHtml(ticketNumber)}</strong> akan langsung ditutup (closed).</p>
+             <p style="font-size:13px; color:#888; margin-bottom:10px;">${escapeHtml(subject)}</p>`,
+      input: "textarea",
+      inputPlaceholder: "Tulis alasan reject...",
+      inputAttributes: { required: "true" },
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-xmark"></i> Reject & Close',
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#d62828",
+      inputValidator: (value) => {
+        if (!value || !value.trim()) return "Alasan reject wajib diisi.";
+      },
+    });
+
+    if (!reason) return;
+
+    try {
+      const closeUrl = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}/${ticketId}/close`;
+      const res = await fetchWithAuth(closeUrl, {
+        method: "POST",
+        body: JSON.stringify({ note: reason.trim() }),
+      });
+
+      if (res && res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Tiket Ditolak",
+          text: "Tiket berhasil di-reject dan ditutup.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        loadTickets(currentPage);
+      } else {
+        let errMsg = "Gagal reject tiket.";
+        try {
+          const errData = await res.json();
+          errMsg = errData.message || errMsg;
+        } catch (_) {}
+        Swal.fire("Gagal", errMsg, "error");
+      }
+    } catch (e) {
+      console.error("Reject error:", e);
+      Swal.fire("Error", e.message || "Terjadi kesalahan sistem.", "error");
+    }
+  }
 });

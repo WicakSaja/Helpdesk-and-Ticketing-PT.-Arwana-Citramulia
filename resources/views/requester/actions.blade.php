@@ -87,12 +87,12 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <button type="button" class="btn btn-outline-danger w-100 fw-bold" id="btnReject">
-                                <i class="fe fe-x me-1"></i> Tolak
+                                <i class="fa-solid fa-xmark me-1"></i> Reject
                             </button>
                         </div>
                         <div class="col-6">
                             <button type="button" class="btn btn-success w-100 fw-bold" id="btnClose">
-                                <i class="fe fe-check me-1"></i> Setuju
+                                <i class="fa-solid fa-check me-1"></i> Close
                             </button>
                         </div>
                     </div>

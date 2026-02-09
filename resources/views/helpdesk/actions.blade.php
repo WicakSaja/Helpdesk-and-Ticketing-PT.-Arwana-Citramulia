@@ -72,9 +72,24 @@
                             <span class="summary-label">Subjek</span>
                             <span class="summary-val text-truncate" style="max-width: 200px;" id="modalSubject">-</span>
                         </div>
-                        <div class="summary-row mb-0">
+                        <div class="summary-row">
                             <span class="summary-label">Teknisi</span>
                             <span class="summary-val" id="modalTechName">-</span>
+                        </div>
+                    </div>
+
+                    <div class="ticket-summary-box" style="margin-bottom: 20px;">
+                        <div class="summary-row">
+                            <span class="summary-label">Requester</span>
+                            <span class="summary-val" id="modalReqName">-</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">No. Telp</span>
+                            <span class="summary-val" id="modalReqPhone">-</span>
+                        </div>
+                        <div class="summary-row mb-0">
+                            <span class="summary-label">Email</span>
+                            <span class="summary-val" id="modalReqEmail">-</span>
                         </div>
                     </div>
 
@@ -87,12 +102,12 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <button type="button" class="btn btn-outline-danger w-100 fw-bold" id="btnReject">
-                                <i class="fe fe-x me-1"></i> Tolak
+                                <i class="fa-solid fa-xmark me-1"></i> Reject
                             </button>
                         </div>
                         <div class="col-6">
                             <button type="button" class="btn btn-success w-100 fw-bold" id="btnClose">
-                                <i class="fe fe-check me-1"></i> Setuju
+                                <i class="fa-solid fa-check me-1"></i> Close
                             </button>
                         </div>
                     </div>
@@ -320,8 +335,10 @@
             document.getElementById('modalTicketId').value = t.id;
             document.getElementById('modalTicketNo').innerText = `#${t.ticket_number}`;
             document.getElementById('modalSubject').innerText = t.subject;
-            document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name ||
-            '-';
+            document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name || '-';
+            document.getElementById('modalReqName').innerText = t.requester?.name || t.requester || '-';
+            document.getElementById('modalReqPhone').innerText = t.requester?.phone || t.requester?.no_telp || '-';
+            document.getElementById('modalReqEmail').innerText = t.requester?.email || '-';
             document.getElementById('modalNote').value = '';
 
             const modalEl = document.getElementById('actionModal');

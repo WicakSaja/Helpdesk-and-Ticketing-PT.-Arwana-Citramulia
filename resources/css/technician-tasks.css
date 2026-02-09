@@ -1,0 +1,384 @@
+/* =========================================================
+   TECHNICIAN TASKS PAGE
+   ========================================================= */
+
+/* HEADER */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+/* =========================================================
+   TASK CARD
+   ========================================================= */
+.task-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+    margin-bottom: 20px;
+    border-left: 5px solid #ccc;
+    transition: 0.3s;
+    position: relative;
+}
+
+.task-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+/* Ticket Number - GREEN ARWANA */
+.task-id {
+    font-weight: 700;
+    font-size: 14px;
+    color: #2e7d32;
+}
+
+.task-time {
+    font-size: 12px;
+    color: #888;
+}
+
+.task-body h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: 700;
+}
+
+.task-body p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.task-meta {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.meta-tag {
+    background: #f4f6f9;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+/* =========================================================
+   STATUS BADGES (Colored)
+   ========================================================= */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: inline-block;
+}
+
+.status-assigned {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-in-progress {
+    background: #e0f7fa;
+    color: #006064;
+}
+
+.status-resolved {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-closed {
+    background: #f5f5f5;
+    color: #616161;
+}
+
+.status-open {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+.action-group {
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-detail {
+    background: white;
+    border: 1px solid #ddd;
+    color: #555;
+}
+
+.btn-detail:hover {
+    background: #f8f9fa;
+    border-color: #ccc;
+    color: #333;
+}
+
+.btn-update {
+    background: #2e7d32;
+    color: white;
+}
+
+.btn-update:hover {
+    background: #1b5e20;
+}
+
+.btn-confirm {
+    background: #1976d2;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: #0d47a1;
+}
+
+.btn-reject {
+    background: #d32f2f;
+    color: white;
+}
+
+.btn-reject:hover {
+    background: #b71c1c;
+}
+
+/* =========================================================
+   CATEGORY BORDER COLORS
+   ========================================================= */
+.bd-mech {
+    border-left-color: #d62828;
+}
+
+.txt-mech {
+    color: #d62828;
+}
+
+.bd-it {
+    border-left-color: #1976d2;
+}
+
+.txt-it {
+    color: #1976d2;
+}
+
+/* Resolved Card = Green Arwana */
+.bd-resolved {
+    border-left-color: #2e7d32 !important;
+}
+
+/* =========================================================
+   MODAL STYLE
+   ========================================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-box {
+    background: white;
+    width: 600px;
+    max-width: 90%;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+}
+
+.btn-close:hover {
+    color: #d62828;
+}
+
+/* Form di Modal */
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 15px;
+}
+
+.form-textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+/* =========================================================
+   MOBILE RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .page-title {
+        font-size: 20px;
+    }
+
+    .task-card {
+        padding: 18px;
+    }
+
+    .task-body h3 {
+        font-size: 16px;
+    }
+
+    .task-meta {
+        gap: 8px;
+    }
+
+    .meta-tag {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    .action-group {
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        min-width: calc(50% - 5px);
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    /* Modal Mobile */
+    .modal-box {
+        max-width: 95%;
+        padding: 20px;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-group {
+        flex-direction: column;
+    }
+
+    .btn-action {
+        width: 100%;
+    }
+
+    .task-header {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
