@@ -98,25 +98,15 @@ async function handleRegister(event) {
 
         const data = await response.json();
 
-        if (response.ok && data.token) {
-            // Save token, user data, and roles
-            const user = data.data || data.user || null;
-            const roles = data.roles || ['requester'];
-            
-            const saved = TokenManager.setAuth(data.token, user, roles);
-
-            if (!saved) {
-                throw new Error('Gagal menyimpan data autentikasi');
-            }
-
+        if (response.ok) {
             Swal.fire({
                 icon: 'success',
                 title: 'Registrasi Berhasil!',
-                text: 'Mengalihkan ke dashboard...',
+                text: 'Silakan login untuk melanjutkan.',
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                TokenManager.redirectToDashboard();
+                window.location.href = '/login';
             });
         } else {
             const errorMsg = data.message || data.errors?.email?.[0] || data.errors?.phone?.[0] || 'Registrasi gagal';

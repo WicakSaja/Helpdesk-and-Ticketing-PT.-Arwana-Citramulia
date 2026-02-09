@@ -65,27 +65,21 @@ class UserQueryService
     public function getUsersByRole(string $roleName): Collection
     {
         $query = User::role($roleName)
-            ->with(['department:id,name', 'roles:id,name']);
+            ->with(['department:id,name', 'roles:id,name'])
+            ->select('id', 'name', 'email', 'phone', 'department_id', 'is_active', 'created_at');
 
         if ($roleName === 'technician') {
-            $query->with([
-                'assignedTickets' => function ($q) {
-                    $q->with([
-                        'ticket' => function ($tq) {
-                            $tq->select('id', 'ticket_number', 'subject', 'description', 'status_id', 'category_id', 'requester_id', 'created_at');
-                            $tq->with([
-                                'status:id,name',
-                                'category:id,name',
-                                'requester:id,name,email,phone'
-                            ]);
-                        }
-                    ]);
-                }
+            $query->withCount([
+                'assignedTickets as assigned_total',
+                'assignedTickets as assigned_closed' => function ($q) {
+                    $q->whereHas('ticket.status', function ($statusQuery) {
+                        $statusQuery->where('name', 'closed');
+                    });
+                },
             ]);
         }
 
-        return $query->select('id', 'name', 'email', 'phone', 'department_id', 'is_active', 'created_at')
-            ->get()
+        return $query->get()
             ->map(function ($user) use ($roleName) {
                 $userData = [
                     'id' => $user->id,
@@ -102,52 +96,14 @@ class UserQueryService
                 ];
 
                 if ($roleName === 'technician') {
-                    $assignedTickets = $user->assignedTickets->map(function ($assignment) {
-                        return [
-                            'assignment_id' => $assignment->id,
-                            'assigned_at' => $assignment->assigned_at,
-                            'notes' => $assignment->notes,
-                            'ticket' => [
-                                'id' => $assignment->ticket->id,
-                                'ticket_number' => $assignment->ticket->ticket_number,
-                                'subject' => $assignment->ticket->subject,
-                                'description' => $assignment->ticket->description,
-                                'status' => [
-                                    'id' => $assignment->ticket->status->id ?? null,
-                                    'name' => $assignment->ticket->status->name ?? null,
-                                ],
-                                'category' => [
-                                    'id' => $assignment->ticket->category->id ?? null,
-                                    'name' => $assignment->ticket->category->name ?? null,
-                                ],
-                                'requester' => [
-                                    'id' => $assignment->ticket->requester->id ?? null,
-                                    'name' => $assignment->ticket->requester->name ?? null,
-                                    'email' => $assignment->ticket->requester->email ?? null,
-                                    'phone' => $assignment->ticket->requester->phone ?? null,
-                                ],
-                                'created_at' => $assignment->ticket->created_at,
-                            ]
-                        ];
-                    });
+                    $total = (int) ($user->assigned_total ?? 0);
+                    $completed = (int) ($user->assigned_closed ?? 0);
+                    $inProgress = max($total - $completed, 0);
 
-                    $inProgressCount = 0;
-                    $completedCount = 0;
-
-                    foreach ($user->assignedTickets as $assignment) {
-                        $statusName = $assignment->ticket->status->name ?? '';
-                        if ($statusName === 'closed') {
-                            $completedCount++;
-                        } else {
-                            $inProgressCount++;
-                        }
-                    }
-
-                    $userData['assigned_tickets'] = $assignedTickets;
                     $userData['ticket_statistics'] = [
-                        'in_progress' => $inProgressCount,
-                        'completed' => $completedCount,
-                        'total' => count($assignedTickets),
+                        'in_progress' => $inProgress,
+                        'completed' => $completed,
+                        'total' => $total,
                     ];
                 }
 
@@ -179,5 +135,52 @@ class UserQueryService
             ->with(['ticket:id,ticket_number,subject,status_id', 'ticket.status:id,name'])
             ->latest('resolved_at')
             ->get();
+    }
+
+    /**
+     * Assigned tickets detail for technician
+     */
+    public function getAssignedTickets(User $user): Collection
+    {
+        return $user->assignedTickets()
+            ->with([
+                'ticket' => function ($tq) {
+                    $tq->select('id', 'ticket_number', 'subject', 'description', 'status_id', 'category_id', 'requester_id', 'created_at');
+                    $tq->with([
+                        'status:id,name',
+                        'category:id,name',
+                        'requester:id,name,email,phone',
+                    ]);
+                },
+            ])
+            ->get()
+            ->map(function ($assignment) {
+                return [
+                    'assignment_id' => $assignment->id,
+                    'assigned_at' => $assignment->assigned_at,
+                    'notes' => $assignment->notes,
+                    'ticket' => [
+                        'id' => $assignment->ticket->id,
+                        'ticket_number' => $assignment->ticket->ticket_number,
+                        'subject' => $assignment->ticket->subject,
+                        'description' => $assignment->ticket->description,
+                        'status' => [
+                            'id' => $assignment->ticket->status->id ?? null,
+                            'name' => $assignment->ticket->status->name ?? null,
+                        ],
+                        'category' => [
+                            'id' => $assignment->ticket->category->id ?? null,
+                            'name' => $assignment->ticket->category->name ?? null,
+                        ],
+                        'requester' => [
+                            'id' => $assignment->ticket->requester->id ?? null,
+                            'name' => $assignment->ticket->requester->name ?? null,
+                            'email' => $assignment->ticket->requester->email ?? null,
+                            'phone' => $assignment->ticket->requester->phone ?? null,
+                        ],
+                        'created_at' => $assignment->ticket->created_at,
+                    ],
+                ];
+            });
     }
 }

@@ -345,6 +345,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         let allTechnicians = [];
+        const baseUrl = (typeof API_URL !== 'undefined') ? API_URL : "{{ url('/') }}";
 
         // Cek helper di layout
         if (typeof getAuthHeaders === 'undefined') {
@@ -384,8 +385,6 @@
 
         async function fetchTechnicians() {
             try {
-                // Gunakan API_URL global (dari layout)
-                const baseUrl = (typeof API_URL !== 'undefined') ? API_URL : "{{ url('/') }}";
                 const response = await fetchWithAuth(`${baseUrl}/api/users/by-role/technician`);
 
                 if (!response || !response.ok) throw new Error('Gagal mengambil data');
@@ -464,35 +463,55 @@
             dAvatar.style.color = `hsl(${hue}, 80%, 30%)`;
 
             const listContainer = document.getElementById('ticketsList');
+            listContainer.innerHTML = `<div class="text-center text-muted py-3 small">Memuat tiket...</div>`;
+
+            loadAssignedTickets(tech, listContainer);
+
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        async function loadAssignedTickets(tech, listContainer) {
+            if (!listContainer) return;
+
+            if (!tech.assigned_tickets) {
+                const response = await fetchWithAuth(`${baseUrl}/api/users/${tech.id}/assigned-tickets`);
+                if (!response || !response.ok) {
+                    listContainer.innerHTML = `<div class="text-center text-muted py-3 small">Gagal memuat tiket.</div>`;
+                    return;
+                }
+
+                const data = await response.json();
+                tech.assigned_tickets = data.data?.assigned_tickets || [];
+            }
+
             const tickets = tech.assigned_tickets || [];
 
             if (tickets.length === 0) {
                 listContainer.innerHTML = `<div class="text-center text-muted py-3 small">Tidak ada tiket aktif.</div>`;
-            } else {
-                listContainer.innerHTML = tickets.map(assignment => {
-                    const t = assignment.ticket;
-                    if (!t) return '';
-
-                    let color = '#64748b';
-                    const s = (t.status?.name || 'OPEN').toLowerCase();
-                    if (s.includes('progress')) color = '#f59f00';
-                    else if (s.includes('resolved')) color = '#2fb344';
-
-                    return `
-                    <div class="task-item">
-                        <div style="overflow: hidden;">
-                            <div style="font-weight: 700; font-size: 0.85rem; color: #333;">${t.ticket_number}</div>
-                            <div style="font-size: 0.8rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.subject}</div>
-                        </div>
-                        <div style="font-size: 0.7rem; font-weight: 700; color: ${color}; text-transform: uppercase;">
-                            ${t.status?.name || 'Unknown'}
-                        </div>
-                    </div>
-                `;
-                }).join('');
+                return;
             }
 
-            document.getElementById('detailModal').style.display = 'flex';
+            listContainer.innerHTML = tickets.map(assignment => {
+                const t = assignment.ticket;
+                if (!t) return '';
+
+                let color = '#64748b';
+                const s = (t.status?.name || 'open').toLowerCase();
+                if (s.includes('progress')) color = '#f59f00';
+                else if (s.includes('resolved')) color = '#2fb344';
+
+                return `
+                <div class="task-item">
+                    <div style="overflow: hidden;">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #333;">${t.ticket_number}</div>
+                        <div style="font-size: 0.8rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.subject}</div>
+                    </div>
+                    <div style="font-size: 0.7rem; font-weight: 700; color: ${color}; text-transform: uppercase;">
+                        ${t.status?.name || 'Unknown'}
+                    </div>
+                </div>
+            `;
+            }).join('');
         }
 
         function closeDetailModal() {

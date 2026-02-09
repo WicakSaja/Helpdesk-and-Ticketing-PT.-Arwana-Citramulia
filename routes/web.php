@@ -117,6 +117,11 @@ Route::prefix('helpdesk')->name('helpdesk.')->group(function () {
     Route::get('/categories', function () {
         return view('helpdesk.categories');
 })->name('categories');
+
+    // Reports
+    Route::get('/reports', function () {
+        return view('helpdesk.reports.index');
+    })->name('reports');
 });
 
 // 6. TECHNICIAN ROUTES

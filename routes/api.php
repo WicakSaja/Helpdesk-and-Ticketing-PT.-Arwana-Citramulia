@@ -111,6 +111,9 @@ Route::middleware('auth:sanctum', 'permission:user.view')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{user}/resolved-tickets', [UserManagementController::class, 'resolvedTickets'])
         ->whereNumber('user');
+
+    Route::get('/users/{user}/assigned-tickets', [UserManagementController::class, 'assignedTickets'])
+        ->whereNumber('user');
 });
 
 // POST/PUT/DELETE Endpoints (Master Admin Only)

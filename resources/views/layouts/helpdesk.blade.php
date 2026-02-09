@@ -55,7 +55,7 @@
             {{-- Action (Reject/Close) --}}
             <a href="{{ route('helpdesk.actions') }}"
                 class="menu-item {{ Route::is('helpdesk.actions') ? 'active' : '' }}">
-                <i class="fa-solid fa-check-double"></i> Action
+                <i class="fa-solid fa-check-double"></i> Tiket Selesai
             </a>
 
             {{-- MENU MANAJEMEN KATEGORI --}}
@@ -73,6 +73,12 @@
             {{-- Semua Tiket --}}
             <a href="{{ route('helpdesk.all') }}" class="menu-item {{ Route::is('helpdesk.all') ? 'active' : '' }}">
                 <i class="fa-solid fa-layer-group"></i> Semua Data Tiket
+            </a>
+
+            {{-- Reports --}}
+            <a href="{{ route('helpdesk.reports') }}"
+                class="menu-item {{ Route::is('helpdesk.reports') ? 'active' : '' }}">
+                <i class="fa-solid fa-file-invoice"></i> Laporan
             </a>
         </div>
 

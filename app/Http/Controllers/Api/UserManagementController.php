@@ -330,6 +330,42 @@ class UserManagementController extends Controller
     }
 
     /**
+     * GET /users/{user}/assigned-tickets
+     * Lihat semua ticket yang sedang/ pernah ditangani oleh technician
+     * Accessible by: master-admin, helpdesk, or technician viewing their own data
+     */
+    public function assignedTickets(Request $request, User $user)
+    {
+        $currentUser = $request->user();
+
+        if ($currentUser->hasPermissionTo('user.view')) {
+            // Has permission to view all users
+        } elseif ($currentUser->hasRole('technician') && $currentUser->id === $user->id) {
+            // Allow technician to view their own assigned tickets
+        } else {
+            abort(403, 'You do not have permission to view this user\'s assigned tickets');
+        }
+
+        if (!$user->hasRole('technician')) {
+            return response()->json([
+                'message' => 'User is not a technician',
+            ], 404);
+        }
+
+        $assignedTickets = $this->queryService->getAssignedTickets($user);
+
+        return response()->json([
+            'message' => 'Assigned tickets retrieved successfully',
+            'data' => [
+                'technician_id' => $user->id,
+                'technician_name' => $user->name,
+                'total_assigned' => $assignedTickets->count(),
+                'assigned_tickets' => $assignedTickets,
+            ]
+        ]);
+    }
+
+    /**
      * Get active technicians only
      * GET /api/technicians/active
      * Permission: master-admin, helpdesk

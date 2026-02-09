@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "aeeeb612-22c1-4c93-abaf-22ccce771097",
     "name": "Ticketing System Arwana - Complete API Collection",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Validate Token, Change Password)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary, Assigned Tickets)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -212,6 +212,36 @@
               ]
             },
             "description": "Validasi token dan cek apakah token masih aktif.\n\nResponse jika valid:\n- message: Token is valid\n- valid: true\n- User data lengkap\n- Roles\n- Permissions\n\nResponse jika invalid:\n- HTTP 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "id": "4bf35b87-08fb-4b46-9d4d-6c5d0e4dd7ab",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"password123\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "change-password"
+              ]
+            },
+            "description": "Ganti password user yang sedang login.\n\nBody:\n- old_password: Password lama\n- new_password: Password baru (min 8 karakter)\n\nResponse:\n- message: Password berhasil diperbarui"
           },
           "response": []
         },
@@ -901,6 +931,28 @@
               ]
             },
             "description": "Mendapatkan detail user.\n\nRole: master-admin only"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Technician Assigned Tickets",
+          "id": "5f2c5f1a-7b89-45b2-9ad0-0b9d0a0a3db7",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/assigned-tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}",
+                "assigned-tickets"
+              ]
+            },
+            "description": "Mendapatkan daftar tiket yang pernah/ sedang ditangani teknisi tertentu.\n\nRole: master-admin, helpdesk, atau technician (untuk dirinya sendiri).\n\nResponse:\n- technician_id\n- technician_name\n- total_assigned\n- assigned_tickets"
           },
           "response": []
         },

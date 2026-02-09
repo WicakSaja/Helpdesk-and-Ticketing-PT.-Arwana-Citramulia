@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "040a4f15-a0d3-4fd6-acb2-18dba4af1f5c",
     "name": "Ticketing System Arwana - Complete API Collection Copy",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Get Own Profile)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Validate Token, Change Password)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary, Assigned Tickets)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Login untuk dapatkan token\n2. Set token di collection variable 'auth_token'\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -215,6 +215,36 @@
               ]
             },
             "description": "Validasi token dan cek apakah token masih aktif.\n\nResponse jika valid:\n- message: Token is valid\n- valid: true\n- User data lengkap\n- Roles\n- Permissions\n\nResponse jika invalid:\n- HTTP 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "id": "89f54e8c-56a0-4a1f-a5f1-3fd5e3c5b7cb",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"password123\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "change-password"
+              ]
+            },
+            "description": "Ganti password user yang sedang login.\n\nBody:\n- old_password: Password lama\n- new_password: Password baru (min 8 karakter)\n\nResponse:\n- message: Password berhasil diperbarui"
           },
           "response": []
         },
@@ -909,6 +939,28 @@
           "response": []
         },
         {
+          "name": "Get Technician Assigned Tickets",
+          "id": "bbf3cfa9-8b2f-4bd1-9e64-7f3b2f4c4f2c",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/assigned-tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}",
+                "assigned-tickets"
+              ]
+            },
+            "description": "Mendapatkan daftar tiket yang pernah/ sedang ditangani teknisi tertentu.\n\nRole: master-admin, helpdesk, atau technician (untuk dirinya sendiri).\n\nResponse:\n- technician_id\n- technician_name\n- total_assigned\n- assigned_tickets"
+          },
+          "response": []
+        },
+        {
           "name": "Get Active Technicians",
           "id": "a48dd4f4-38a1-4a28-8bcd-6b9b4f4b9a35",
           "request": {
@@ -1478,37 +1530,37 @@
   },
   "variable": [
     {
-      "id": "f8b6c781-cefb-4b5d-a30c-0bbc6900614d",
+      "id": "e272b57b-88e1-43de-956b-56530f0e8b65",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "50edfd30-7ff6-4e96-bd40-e8040543b558",
+      "id": "a4ac3d4e-d170-4757-956d-8e6d729ad91a",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "1dd1822c-7d0e-433b-92ad-2c7e65c37466",
+      "id": "2db68694-115d-4ac1-ac7f-ee5153ebdea6",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "2e7726c3-4398-4c68-b1b6-0dc55e3daf7a",
+      "id": "2cea2ecc-a0f4-4a06-8495-ebf9514cfecf",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "4d80f885-ea2d-45ba-8749-6615ae857da7",
+      "id": "776f1e02-d738-43f6-8f01-caff3e628b04",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "f0d0c541-f505-4cd3-b3f7-cc39a7e8cf09",
+      "id": "9dc4f60d-43de-4923-89e6-5cb53decd7a7",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"
