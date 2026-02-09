@@ -41,7 +41,7 @@
     </div>
 
     {{-- Pagination Controls --}}
-    <div id="ticketPagination" class="pagination-wrapper" style="margin-top:20px; display:flex; justify-content:center; gap:8px;"></div>
+    <div id="ticketPagination" class="pagination-container" style="display: none;"></div>
 @endsection
 
 @section('scripts')

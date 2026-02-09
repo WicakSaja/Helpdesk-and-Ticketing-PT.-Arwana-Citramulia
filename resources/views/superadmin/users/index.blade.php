@@ -8,10 +8,41 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">Manajemen User</h1>
-        <button class="btn-add btn-add-icon" onclick="openModal()" title="Tambah User">
-            <i class="fa-solid fa-user-plus"></i>
-            <span class="btn-text">Tambah User</span>
-        </button>
+        <div class="header-actions">
+            <button class="btn-filter-toggle" id="btnFilterToggle" type="button" onclick="toggleFilters()">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+            <button class="btn-add btn-add-icon" onclick="openModal()" title="Tambah User">
+                <i class="fa-solid fa-user-plus"></i>
+                <span class="btn-text">Tambah User</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- Search & Filter Controls --}}
+    <div class="controls-wrapper">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama, email, atau telepon...">
+        </div>
+        <div class="filters-right" id="filtersRight">
+            <select class="filter-select" id="filterRole">
+                <option value="">Semua Role</option>
+                <option value="master-admin">Master Admin</option>
+                <option value="helpdesk">Helpdesk</option>
+                <option value="technician">Technician</option>
+                <option value="requester">Requester</option>
+            </select>
+            <select class="filter-select" id="filterDepartment">
+                <option value="">Semua Departemen</option>
+                {{-- Diisi JS --}}
+            </select>
+            <select class="filter-select" id="filterStatus">
+                <option value="">Semua Status</option>
+                <option value="1">Aktif</option>
+                <option value="0">Nonaktif</option>
+            </select>
+        </div>
     </div>
 
     <div class="table-container">

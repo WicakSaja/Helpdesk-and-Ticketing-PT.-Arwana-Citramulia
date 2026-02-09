@@ -10,17 +10,15 @@ use Illuminate\Support\Facades\Hash;
 class DummyUserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
-     * Generate dummy users dengan roles:
-     * - 20 Requester
-     * - 5 Technician
-     * - 3 Helpdesk
-     * 
-     * Password untuk semua user: password123
+     * Generate dummy users:
+     * - 3 akun utama (helpdesk, technician, requester)
+     * - 2 tambahan per role
+     *
+     * Password semua: 12345678
      */
     public function run(): void
     {
-        $password = Hash::make('password123');
+        $password = Hash::make('12345678');
         $departments = Department::all();
 
         if ($departments->isEmpty()) {
@@ -32,9 +30,9 @@ class DummyUserSeeder extends Seeder
         // HELPDESK USERS (3)
         // ====================================
         $helpdeskUsers = [
-            ['name' => 'Helpdesk Satu', 'email' => 'helpdesk1@arwana.com', 'phone' => '081234567801'],
-            ['name' => 'Helpdesk Dua', 'email' => 'helpdesk2@arwana.com', 'phone' => '081234567802'],
-            ['name' => 'Helpdesk Tiga', 'email' => 'helpdesk3@arwana.com', 'phone' => '081234567803'],
+            ['name' => 'Helpdesk Utama', 'email' => 'helpdesk@arwanacitra.com', 'phone' => '081200000001'],
+            ['name' => 'Siti Helpdesk', 'email' => 'siti.helpdesk@arwanacitra.com', 'phone' => '081200000002'],
+            ['name' => 'Andi Helpdesk', 'email' => 'andi.helpdesk@arwanacitra.com', 'phone' => '081200000003'],
         ];
 
         foreach ($helpdeskUsers as $userData) {
@@ -43,7 +41,7 @@ class DummyUserSeeder extends Seeder
                 'email' => $userData['email'],
                 'phone' => $userData['phone'],
                 'password' => $password,
-                'department_id' => $departments->random()->id,
+                'department_id' => $departments->where('name', 'office')->first()->id ?? $departments->random()->id,
                 'is_active' => true,
             ]);
             $user->assignRole('helpdesk');
@@ -51,14 +49,12 @@ class DummyUserSeeder extends Seeder
         }
 
         // ====================================
-        // TECHNICIAN USERS (5)
+        // TECHNICIAN USERS (3)
         // ====================================
         $technicianUsers = [
-            ['name' => 'Ahmad Teknisi', 'email' => 'tech1@arwana.com', 'phone' => '081234567811'],
-            ['name' => 'Budi Repair', 'email' => 'tech2@arwana.com', 'phone' => '081234567812'],
-            ['name' => 'Candra IT', 'email' => 'tech3@arwana.com', 'phone' => '081234567813'],
-            ['name' => 'Dedi Network', 'email' => 'tech4@arwana.com', 'phone' => '081234567814'],
-            ['name' => 'Eka Support', 'email' => 'tech5@arwana.com', 'phone' => '081234567815'],
+            ['name' => 'Teknisi Utama', 'email' => 'technician@arwanacitra.com', 'phone' => '081200000011'],
+            ['name' => 'Budi Teknisi', 'email' => 'budi.teknisi@arwanacitra.com', 'phone' => '081200000012'],
+            ['name' => 'Rudi Teknisi', 'email' => 'rudi.teknisi@arwanacitra.com', 'phone' => '081200000013'],
         ];
 
         foreach ($technicianUsers as $userData) {
@@ -67,7 +63,7 @@ class DummyUserSeeder extends Seeder
                 'email' => $userData['email'],
                 'phone' => $userData['phone'],
                 'password' => $password,
-                'department_id' => $departments->random()->id,
+                'department_id' => $departments->where('name', 'office')->first()->id ?? $departments->random()->id,
                 'is_active' => true,
             ]);
             $user->assignRole('technician');
@@ -75,32 +71,34 @@ class DummyUserSeeder extends Seeder
         }
 
         // ====================================
-        // REQUESTER USERS (20)
+        // REQUESTER USERS (3)
         // ====================================
-        $requesterNames = [
-            'Fahmi Produksi', 'Gina Office', 'Hadi Security', 'Indah Admin',
-            'Joko Operator', 'Kiki Manager', 'Lina Staff', 'Made Supervisor',
-            'Nanda Clerk', 'Omar Coordinator', 'Putri Analyst', 'Qori Assistant',
-            'Rina Finance', 'Sandi Marketing', 'Tuti HR', 'Umar Sales',
-            'Vina Accounting', 'Wawan Logistic', 'Yuni Quality', 'Zaki Warehouse'
+        $requesterUsers = [
+            ['name' => 'Requester Utama', 'email' => 'requester@arwanacitra.com', 'phone' => '081200000021', 'dept' => 'produksi'],
+            ['name' => 'Dewi Produksi', 'email' => 'dewi.produksi@arwanacitra.com', 'phone' => '081200000022', 'dept' => 'produksi'],
+            ['name' => 'Eko Security', 'email' => 'eko.security@arwanacitra.com', 'phone' => '081200000023', 'dept' => 'security'],
         ];
 
-        foreach ($requesterNames as $index => $name) {
-            $slug = strtolower(str_replace(' ', '', $name));
+        foreach ($requesterUsers as $userData) {
+            $dept = $departments->where('name', $userData['dept'])->first();
             $user = User::create([
-                'name' => $name,
-                'email' => "requester{$index}@arwana.com",
-                'phone' => '0812345678' . str_pad($index + 20, 2, '0', STR_PAD_LEFT),
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'phone' => $userData['phone'],
                 'password' => $password,
-                'department_id' => $departments->random()->id,
+                'department_id' => $dept->id ?? $departments->random()->id,
                 'is_active' => true,
             ]);
             $user->assignRole('requester');
-            $this->command->info("Created requester: {$name}");
+            $this->command->info("Created requester: {$userData['name']}");
         }
 
-        $this->command->info('✅ Dummy users created successfully!');
-        $this->command->info('📧 Email/Phone: Use any user above');
-        $this->command->info('🔑 Password: password123');
+        $this->command->info('');
+        $this->command->info('Dummy users created successfully!');
+        $this->command->info('Password: 12345678');
+        $this->command->info('Akun utama:');
+        $this->command->info('  helpdesk@arwanacitra.com');
+        $this->command->info('  technician@arwanacitra.com');
+        $this->command->info('  requester@arwanacitra.com');
     }
 }

@@ -21,52 +21,74 @@ class DummyTicketSeeder extends Seeder
     private $categories;
     private $statuses;
 
+    // Akun utama (akan di-assign lebih sering)
+    private $mainRequester;
+    private $mainTechnician;
+    private $mainHelpdesk;
+
     /**
-     * Generate 100 dummy tickets dengan berbagai status
-     * Interval: 1 Januari 2026 - 30 Januari 2026
+     * Generate dummy tickets spread across 2025-2026
+     * 5 tickets per week, weighted toward main accounts
      */
     public function run(): void
     {
-        $this->command->info('🎫 Generating 100 dummy tickets...');
+        $this->command->info('Generating dummy tickets...');
 
-        // Load data reference
         $this->loadReferences();
-
-        // Status distribution for 100 tickets
-        $statusDistribution = [
-            'OPEN' => 15,
-            'ASSIGNED' => 20,
-            'IN PROGRESS' => 25,
-            'RESOLVED' => 25,
-            'CLOSED' => 15,
-        ];
 
         $ticketCounter = 1;
 
-        foreach ($statusDistribution as $statusName => $count) {
-            $this->command->info("Creating {$count} tickets with status: {$statusName}");
-            
-            for ($i = 0; $i < $count; $i++) {
-                $this->createTicket($statusName, $ticketCounter);
+        // Status weights: open=10%, assigned=15%, in_progress=20%, resolved=30%, closed=25%
+        $statusPool = array_merge(
+            array_fill(0, 10, 'OPEN'),
+            array_fill(0, 15, 'ASSIGNED'),
+            array_fill(0, 20, 'IN PROGRESS'),
+            array_fill(0, 30, 'RESOLVED'),
+            array_fill(0, 25, 'CLOSED'),
+        );
+
+        // Generate tickets for each week from Jan 2025 to Feb 2026
+        $startDate = Carbon::create(2025, 1, 6); // First Monday of 2025
+        $endDate = Carbon::create(2026, 2, 8);   // Up to Feb 2026
+
+        $currentWeek = $startDate->copy();
+
+        while ($currentWeek->lte($endDate)) {
+            $year = $currentWeek->year;
+
+            for ($i = 0; $i < 5; $i++) {
+                // Random day within this week (Mon-Fri)
+                $dayOffset = rand(0, 4);
+                $createdAt = $currentWeek->copy()->addDays($dayOffset)
+                    ->setTime(rand(7, 17), rand(0, 59), rand(0, 59));
+
+                // Pick random status
+                $statusName = $statusPool[array_rand($statusPool)];
+
+                // Pick requester — 40% chance main requester
+                $requester = (rand(1, 100) <= 40)
+                    ? $this->mainRequester
+                    : $this->requesters->random();
+
+                $this->createTicket($statusName, $ticketCounter, $createdAt, $year, $requester);
                 $ticketCounter++;
             }
+
+            $currentWeek->addWeek();
         }
 
-        $this->command->info('✅ 100 dummy tickets created successfully!');
-        $this->command->info('📅 Date range: 1 Jan 2026 - 30 Jan 2026');
+        $totalTickets = $ticketCounter - 1;
+        $this->command->info("{$totalTickets} dummy tickets created!");
+        $this->command->info('Date range: Jan 2025 - Feb 2026');
     }
 
-    /**
-     * Load reference data (users, categories, statuses)
-     */
     private function loadReferences()
     {
         $this->requesters = User::role('requester')->get();
         $this->technicians = User::role('technician')->get();
         $this->helpdeskUsers = User::role('helpdesk')->get();
         $this->categories = Category::all();
-        
-        // Get statuses (lowercase as per TicketStatusSeeder)
+
         $this->statuses = [
             'OPEN' => TicketStatus::where('name', 'open')->first(),
             'ASSIGNED' => TicketStatus::where('name', 'assigned')->first(),
@@ -75,37 +97,26 @@ class DummyTicketSeeder extends Seeder
             'CLOSED' => TicketStatus::where('name', 'closed')->first(),
         ];
 
-        if ($this->requesters->isEmpty()) {
-            $this->command->error('No requesters found! Run DummyUserSeeder first.');
-            exit(1);
-        }
+        // Main accounts
+        $this->mainRequester = User::where('email', 'requester@arwanacitra.com')->first()
+            ?? $this->requesters->first();
+        $this->mainTechnician = User::where('email', 'technician@arwanacitra.com')->first()
+            ?? $this->technicians->first();
+        $this->mainHelpdesk = User::where('email', 'helpdesk@arwanacitra.com')->first()
+            ?? $this->helpdeskUsers->first();
 
-        if ($this->technicians->isEmpty()) {
-            $this->command->error('No technicians found! Run DummyUserSeeder first.');
+        if ($this->requesters->isEmpty() || $this->technicians->isEmpty()) {
+            $this->command->error('No users found! Run DummyUserSeeder first.');
             exit(1);
         }
     }
 
-    /**
-     * Create a single ticket with all relations
-     */
-    private function createTicket($statusName, $counter)
+    private function createTicket($statusName, $counter, $createdAt, $year, $requester)
     {
-        // Random date dalam Januari 2026
-        $createdAt = Carbon::create(2026, 1, rand(1, 30))
-            ->setTime(rand(8, 17), rand(0, 59), rand(0, 59));
-
-        // Generate ticket number format: TKT-2026-000001
-        $ticketNumber = 'TKT-2026-' . str_pad($counter, 6, '0', STR_PAD_LEFT);
-
-        // Random requester dan category
-        $requester = $this->requesters->random();
+        $ticketNumber = "TKT-{$year}-" . str_pad($counter, 6, '0', STR_PAD_LEFT);
         $category = $this->categories->random();
-
-        // Generate realistic subject dan description
         $ticketData = $this->generateTicketContent($category->name);
 
-        // Create ticket
         $ticket = Ticket::create([
             'ticket_number' => $ticketNumber,
             'requester_id' => $requester->id,
@@ -119,37 +130,32 @@ class DummyTicketSeeder extends Seeder
             'closed_at' => $statusName === 'CLOSED' ? $createdAt->copy()->addDays(rand(1, 5)) : null,
         ]);
 
-        // Create initial log
+        // Initial log
         TicketLog::create([
             'ticket_id' => $ticket->id,
             'user_id' => $requester->id,
-            'action' => 'created',
+            'action' => 'open',
             'description' => 'Ticket dibuat oleh ' . $requester->name,
             'created_at' => $createdAt,
             'updated_at' => $createdAt,
         ]);
 
-        // Handle different status workflows
+        // Status workflow
         switch ($statusName) {
             case 'OPEN':
-                // No assignment, just initial state
                 break;
-
             case 'ASSIGNED':
                 $this->assignTicket($ticket, $createdAt);
                 break;
-
             case 'IN PROGRESS':
                 $assignedAt = $this->assignTicket($ticket, $createdAt);
                 $this->confirmTicket($ticket, $assignedAt);
                 break;
-
             case 'RESOLVED':
                 $assignedAt = $this->assignTicket($ticket, $createdAt);
                 $inProgressAt = $this->confirmTicket($ticket, $assignedAt);
                 $this->resolveTicket($ticket, $inProgressAt);
                 break;
-
             case 'CLOSED':
                 $assignedAt = $this->assignTicket($ticket, $createdAt);
                 $inProgressAt = $this->confirmTicket($ticket, $assignedAt);
@@ -159,28 +165,33 @@ class DummyTicketSeeder extends Seeder
         }
     }
 
-    /**
-     * Assign ticket to technician
-     */
     private function assignTicket($ticket, $previousTime)
     {
         $assignedAt = $previousTime->copy()->addMinutes(rand(10, 120));
-        $technician = $this->technicians->random();
-        $helpdesk = $this->helpdeskUsers->random();
+
+        // 50% chance main technician
+        $technician = (rand(1, 100) <= 50)
+            ? $this->mainTechnician
+            : $this->technicians->random();
+
+        // 60% chance main helpdesk
+        $helpdesk = (rand(1, 100) <= 60)
+            ? $this->mainHelpdesk
+            : $this->helpdeskUsers->random();
 
         TicketAssignment::create([
             'ticket_id' => $ticket->id,
             'assigned_to' => $technician->id,
             'assigned_by' => $helpdesk->id,
             'assigned_at' => $assignedAt,
-            'notes' => 'Assigned automatically by system',
+            'notes' => 'Ditugaskan oleh ' . $helpdesk->name,
         ]);
 
         TicketLog::create([
             'ticket_id' => $ticket->id,
             'user_id' => $helpdesk->id,
             'action' => 'assigned',
-            'description' => "Ticket assigned to {$technician->name} by {$helpdesk->name}",
+            'description' => "Ticket ditugaskan ke {$technician->name} oleh {$helpdesk->name}",
             'created_at' => $assignedAt,
             'updated_at' => $assignedAt,
         ]);
@@ -193,9 +204,6 @@ class DummyTicketSeeder extends Seeder
         return $assignedAt;
     }
 
-    /**
-     * Technician confirms and starts working
-     */
     private function confirmTicket($ticket, $previousTime)
     {
         $confirmedAt = $previousTime->copy()->addMinutes(rand(15, 180));
@@ -204,8 +212,8 @@ class DummyTicketSeeder extends Seeder
         TicketLog::create([
             'ticket_id' => $ticket->id,
             'user_id' => $technician->id,
-            'action' => 'confirmed',
-            'description' => "Ticket confirmed by {$technician->name}",
+            'action' => 'in_progress',
+            'description' => "Ticket dikonfirmasi oleh {$technician->name}",
             'created_at' => $confirmedAt,
             'updated_at' => $confirmedAt,
         ]);
@@ -218,9 +226,6 @@ class DummyTicketSeeder extends Seeder
         return $confirmedAt;
     }
 
-    /**
-     * Technician resolves ticket with solution
-     */
     private function resolveTicket($ticket, $previousTime)
     {
         $resolvedAt = $previousTime->copy()->addHours(rand(2, 48));
@@ -234,7 +239,6 @@ class DummyTicketSeeder extends Seeder
             'solved_at' => $resolvedAt,
         ]);
 
-        // Create technician history
         TechnicianTicketHistory::create([
             'ticket_id' => $ticket->id,
             'technician_id' => $technician->id,
@@ -246,7 +250,7 @@ class DummyTicketSeeder extends Seeder
             'ticket_id' => $ticket->id,
             'user_id' => $technician->id,
             'action' => 'resolved',
-            'description' => "Ticket resolved by {$technician->name}",
+            'description' => "Ticket diselesaikan oleh {$technician->name}",
             'created_at' => $resolvedAt,
             'updated_at' => $resolvedAt,
         ]);
@@ -259,9 +263,6 @@ class DummyTicketSeeder extends Seeder
         return $resolvedAt;
     }
 
-    /**
-     * Close ticket (by helpdesk or requester)
-     */
     private function closeTicket($ticket, $previousTime)
     {
         $closedAt = $previousTime->copy()->addHours(rand(1, 24));
@@ -271,7 +272,7 @@ class DummyTicketSeeder extends Seeder
             'ticket_id' => $ticket->id,
             'user_id' => $closer->id,
             'action' => 'closed',
-            'description' => "Ticket closed by {$closer->name}",
+            'description' => "Ticket ditutup oleh {$closer->name}",
             'created_at' => $closedAt,
             'updated_at' => $closedAt,
         ]);
@@ -285,9 +286,6 @@ class DummyTicketSeeder extends Seeder
         return $closedAt;
     }
 
-    /**
-     * Generate realistic ticket content based on category
-     */
     private function generateTicketContent($categoryName)
     {
         $templates = [
@@ -297,6 +295,8 @@ class DummyTicketSeeder extends Seeder
                 ['subject' => 'Keyboard rusak beberapa tombol', 'description' => 'Keyboard user tidak berfungsi untuk tombol huruf A, S, D. Mengganggu pekerjaan input data. Mohon diganti atau diperbaiki.'],
                 ['subject' => 'Monitor mati total', 'description' => 'Monitor komputer di meja saya tiba-tiba mati dan tidak mau hidup lagi. Lampu indikator tidak menyala sama sekali.'],
                 ['subject' => 'Mouse wireless tidak connect', 'description' => 'Mouse wireless tidak bisa connect ke komputer. Sudah ganti baterai tetap tidak terdeteksi. USB receiver sudah dipasang dengan benar.'],
+                ['subject' => 'UPS berbunyi alarm terus', 'description' => 'UPS di ruangan server berbunyi alarm terus menerus. Khawatir daya listrik tidak stabil dan bisa merusak perangkat.'],
+                ['subject' => 'Scanner tidak terdeteksi', 'description' => 'Scanner Epson tidak terdeteksi oleh komputer. Sudah coba ganti kabel USB tetapi tetap tidak muncul di device manager.'],
             ],
             'Software' => [
                 ['subject' => 'Aplikasi ERP tidak bisa login', 'description' => 'Tidak bisa login ke aplikasi ERP sejak update kemarin. Muncul pesan error "Authentication Failed". Username dan password sudah benar.'],
@@ -304,6 +304,8 @@ class DummyTicketSeeder extends Seeder
                 ['subject' => 'Email tidak bisa kirim attachment', 'description' => 'Saat mengirim email dengan attachment file PDF lebih dari 5MB selalu gagal. Muncul pesan error "Failed to send". Urgent karena harus kirim laporan.'],
                 ['subject' => 'Antivirus expired perlu update', 'description' => 'Antivirus di komputer sudah expired dan muncul notifikasi terus menerus. Mohon diupdate agar tetap aman dari virus.'],
                 ['subject' => 'Aplikasi inventory crash', 'description' => 'Aplikasi inventory tiba-tiba crash saat input data. Setiap kali buka aplikasi langsung not responding. Mohon segera diperbaiki.'],
+                ['subject' => 'Windows update gagal terus', 'description' => 'Windows update selalu gagal dengan error code 0x800f0922. Sudah dicoba beberapa kali tetap gagal. Komputer jadi lambat.'],
+                ['subject' => 'Browser tidak bisa buka website internal', 'description' => 'Browser Chrome tidak bisa membuka website internal perusahaan. Muncul error ERR_CONNECTION_REFUSED. Website diakses dari komputer lain bisa.'],
             ],
             'Network' => [
                 ['subject' => 'Internet sangat lambat', 'description' => 'Koneksi internet di ruangan kami sangat lambat sejak tadi pagi. Loading website lama sekali, bahkan untuk buka email saja lemot. Mohon dicek.'],
@@ -311,13 +313,15 @@ class DummyTicketSeeder extends Seeder
                 ['subject' => 'Tidak bisa akses shared folder', 'description' => 'Tidak bisa membuka shared folder di server. Muncul pesan "Network path not found". Kemarin masih bisa akses normal.'],
                 ['subject' => 'VPN tidak konek', 'description' => 'VPN untuk remote access tidak bisa connect. Stuck di "Connecting..." terus. Perlu akses server dari rumah untuk WFH.'],
                 ['subject' => 'Jaringan LAN putus-putus', 'description' => 'Koneksi internet via kabel LAN sering putus-putus. Harus cabut pasang berkali-kali baru bisa connect lagi. Sangat mengganggu pekerjaan.'],
+                ['subject' => 'Tidak bisa print via jaringan', 'description' => 'Printer network di ruang meeting tidak bisa diakses. Error "The printer is not available". Komputer lain juga mengalami hal yang sama.'],
             ],
             'Account & Access' => [
                 ['subject' => 'Lupa password sistem', 'description' => 'Saya lupa password untuk login ke sistem payroll. Sudah coba beberapa kali tetap salah. Mohon dibantu reset password.'],
-                ['subject' => 'Request akun baru karyawan', 'description' => 'Karyawan baru a.n. Dedi Saputra memerlukan akun email dan akses ke sistem ERP. Divisi: Produksi. Mulai kerja Senin depan.'],
+                ['subject' => 'Request akun baru karyawan', 'description' => 'Karyawan baru memerlukan akun email dan akses ke sistem ERP. Mohon dibuatkan akun secepatnya.'],
                 ['subject' => 'Akun terkunci setelah salah password', 'description' => 'Akun saya terkunci karena salah input password 3x. Tidak bisa login ke semua sistem. Mohon segera dibuka kembali aksesnya.'],
                 ['subject' => 'Butuh akses tambahan ke folder', 'description' => 'Saya perlu akses ke folder Finance di shared drive untuk keperluan audit. Saat ini tidak punya permission untuk buka folder tersebut.'],
                 ['subject' => 'Email tidak bisa menerima', 'description' => 'Email saya tidak bisa menerima email baru sejak kemarin sore. Saat ada yang kirim email, mereka dapat bounce back message. Mohon dicek.'],
+                ['subject' => 'Reset password email', 'description' => 'Mohon dibantu reset password email perusahaan karena sudah lama tidak login dan lupa passwordnya.'],
             ],
             'Other' => [
                 ['subject' => 'Minta install software Zoom', 'description' => 'Mohon dibantu install aplikasi Zoom di laptop untuk keperluan meeting online dengan client. Urgent karena meeting besok pagi.'],
@@ -325,18 +329,14 @@ class DummyTicketSeeder extends Seeder
                 ['subject' => 'Backup data penting', 'description' => 'Mohon dibantu backup data penting di komputer saya karena akan dilakukan format ulang minggu depan.'],
                 ['subject' => 'Konsultasi pembelian laptop', 'description' => 'Divisi kami butuh beli laptop baru untuk tim. Mohon konsultasi spesifikasi yang sesuai dengan budget dan kebutuhan pekerjaan.'],
                 ['subject' => 'Lapor website down', 'description' => 'Website company tidak bisa diakses dari luar. Sudah dicoba dari beberapa device tetap tidak bisa kebuka. Mohon segera dicek.'],
+                ['subject' => 'Request pindah meja dan setup ulang PC', 'description' => 'Saya akan pindah ke ruangan baru minggu depan. Mohon dibantu pindahan komputer dan setup ulang koneksi jaringan di meja baru.'],
             ],
         ];
 
         $categoryTemplates = $templates[$categoryName] ?? $templates['Other'];
-        $selected = $categoryTemplates[array_rand($categoryTemplates)];
-
-        return $selected;
+        return $categoryTemplates[array_rand($categoryTemplates)];
     }
 
-    /**
-     * Generate realistic solution text
-     */
     private function generateSolutionText($categoryName)
     {
         $solutions = [
@@ -344,7 +344,7 @@ class DummyTicketSeeder extends Seeder
                 'Sudah diganti dengan perangkat baru yang berfungsi normal.',
                 'Komponen yang rusak sudah diperbaiki dan ditest berfungsi dengan baik.',
                 'Hardware sudah dibersihkan dan dilakukan maintenance, sekarang berjalan normal.',
-                'Sudah diganti dengan spare part baru dan komputer sudah bisa digunakan kembali.',
+                'Sudah diganti dengan spare part baru dan perangkat sudah bisa digunakan kembali.',
                 'Problem sudah diselesaikan dengan mengganti kabel yang rusak.',
             ],
             'Software' => [
@@ -352,7 +352,7 @@ class DummyTicketSeeder extends Seeder
                 'Software sudah diupdate ke versi terbaru dan bug sudah teratasi.',
                 'Sudah dilakukan reinstall aplikasi dan sekarang berfungsi dengan baik.',
                 'Lisensi sudah diaktivasi ulang dan aplikasi bisa digunakan normal.',
-                'Bug sudah diperbaiki dan aplikasi sudah stabil.',
+                'Cache sudah dibersihkan dan aplikasi sudah stabil.',
             ],
             'Network' => [
                 'Konfigurasi network sudah diperbaiki dan koneksi sudah stabil.',
@@ -381,12 +381,9 @@ class DummyTicketSeeder extends Seeder
         return $categorySolutions[array_rand($categorySolutions)];
     }
 
-    /**
-     * Get random channel
-     */
     private function getRandomChannel()
     {
-        $channels = ['web', 'email', 'phone', 'web', 'web']; // web lebih dominan
+        $channels = ['web', 'email', 'phone', 'web', 'web'];
         return $channels[array_rand($channels)];
     }
 }

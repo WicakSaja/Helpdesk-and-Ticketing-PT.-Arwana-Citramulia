@@ -21,6 +21,8 @@ export default defineConfig({
         "resources/css/helpdesk-incoming.css",
         "resources/css/profile.css",
         "resources/css/report.css",
+        "resources/css/action-tickets.css",
+        "resources/css/ticket-detail.css",
         "resources/css/ticket-style.css",
         "resources/css/users.css",
       ],

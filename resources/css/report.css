@@ -575,13 +575,6 @@
         font-size: 12px;
     }
 
-    /* Kolom yang bisa di-hide di mobile */
-    .report-table th:nth-child(4),
-    .report-table td:nth-child(4) {
-        /* Department bisa di-hide di mobile jika perlu */
-        display: none;
-    }
-
     .ticket-number {
         font-size: 11px;
         padding: 4px 8px;
