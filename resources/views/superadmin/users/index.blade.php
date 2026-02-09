@@ -8,7 +8,10 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">Manajemen User</h1>
-        <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-user-plus"></i> Tambah User</button>
+        <button class="btn-add btn-add-icon" onclick="openModal()" title="Tambah User">
+            <i class="fa-solid fa-user-plus"></i>
+            <span class="btn-text">Tambah User</span>
+        </button>
     </div>
 
     <div class="table-container">
@@ -19,14 +22,14 @@
                     <th>Role</th>
                     <th>Departemen</th>
                     <th>Status</th>
-                    <th style="text-align: right;">Aksi</th>
+                    <th style="text-align: center;">Aksi</th>
                 </tr>
             </thead>
             <tbody id="userTableBody">
                 <tr style="text-align: center;">
-                    <td colspan="5" style="padding: 40px;">
+                    <td colspan="5" style="padding: 12px;">
                         <i class="fa-solid fa-spinner" style="font-size: 24px; animation: spin 1s linear infinite;"></i>
-                        <p style="margin-top: 10px; color: #999;">Loading data pengguna...</p>
+                        <p style="margin-top: 5px; color: #999; font-size: 13px;">Loading data pengguna...</p>
                     </td>
                 </tr>
             </tbody>
@@ -36,16 +39,6 @@
         <div class="pagination-container">
             <div class="pagination-info">
                 <span id="paginationInfoText">Menampilkan 0 dari 0 users</span>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label for="perPageSelect" style="font-size: 13px;">Per halaman:</label>
-                    <select id="perPageSelect" class="per-page-selector" onchange="changePerPage()">
-                        <option value="10">10</option>
-                        <option value="15" selected>15</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
             </div>
             <div class="pagination-buttons" id="paginationButtons">
                 <!-- Buttons will be generated dynamically -->
@@ -123,13 +116,12 @@
 
         // Pagination state
         let currentPage = 1;
-        let currentPerPage = 15;
+        let currentPerPage = 10;
 
-        // Change per page handler
+
+        // Change per page handler (fixed at 10, no longer needed)
         function changePerPage() {
-            currentPerPage = parseInt(document.getElementById('perPageSelect').value);
-            currentPage = 1; // Reset to first page
-            loadUsers(currentPage, currentPerPage);
+            // Pagination is fixed at 10 per page
         }
 
         // Fetch Departments dari API
@@ -164,7 +156,7 @@
                 const option = document.createElement('option');
                 option.value = dept.id;
                 option.textContent = dept.name.charAt(0).toUpperCase() + dept.name.slice(
-                1); // Capitalize first letter
+                    1); // Capitalize first letter
                 select.appendChild(option);
             });
         }
@@ -198,9 +190,9 @@
                 console.error('Error fetching users:', error);
                 document.getElementById('userTableBody').innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: #d62828;">
+                        <td colspan="5" style="text-align: center; padding: 12px; color: #d62828;">
                             <i class="fa-solid fa-exclamation-circle" style="font-size: 24px;"></i>
-                            <p style="margin-top: 10px;">Gagal memuat data pengguna</p>
+                            <p style="margin-top: 5px; font-size: 13px;">Gagal memuat data pengguna</p>
                         </td>
                     </tr>
                 `;
@@ -291,9 +283,9 @@
             if (users.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                        <td colspan="5" style="text-align: center; padding: 12px; color: #999;">
                             <i class="fa-solid fa-inbox" style="font-size: 24px;"></i>
-                            <p style="margin-top: 10px;">Tidak ada data pengguna</p>
+                            <p style="margin-top: 5px; font-size: 13px;">Tidak ada data pengguna</p>
                         </td>
                     </tr>
                 `;
@@ -323,8 +315,8 @@
                     <td><span class="badge ${roleClass}">${roleName}</span></td>
                     <td>${departmentName}</td>
                     <td><span class="badge ${statusBadgeClass}" id="badge-${user.id}">${statusBadgeText}</span></td>
-                    <td style="text-align: right;">
-                        <button type="button" class="btn-icon btn-edit" 
+                    <td style="text-align: center;">
+                        <button type="button" class="btn-icon btn-edit"
                             onclick="editUser(${user.id}, '${user.name}', '${user.email}', '${user.phone}', '${primaryRole}', ${user.department_id || 'null'})">
                             <i class="fa-solid fa-pen"></i>
                         </button>

@@ -1,15 +1,19 @@
 (function () {
   // Function to get current auth token
   function getAuthToken() {
-    return sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token");
+    return (
+      sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token")
+    );
   }
 
   // Helper function to check token and handle auth errors
   function ensureAuthenticated(operation = "Operation") {
     const token = getAuthToken();
     if (!token) {
-      console.warn(`${operation}: No auth token found. Redirecting to login...`);
-      window.location.href = '/login';
+      console.warn(
+        `${operation}: No auth token found. Redirecting to login...`,
+      );
+      window.location.href = "/login";
       return null;
     }
     return token;
@@ -18,9 +22,11 @@
   // Helper function to handle API errors
   function handleApiError(response, context = "API Call") {
     if (response.status === 401) {
-      console.warn(`${context}: Token invalid or expired. Clearing auth and redirecting to login...`);
+      console.warn(
+        `${context}: Token invalid or expired. Clearing auth and redirecting to login...`,
+      );
       TokenManager.clearAuth();
-      window.location.href = '/login';
+      window.location.href = "/login";
       return true; // Indicates auth error
     }
     return false;
@@ -28,16 +34,14 @@
 
   // Pagination state
   let currentPage = 1;
-  let currentPerPage = 15;
+  let currentPerPage = 10;
 
   // Edit state
   let editingUserId = null;
 
-  // Change per page handler (used by onchange in markup)
+  // Change per page handler (no longer used, kept for compatibility)
   window.changePerPage = function () {
-    currentPerPage = parseInt(document.getElementById("perPageSelect").value);
-    currentPage = 1; // Reset to first page
-    loadUsers(currentPage, currentPerPage);
+    // Fixed at 10 per page, do nothing
   };
 
   // Fetch Departments dari API
@@ -91,8 +95,8 @@
     // Check if token exists
     const token = getAuthToken();
     if (!token) {
-      console.warn('No auth token found. Redirecting to login...');
-      window.location.href = '/login';
+      console.warn("No auth token found. Redirecting to login...");
+      window.location.href = "/login";
       return;
     }
 
@@ -110,9 +114,11 @@
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.warn('Token invalid or expired. Clearing auth and redirecting to login...');
+          console.warn(
+            "Token invalid or expired. Clearing auth and redirecting to login...",
+          );
           TokenManager.clearAuth();
-          window.location.href = '/login';
+          window.location.href = "/login";
           return;
         }
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -225,7 +231,7 @@
     }
 
     users.forEach((user) => {
-      const primaryRole = user.roles && user.roles[0] ? user.roles[0] : 'user';
+      const primaryRole = user.roles && user.roles[0] ? user.roles[0] : "user";
       const roleClass = getRoleClass(primaryRole);
       const roleName = formatRoleName(primaryRole);
       const departmentName = user.department ? user.department.name : "-";
@@ -571,7 +577,7 @@
           const response = await fetch(`${API_URL}/api/users`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${getAuthToken()}`,
+              Authorization: `Bearer ${getAuthToken()}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({

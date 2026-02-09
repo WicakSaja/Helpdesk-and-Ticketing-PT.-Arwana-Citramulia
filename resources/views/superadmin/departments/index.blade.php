@@ -8,8 +8,9 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">Manajemen Departemen</h1>
-        <button class="btn-add" onclick="openModal()">
-            <i class="fa-solid fa-plus"></i> Tambah Departemen
+        <button class="btn-add btn-add-icon" onclick="openModal()" title="Tambah Departemen">
+            <i class="fa-solid fa-plus"></i>
+            <span class="btn-text">Tambah Departemen</span>
         </button>
     </div>
 

@@ -165,3 +165,172 @@
     background: #e8f5e9;
     color: #2e7d32;
 }
+
+/* =========================================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================================= */
+
+/* TABLET (768px - 992px) */
+@media (max-width: 992px) {
+    .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .welcome-banner h2 {
+        font-size: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .charts-wrapper {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .chart-card {
+        padding: 20px;
+    }
+
+    .recent-wrapper {
+        padding: 20px;
+    }
+}
+
+/* MOBILE (< 576px) */
+@media (max-width: 576px) {
+    .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+
+    .welcome-banner h2 {
+        font-size: 18px;
+    }
+
+    .welcome-banner p {
+        font-size: 14px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* Mobile Card Styling dengan Background Gradient Sesuai Icon */
+    .stat-card {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        color: #fff;
+        border: none !important;
+    }
+
+    /* Card 1: Blue - Total User */
+    .stats-grid .stat-card:nth-child(1) {
+        background: linear-gradient(135deg, #1565c0, #0d47a1);
+    }
+
+    /* Card 2: Green - Teknisi Aktif */
+    .stats-grid .stat-card:nth-child(2) {
+        background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    }
+
+    /* Card 3: Orange - Tiket Bulan Ini */
+    .stats-grid .stat-card:nth-child(3) {
+        background: linear-gradient(135deg, #f57c00, #e65100);
+    }
+
+    /* Card 4: Red - Departemen */
+    .stats-grid .stat-card:nth-child(4) {
+        background: linear-gradient(135deg, #d62828, #b71c1c);
+    }
+
+    /* Icon di Mobile - Full Colored */
+    .stat-card .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        background: rgba(255, 255, 255, 0.3) !important;
+        color: #fff !important;
+        border: none;
+    }
+
+    .stat-info h3 {
+        font-size: 18px;
+        color: #fff;
+    }
+
+    .stat-info p {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Mobile Card Background Styling */
+    .stat-card .bg-blue {
+        background: rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .stat-card .bg-green {
+        background: rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .stat-card .bg-orange {
+        background: rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .stat-card .bg-red {
+        background: rgba(255, 255, 255, 0.3);
+        color: #fff;
+    }
+
+    .charts-wrapper {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .chart-card {
+        padding: 15px;
+    }
+
+    .chart-title {
+        font-size: 14px;
+    }
+
+    .recent-wrapper {
+        padding: 15px;
+    }
+
+    .simple-table {
+        font-size: 12px;
+    }
+
+    .simple-table th {
+        font-size: 10px;
+        padding: 8px 5px;
+    }
+
+    .simple-table td {
+        padding: 10px 5px;
+        font-size: 12px;
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+}

@@ -32,8 +32,8 @@
         async function loadDashboard() {
             try {
                 const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-                
-                const response = await fetch('{{ url("/api/dashboard") }}', {
+
+                const response = await fetch('{{ url('/api/dashboard') }}', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -100,32 +100,34 @@
                     <div class="recent-wrapper">
                         <div class="chart-header">
                             <div class="chart-title">🕒 5 Tiket Terbaru</div>
-                            <a href="/tickets" style="font-size: 12px; color: #1565c0; font-weight: 600;">Lihat Semua</a>
+                            <a href="/reports" style="font-size: 12px; color: #1565c0; font-weight: 600;">Lihat Semua</a>
                         </div>
-                        <table class="simple-table">
-                            <thead>
-                                <tr>
-                                    <th>ID Tiket</th>
-                                    <th>Judul Masalah</th>
-                                    <th>User</th>
-                                    <th>Kategori</th>
-                                    <th>Status</th>
-                                    <th>Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.latest_tickets.map(ticket => `
+                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                            <table class="simple-table">
+                                <thead>
                                     <tr>
-                                        <td><strong>${ticket.ticket_number}</strong></td>
-                                        <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
-                                        <td>${ticket.requester?.name || 'Unknown'}</td>
-                                        <td>${ticket.category}</td>
-                                        <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
-                                        <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
+                                        <th>ID Tiket</th>
+                                        <th>Judul Masalah</th>
+                                        <th>User</th>
+                                        <th>Kategori</th>
+                                        <th>Status</th>
+                                        <th>Tanggal</th>
                                     </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    ${data.latest_tickets.map(ticket => `
+                                            <tr>
+                                                <td><strong>${ticket.ticket_number}</strong></td>
+                                                <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
+                                                <td>${ticket.requester?.name || 'Unknown'}</td>
+                                                <td>${ticket.category}</td>
+                                                <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
+                                                <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
+                                            </tr>
+                                        `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 `;
 
@@ -156,7 +158,7 @@
         }
 
         function initCharts(data) {
-            // 1. CHART TREN TIKET (Line Chart)
+            // 1. CHART TREN TIKET (Line Chart - Modern)
             const ctxTrend = document.getElementById('trendChart');
             if (ctxTrend) {
                 new Chart(ctxTrend.getContext('2d'), {
@@ -167,56 +169,129 @@
                                 label: 'Tiket Masuk',
                                 data: data.ticket_trend.map(t => t.incoming),
                                 borderColor: '#1565c0',
-                                backgroundColor: 'rgba(21, 101, 192, 0.1)',
+                                backgroundColor: 'rgba(21, 101, 192, 0.15)',
+                                borderWidth: 3,
                                 tension: 0.4,
-                                fill: true
+                                fill: true,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#1565c0',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
                             },
                             {
                                 label: 'Tiket Selesai',
                                 data: data.ticket_trend.map(t => t.solved),
                                 borderColor: '#2e7d32',
                                 backgroundColor: 'transparent',
+                                borderWidth: 3,
                                 tension: 0.4,
-                                borderDash: [5, 5]
+                                borderDash: [8, 4],
+                                pointRadius: 5,
+                                pointBackgroundColor: '#2e7d32',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
                             }
                         ]
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                position: 'top'
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: 13,
+                                        weight: '600'
+                                    },
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            filler: {
+                                propagate: true
                             }
                         },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
                             }
                         }
                     }
                 });
             }
 
-            // 2. CHART KATEGORI (Doughnut)
+            // 2. CHART KATEGORI (Doughnut - Modern)
             const ctxCat = document.getElementById('categoryChart');
             if (ctxCat) {
+                // Store raw data for tooltip access
+                const categoryData = data.category_distribution;
+
                 new Chart(ctxCat.getContext('2d'), {
                     type: 'doughnut',
                     data: {
-                        labels: data.category_distribution.map(c => c.name),
+                        labels: categoryData.map(c => c.name),
                         datasets: [{
-                            data: data.category_distribution.map(c => c.percentage),
-                            backgroundColor: ['#d62828', '#1565c0', '#f57c00', '#757575', '#2e7d32'],
-                            borderWidth: 0
+                            data: categoryData.map(c => c.percentage),
+                            backgroundColor: [
+                                '#ef4444', // Red
+                                '#3b82f6', // Blue
+                                '#f59e0b', // Amber
+                                '#8b5cf6', // Purple
+                                '#10b981' // Green
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 3
                         }]
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: true,
                         plugins: {
                             legend: {
-                                position: 'bottom'
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 13,
+                                        weight: '600'
+                                    },
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const index = context.dataIndex;
+                                        const count = categoryData[index].count || 0;
+                                        const percentage = categoryData[index].percentage || 0;
+                                        return `Tiket: ${count} (${percentage.toFixed(1)}%)`;
+                                    }
+                                }
                             }
-                        }
+                        },
+                        cutout: '65%'
                     }
                 });
             }

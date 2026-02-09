@@ -34,6 +34,19 @@
     transform: translateY(-2px);
 }
 
+/* Icon-only button styling */
+.btn-add-icon {
+    padding: 12px 25px;
+}
+
+.btn-add-icon .btn-text {
+    display: inline;
+}
+
+.btn-add-icon i {
+    font-size: 16px;
+}
+
 /* TABLE STYLES */
 .table-container {
     background: white;
@@ -229,4 +242,159 @@
     font-size: 12px;
     margin-top: 5px;
     display: none;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================================= */
+
+/* TABLET (768px - 992px) */
+@media (max-width: 992px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .btn-add {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-container {
+        padding: 20px;
+        overflow-x: auto;
+    }
+
+    .dept-table {
+        min-width: 500px;
+    }
+
+    .modal-box {
+        width: 90%;
+        max-width: 450px;
+    }
+
+    .pagination-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+
+/* MOBILE (< 576px) */
+@media (max-width: 576px) {
+    .page-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 20px;
+        flex: 1;
+    }
+
+    .btn-add {
+        width: auto;
+        padding: 10px 12px;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        border-radius: 8px;
+    }
+
+    .btn-add .btn-text {
+        display: none !important;
+    }
+
+    .btn-add i {
+        margin: 0 !important;
+        font-size: 18px;
+    }
+
+    .table-container {
+        padding: 15px;
+        border-radius: 12px;
+        overflow: visible;
+    }
+
+    .dept-table {
+        min-width: auto;
+        margin-bottom: 15px;
+        font-size: 12px;
+        width: 100%;
+    }
+
+    .dept-table th {
+        padding: 10px;
+        font-size: 10px;
+    }
+
+    .dept-table td {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .btn-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+        margin-right: 2px;
+    }
+
+    /* Modal Mobile */
+    .modal-box {
+        width: 95%;
+        max-width: 100%;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .form-input {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    /* Pagination Mobile */
+    .pagination-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
+    }
+
+    .pagination-info {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .pagination-controls {
+        width: 100%;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .page-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .loading-row {
+        padding: 30px 15px;
+    }
 }
