@@ -60,6 +60,7 @@
 
       const result = await response.json();
       populateDepartmentSelect(result.data);
+      populateFilterDepartment(result.data);
     } catch (error) {
       console.error("Error fetching departments:", error);
       const sel = document.getElementById("uDept");
@@ -85,12 +86,49 @@
     });
   }
 
+  // Populate Department Filter Dropdown
+  function populateFilterDepartment(departments) {
+    const select = document.getElementById("filterDepartment");
+    if (!select) return;
+    select.innerHTML = '<option value="">Semua Departemen</option>';
+
+    departments.forEach((dept) => {
+      const option = document.createElement("option");
+      option.value = dept.id;
+      option.textContent =
+        dept.name.charAt(0).toUpperCase() + dept.name.slice(1);
+      select.appendChild(option);
+    });
+  }
+
+  // Helper: get current filter values
+  function getFilterParams() {
+    const params = new URLSearchParams();
+    const searchEl = document.getElementById("searchInput");
+    const roleEl = document.getElementById("filterRole");
+    const deptEl = document.getElementById("filterDepartment");
+    const statusEl = document.getElementById("filterStatus");
+
+    if (searchEl && searchEl.value.trim())
+      params.append("search", searchEl.value.trim());
+    if (roleEl && roleEl.value) params.append("role", roleEl.value);
+    if (deptEl && deptEl.value) params.append("department_id", deptEl.value);
+    if (statusEl && statusEl.value !== "")
+      params.append("is_active", statusEl.value);
+
+    return params;
+  }
+
   // Fetch Users dari API
   async function loadUsers(page = 1, perPage = null) {
     if (perPage === null) {
       perPage = currentPerPage;
     }
     currentPage = page;
+
+    const filterParams = getFilterParams();
+    filterParams.append("page", page);
+    filterParams.append("per_page", perPage);
 
     // Check if token exists
     const token = getAuthToken();
@@ -102,7 +140,7 @@
 
     try {
       const response = await fetch(
-        `${API_URL}/api/users?page=${page}&per_page=${perPage}`,
+        `${API_URL}/api/users?${filterParams.toString()}`,
         {
           method: "GET",
           headers: {
@@ -629,6 +667,14 @@
     })();
   }
 
+  // Toggle filter visibility (mobile)
+  window.toggleFilters = function () {
+    const filters = document.getElementById("filtersRight");
+    const btn = document.getElementById("btnFilterToggle");
+    if (filters) filters.classList.toggle("filters-open");
+    if (btn) btn.classList.toggle("active");
+  };
+
   // Close modal when clicking outside
   window.onclick = function (event) {
     if (
@@ -639,12 +685,38 @@
     }
   };
 
+  // Debounce timer for search
+  let searchTimeout = null;
+
   // Init
   function init() {
     const form = document.getElementById("userForm");
     if (form) form.addEventListener("submit", handleSaveForm);
     loadUsers(currentPage, currentPerPage);
     loadDepartments();
+
+    // Search input with debounce
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+      searchInput.addEventListener("input", function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          currentPage = 1;
+          loadUsers(1, currentPerPage);
+        }, 300);
+      });
+    }
+
+    // Filter dropdowns - instant reload
+    ["filterRole", "filterDepartment", "filterStatus"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", function () {
+          currentPage = 1;
+          loadUsers(1, currentPerPage);
+        });
+      }
+    });
   }
 
   document.addEventListener("DOMContentLoaded", init);

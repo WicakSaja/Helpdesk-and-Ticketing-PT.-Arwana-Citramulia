@@ -8,10 +8,41 @@
 @section('content')
     <div class="page-header">
         <h1 class="page-title">Manajemen User</h1>
-        <button class="btn-add btn-add-icon" onclick="openModal()" title="Tambah User">
-            <i class="fa-solid fa-user-plus"></i>
-            <span class="btn-text">Tambah User</span>
-        </button>
+        <div class="header-actions">
+            <button class="btn-filter-toggle" id="btnFilterToggle" type="button" onclick="toggleFilters()">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+            <button class="btn-add btn-add-icon" onclick="openModal()" title="Tambah User">
+                <i class="fa-solid fa-user-plus"></i>
+                <span class="btn-text">Tambah User</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- Search & Filter Controls --}}
+    <div class="controls-wrapper">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama, email, atau telepon...">
+        </div>
+        <div class="filters-right" id="filtersRight">
+            <select class="filter-select" id="filterRole">
+                <option value="">Semua Role</option>
+                <option value="master-admin">Master Admin</option>
+                <option value="helpdesk">Helpdesk</option>
+                <option value="technician">Technician</option>
+                <option value="requester">Requester</option>
+            </select>
+            <select class="filter-select" id="filterDepartment">
+                <option value="">Semua Departemen</option>
+                {{-- Diisi JS --}}
+            </select>
+            <select class="filter-select" id="filterStatus">
+                <option value="">Semua Status</option>
+                <option value="1">Aktif</option>
+                <option value="0">Nonaktif</option>
+            </select>
+        </div>
     </div>
 
     <div class="table-container">
@@ -140,6 +171,7 @@
 
                 const result = await response.json();
                 populateDepartmentSelect(result.data);
+                populateFilterDepartment(result.data);
             } catch (error) {
                 console.error('Error fetching departments:', error);
                 document.getElementById('uDept').innerHTML =
@@ -147,7 +179,7 @@
             }
         }
 
-        // Populate Department Select Dropdown
+        // Populate Department Select Dropdown (modal form)
         function populateDepartmentSelect(departments) {
             const select = document.getElementById('uDept');
             select.innerHTML = '<option value="" disabled selected>-- Pilih Departemen --</option>';
@@ -155,10 +187,38 @@
             departments.forEach(dept => {
                 const option = document.createElement('option');
                 option.value = dept.id;
-                option.textContent = dept.name.charAt(0).toUpperCase() + dept.name.slice(
-                    1); // Capitalize first letter
+                option.textContent = dept.name.charAt(0).toUpperCase() + dept.name.slice(1);
                 select.appendChild(option);
             });
+        }
+
+        // Populate Department Filter Dropdown
+        function populateFilterDepartment(departments) {
+            const select = document.getElementById('filterDepartment');
+            select.innerHTML = '<option value="">Semua Departemen</option>';
+
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.id;
+                option.textContent = dept.name.charAt(0).toUpperCase() + dept.name.slice(1);
+                select.appendChild(option);
+            });
+        }
+
+        // Helper: get current filter values
+        function getFilterParams() {
+            const params = new URLSearchParams();
+            const search = document.getElementById('searchInput').value.trim();
+            const role = document.getElementById('filterRole').value;
+            const department = document.getElementById('filterDepartment').value;
+            const status = document.getElementById('filterStatus').value;
+
+            if (search) params.append('search', search);
+            if (role) params.append('role', role);
+            if (department) params.append('department_id', department);
+            if (status !== '') params.append('is_active', status);
+
+            return params;
         }
 
         // Fetch Users dari API
@@ -170,8 +230,12 @@
 
             currentPage = page; // Update current page state
 
+            const filterParams = getFilterParams();
+            filterParams.append('page', page);
+            filterParams.append('per_page', perPage);
+
             try {
-                const response = await fetch(`${API_URL}/api/users?page=${page}&per_page=${perPage}`, {
+                const response = await fetch(`${API_URL}/api/users?${filterParams.toString()}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -357,10 +421,36 @@
             return nameMap[role] || role;
         }
 
+        // Debounce helper
+        let searchTimeout = null;
+
         // Load users saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             loadUsers(currentPage, currentPerPage);
-            loadDepartments(); // Load departments for modal dropdown
+            loadDepartments(); // Load departments for modal dropdown + filter
+
+            // Search input with debounce
+            document.getElementById('searchInput').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentPage = 1;
+                    loadUsers(1, currentPerPage);
+                }, 300);
+            });
+
+            // Filter dropdowns - instant reload
+            document.getElementById('filterRole').addEventListener('change', function() {
+                currentPage = 1;
+                loadUsers(1, currentPerPage);
+            });
+            document.getElementById('filterDepartment').addEventListener('change', function() {
+                currentPage = 1;
+                loadUsers(1, currentPerPage);
+            });
+            document.getElementById('filterStatus').addEventListener('change', function() {
+                currentPage = 1;
+                loadUsers(1, currentPerPage);
+            });
         });
 
         // Variable to track edit mode
@@ -726,6 +816,14 @@
                 });
             }
         });
+
+        // Toggle filter visibility (mobile)
+        function toggleFilters() {
+            const filters = document.getElementById('filtersRight');
+            const btn = document.getElementById('btnFilterToggle');
+            filters.classList.toggle('filters-open');
+            btn.classList.toggle('active');
+        }
 
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {

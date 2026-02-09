@@ -14,6 +14,12 @@
     margin: 0;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .btn-add {
     background: #1565c0;
     color: white;
@@ -45,6 +51,117 @@
 
 .btn-add-icon i {
     font-size: 16px;
+}
+
+/* SEARCH & FILTER CONTROLS */
+.controls-wrapper {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #f1f5f9;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 350px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 38px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #334155;
+    outline: none;
+    background: #f8fafc;
+    transition: 0.2s;
+}
+
+.search-input:focus {
+    border-color: #1565c0;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+}
+
+.filters-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 10px 35px 10px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #475569;
+    outline: none;
+    cursor: pointer;
+    background-color: #f8fafc;
+    font-weight: 500;
+    transition: 0.2s;
+    min-width: 130px;
+}
+
+.filter-select:hover {
+    border-color: #cbd5e1;
+}
+
+.filter-select:focus {
+    border-color: #1565c0;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+}
+
+/* Filter toggle button - hidden on desktop */
+.btn-filter-toggle {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-filter-toggle:hover {
+    border-color: #1565c0;
+    color: #1565c0;
+}
+
+.btn-filter-toggle.active {
+    background: #1565c0;
+    color: white;
+    border-color: #1565c0;
 }
 
 /* TABLE STYLES */
@@ -358,14 +475,37 @@
 
 /* TABLET (768px - 992px) */
 @media (max-width: 992px) {
+    .controls-wrapper {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .search-box {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .filters-right {
+        width: 100%;
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 120px;
+    }
+
     .page-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
 
-    .btn-add {
+    .header-actions {
         width: 100%;
+    }
+
+    .btn-add {
+        flex: 1;
         justify-content: center;
     }
 
@@ -403,6 +543,55 @@
 
 /* MOBILE (< 576px) */
 @media (max-width: 576px) {
+    .controls-wrapper {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .search-box {
+        width: 100%;
+        max-width: none;
+    }
+
+    .search-input {
+        font-size: 13px;
+        padding: 9px 12px 9px 34px;
+    }
+
+    /* Show filter toggle button in header on mobile */
+    .btn-filter-toggle {
+        display: inline-flex;
+        flex-shrink: 0;
+        min-width: 44px;
+        height: 44px;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .btn-filter-toggle i {
+        font-size: 18px;
+    }
+
+    /* Hide filters by default on mobile */
+    .filters-right {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    /* Show filters when toggled open */
+    .filters-right.filters-open {
+        display: flex;
+    }
+
+    .filter-select {
+        width: 100%;
+        min-width: auto;
+        font-size: 13px;
+        padding: 9px 30px 9px 12px;
+    }
+
     .page-header {
         flex-direction: row;
         align-items: center;
@@ -413,6 +602,10 @@
     .page-title {
         font-size: 20px;
         flex: 1;
+    }
+
+    .header-actions {
+        gap: 6px;
     }
 
     .btn-add {
