@@ -105,6 +105,13 @@
                 
                 <div class="form-grid">
                     <div class="form-group">
+                        <label class="form-label">Password Lama</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-input" id="old_pass" placeholder="Masukkan password lama">
+                            <span class="toggle-password" onclick="togglePass('old_pass', this)"><i class="fa-regular fa-eye"></i></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Password Baru</label>
                         <div class="password-wrapper">
                             <input type="password" class="form-input" id="new_pass" placeholder="Biarkan kosong jika tidak diubah">
@@ -145,19 +152,31 @@
         }
     }
 
-    // Load profile data from sessionStorage
+    // Load profile data from /api/me
     document.addEventListener('DOMContentLoaded', async function() {
         try {
-            const authUserJson = sessionStorage.getItem('auth_user');
-            const authRolesJson = sessionStorage.getItem('auth_roles');
-            
-            if (!authUserJson) {
-                console.warn('No auth_user found in sessionStorage');
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            if (!token) {
+                console.warn('No auth token found');
                 return;
             }
 
-            const user = JSON.parse(authUserJson);
-            const roles = authRolesJson ? JSON.parse(authRolesJson) : [];
+            const baseUrl = (typeof API_URL !== 'undefined') ? API_URL : window.location.origin;
+            const meResponse = await fetch(`${baseUrl}/api/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!meResponse.ok) {
+                console.error('Failed to load profile data:', meResponse.status);
+                return;
+            }
+
+            const meResult = await meResponse.json();
+            const user = meResult.user || {};
+            const roles = meResult.roles || [];
             
             // Update profile display
             const nameDisplay = document.getElementById('profile_name_display');
@@ -184,7 +203,6 @@
 
             // Fetch resolved tickets count from API
             try {
-                const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
                 const resolvedRes = await fetch(`/api/users/${user.id}/resolved-tickets`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -206,8 +224,73 @@
             }
 
         } catch (error) {
-            console.error('Error loading profile from sessionStorage:', error);
+            console.error('Error loading profile from /api/me:', error);
         }
+    });
+
+    // Change password
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveBtn = document.querySelector('.btn-save');
+        if (!saveBtn) return;
+
+        saveBtn.addEventListener('click', async function() {
+            const oldPass = document.getElementById('old_pass').value;
+            const newPass = document.getElementById('new_pass').value;
+            const confPass = document.getElementById('conf_pass').value;
+
+            const showMsg = (type, title, text) => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: type, title: title, text: text, confirmButtonColor: '#d62828' });
+                } else {
+                    alert(title + ': ' + text);
+                }
+            };
+
+            if (!oldPass) return showMsg('warning', 'Peringatan', 'Password lama wajib diisi');
+            if (!newPass || newPass.length < 8) return showMsg('warning', 'Peringatan', 'Password baru minimal 8 karakter');
+            if (newPass !== confPass) return showMsg('error', 'Error', 'Konfirmasi password tidak cocok');
+
+            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+            if (!token) return showMsg('error', 'Error', 'Token tidak ditemukan, silakan login ulang');
+
+            const baseUrl = (typeof API_URL !== 'undefined') ? API_URL : window.location.origin;
+
+            const originalBtnText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            saveBtn.disabled = true;
+
+            try {
+                const res = await fetch(`${baseUrl}/api/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPass,
+                        new_password: newPass
+                    })
+                });
+
+                const json = await res.json();
+
+                if (res.ok) {
+                    showMsg('success', 'Berhasil', json.message || 'Password telah diperbarui.');
+                    document.getElementById('old_pass').value = '';
+                    document.getElementById('new_pass').value = '';
+                    document.getElementById('conf_pass').value = '';
+                } else {
+                    const msg = json.message || 'Gagal mengubah password';
+                    showMsg('error', 'Gagal', msg);
+                }
+            } catch (err) {
+                showMsg('error', 'Error', 'Gagal menghubungi server.');
+            } finally {
+                saveBtn.innerHTML = originalBtnText;
+                saveBtn.disabled = false;
+            }
+        });
     });
 </script>
 @endsection

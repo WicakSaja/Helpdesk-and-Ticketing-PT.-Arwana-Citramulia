@@ -245,7 +245,7 @@ class TicketController extends Controller
             if ($ticket->requester_id !== $user->id) {
                 return response()->json(['message' => 'Unauthorized - Anda hanya bisa menutup ticket Anda sendiri'], 403);
             }
-            $ticketStatus = $ticket->ticketStatus->name ?? null;
+            $ticketStatus = $ticket->status->name ?? null;
             if ($ticketStatus !== 'resolved') {
                 return response()->json(['message' => 'Ticket harus dalam status RESOLVED sebelum ditutup oleh requester'], 422);
             }

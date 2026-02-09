@@ -100,7 +100,7 @@
                     <div class="recent-wrapper">
                         <div class="chart-header">
                             <div class="chart-title">🕒 5 Tiket Terbaru</div>
-                            <a href="/reports" style="font-size: 12px; color: #1565c0; font-weight: 600;">Lihat Semua</a>
+                            <a href="/superadmin/reports" style="font-size: 12px; color: #1565c0; font-weight: 600;">Lihat Semua</a>
                         </div>
                         <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                             <table class="simple-table">

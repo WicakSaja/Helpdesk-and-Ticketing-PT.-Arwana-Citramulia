@@ -20,8 +20,8 @@ class DatabaseSeeder extends Seeder
             InitialMasterAdminSeeder::class,
             
             // Dummy data seeders (optional - comment jika tidak perlu)
-            DummyUserSeeder::class,
-            DummyTicketSeeder::class,
+            // DummyUserSeeder::class,
+            // DummyTicketSeeder::class,
         ]);
     }
 }

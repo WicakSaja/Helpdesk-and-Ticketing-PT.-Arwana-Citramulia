@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn(Request $request) => $request->user());
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/validate-token', [AuthController::class, 'validateToken']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 

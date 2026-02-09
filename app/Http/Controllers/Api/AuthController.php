@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Services\Auth\AuthCrudService;
 use App\Http\Services\Auth\AuthQueryService;
 use App\Http\Services\Auth\AuthValidationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -103,6 +106,32 @@ class AuthController extends Controller
             'user' => $userData['user'],
             'roles' => $userData['roles'],
             'permissions' => $userData['permissions'],
+        ]);
+    }
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $request->user();
+
+        if (!Hash::check($request->input('old_password'), $user->password)) {
+            return response()->json([
+                'message' => 'Password lama tidak sesuai',
+                'errors' => [
+                    'old_password' => ['Password lama tidak sesuai'],
+                ],
+            ], 422);
+        }
+
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        $currentToken = $request->user()->currentAccessToken();
+        if ($currentToken instanceof PersonalAccessToken) {
+            $user->tokens()->where('id', '!=', $currentToken->id)->delete();
+        }
+
+        return response()->json([
+            'message' => 'Password berhasil diperbarui',
         ]);
     }
 }

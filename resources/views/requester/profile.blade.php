@@ -77,6 +77,15 @@
                 
                 <div class="form-grid">
                     <div class="form-group">
+                        <label class="form-label">Password Lama</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-input" id="old_pass" placeholder="Masukkan password lama">
+                            <span class="toggle-password" onclick="togglePass('old_pass', this)">
+                                <i class="fa-regular fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Password Baru</label>
                         <div class="password-wrapper">
                             <input type="password" class="form-input" id="new_pass" placeholder="Minimal 8 karakter">
@@ -125,16 +134,25 @@
                 // SETUP BASE URL
                 let baseUrl = (typeof API_URL !== 'undefined') ? API_URL : '';
                 baseUrl = baseUrl.replace(/\/$/, "");
-                
-                // LOAD DATA USER DARI SESSION
-                const authUserJson = sessionStorage.getItem('auth_user');
-                const authRolesJson = sessionStorage.getItem('auth_roles');
-                const token = sessionStorage.getItem('auth_token'); 
-                
-                if (!authUserJson) return;
 
-                const user = JSON.parse(authUserJson);
-                const roles = authRolesJson ? JSON.parse(authRolesJson) : [];
+                const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+                if (!token) return;
+
+                const meRes = await fetch(`${baseUrl}/api/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!meRes.ok) {
+                    console.warn('Gagal memuat data profil:', meRes.status);
+                    return;
+                }
+
+                const meJson = await meRes.json();
+                const user = meJson.user || {};
+                const roles = meJson.roles || [];
                 
                 // 1. RENDER NAMA & FORM (Instan)
                 const nameEl = document.getElementById('profile_name_display');
@@ -173,7 +191,7 @@
                 }
 
                 // 4. FETCH TOTAL TIKET
-                if(token) {
+                if (token) {
                     try {
                         const ticketsRes = await fetch(`${baseUrl}/api/my-tickets`, {
                             headers: { 
@@ -201,6 +219,7 @@
                 const saveBtn = document.querySelector('.btn-save');
                 if (saveBtn) {
                     saveBtn.addEventListener('click', async function() {
+                        const oldPass = document.getElementById('old_pass').value;
                         const pass = document.getElementById('new_pass').value;
                         const conf = document.getElementById('conf_pass').value;
 
@@ -212,6 +231,7 @@
                             }
                         };
 
+                        if (!oldPass) return showMsg('warning', 'Peringatan', 'Password lama wajib diisi');
                         if (!pass || pass.length < 8) return showMsg('warning', 'Peringatan', 'Password baru minimal 8 karakter');
                         if (pass !== conf) return showMsg('error', 'Error', 'Konfirmasi password tidak cocok');
 
@@ -228,8 +248,8 @@
                                     'Accept': 'application/json'
                                 },
                                 body: JSON.stringify({
-                                    password: pass,
-                                    password_confirmation: conf
+                                    old_password: oldPass,
+                                    new_password: pass
                                 })
                             });
 
@@ -237,6 +257,7 @@
 
                             if (res.ok) {
                                 showMsg('success', 'Berhasil', 'Password telah diperbarui.');
+                                document.getElementById('old_pass').value = '';
                                 document.getElementById('new_pass').value = '';
                                 document.getElementById('conf_pass').value = '';
                             } else {
