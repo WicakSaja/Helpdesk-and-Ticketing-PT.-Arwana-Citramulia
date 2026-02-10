@@ -31,7 +31,7 @@ body {
 .profile-container {
     display: grid;
     /* Desktop: Kiri 300px, Kanan sisa ruang */
-    grid-template-columns: 300px 1fr; 
+    grid-template-columns: 300px 1fr;
     gap: 25px;
     align-items: start;
 }
@@ -44,11 +44,12 @@ body {
     padding: 35px 20px;
     border-radius: 16px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-    text-align: center; /* Default Desktop: Tengah */
+    text-align: center;
+    /* Default Desktop: Tengah */
     position: relative;
     overflow: hidden;
     border: 1px solid #f3f4f6;
-    
+
     /* Flex Column untuk Desktop */
     display: flex;
     flex-direction: column;
@@ -58,7 +59,10 @@ body {
 .profile-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 5px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
     background: var(--primary);
 }
 
@@ -75,7 +79,7 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid white;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Wrapper Text (Nama, Role, Stat) */
@@ -140,8 +144,8 @@ body {
     font-size: 15px;
     font-weight: 700;
     color: var(--text-dark);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #f3f4f6;
     display: flex;
     align-items: center;
@@ -150,26 +154,38 @@ body {
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
-.form-group { margin-bottom: 15px; }
+.form-group {
+    margin-bottom: 8px;
+}
 
 .form-label {
-    display: block; font-size: 13px; font-weight: 600;
-    color: var(--text-dark); margin-bottom: 6px;
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
 }
 
 .form-input {
-    width: 100%; padding: 10px 14px;
-    border: 1px solid #e5e7eb; border-radius: 10px;
-    font-size: 14px; outline: none; transition: 0.2s;
-    color: var(--text-dark); background-color: #fff;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    color: var(--text-dark);
+    background-color: #fff;
 }
 
 .form-input:disabled {
-    background: #f9fafb; border-color: #f3f4f6; color: #6b7280;
+    background: #f9fafb;
+    border-color: #f3f4f6;
+    color: #6b7280;
 }
 
 .form-input:not(:disabled):focus {
@@ -177,44 +193,72 @@ body {
     box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
 }
 
-.password-wrapper { position: relative; }
-.password-wrapper input { padding-right: 40px; }
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
 .toggle-password {
-    position: absolute; right: 12px; top: 50%;
-    transform: translateY(-50%); cursor: pointer; color: #9ca3af;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #9ca3af;
 }
 
 .btn-save {
-    background: var(--primary); color: white; padding: 10px 25px;
-    border: none; border-radius: 10px; font-weight: 600; cursor: pointer;
-    transition: 0.2s; float: right; display: inline-flex; align-items: center; gap: 8px;
-    font-size: 14px; box-shadow: 0 4px 6px rgba(214, 40, 40, 0.2);
+    background: var(--primary);
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    float: right;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 6px rgba(214, 40, 40, 0.2);
 }
-.btn-save:hover { background: var(--primary-hover); }
+
+.btn-save:hover {
+    background: var(--primary-hover);
+}
 
 /* =========================================================
    5. RESPONSIVE MOBILE (SIDE-BY-SIDE / KIRI-KANAN)
    ========================================================= */
 @media (max-width: 992px) {
     .profile-container {
-        grid-template-columns: 1fr; /* Stack Vertical */
+        grid-template-columns: 1fr;
+        /* Stack Vertical */
         gap: 15px;
     }
 
     /* CARD JADI HORIZONTAL */
     .profile-card {
-        flex-direction: row; /* Ubah arah jadi Baris */
+        flex-direction: row;
+        /* Ubah arah jadi Baris */
         align-items: center;
-        text-align: left; /* Teks rata kiri */
+        text-align: left;
+        /* Teks rata kiri */
         padding: 20px;
         justify-content: flex-start;
     }
 
     .avatar-wrapper {
-        width: 70px; /* Avatar Kecil */
+        width: 70px;
+        /* Avatar Kecil */
         height: 70px;
         margin-bottom: 0;
-        margin-right: 15px; /* Jarak ke teks */
+        margin-right: 15px;
+        /* Jarak ke teks */
     }
 
     .profile-details {
@@ -254,12 +298,30 @@ body {
         border-radius: 6px;
     }
 
-    .stat-item h4 { font-size: 14px; color: var(--primary); }
-    .stat-item span { font-size: 11px; }
+    .stat-item h4 {
+        font-size: 14px;
+        color: var(--primary);
+    }
+
+    .stat-item span {
+        font-size: 11px;
+    }
 }
 
 @media (max-width: 640px) {
-    .settings-card { padding: 20px; }
-    .form-grid { grid-template-columns: 1fr; gap: 0; }
-    .btn-save { width: 100%; justify-content: center; float: none; margin-top: 10px; }
+    .settings-card {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .btn-save {
+        width: 100%;
+        justify-content: center;
+        float: none;
+        margin-top: 10px;
+    }
 }

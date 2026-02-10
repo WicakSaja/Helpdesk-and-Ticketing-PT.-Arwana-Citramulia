@@ -10,14 +10,16 @@
     <div class="page-title">Pengaturan Profil</div>
 
     <div class="profile-container">
-        
+
         {{-- KARTU PROFIL (Layout Kiri-Kanan di Mobile) --}}
         <div class="profile-card">
             {{-- 1. AVATAR (Kiri) --}}
             <div class="avatar-wrapper">
                 {{-- Default src kosong agar tidak ada gambar broken link saat loading --}}
-                <img id="profile_avatar" src="" alt="Avatar" class="avatar-img" style="display: none;" onload="this.style.display='block'">
-                <div id="avatar_loading" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0; border-radius:50%;">
+                <img id="profile_avatar" src="" alt="Avatar" class="avatar-img" style="display: none;"
+                    onload="this.style.display='block'">
+                <div id="avatar_loading"
+                    style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0; border-radius:50%;">
                     <i class="fa-solid fa-spinner fa-spin" style="color:#ccc;"></i>
                 </div>
             </div>
@@ -28,12 +30,12 @@
                 <h3 id="profile_name_display" class="user-name">
                     <span style="font-size:14px; color:#999; font-weight:400;">Memuat...</span>
                 </h3>
-                
+
                 {{-- Role (Default Spinner) --}}
                 <span id="profile_role" class="user-role">
                     <i class="fa-solid fa-circle-notch fa-spin" style="font-size:10px;"></i>
                 </span>
-                
+
                 {{-- Total Tiket (Default Spinner) --}}
                 <div class="profile-stats">
                     <div class="stat-item">
@@ -53,7 +55,7 @@
                     <i class="fa-solid fa-id-card" style="margin-right:10px; color:#d62828;"></i>
                     Informasi Pribadi
                 </h4>
-                
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
@@ -64,17 +66,17 @@
                         <input type="text" id="profile_phone" class="form-input" disabled>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">Alamat Email</label>
                     <input type="email" id="profile_email" class="form-input" disabled>
                 </div>
 
-                <h4 class="form-section-title" style="margin-top: 30px;">
+                <h4 class="form-section-title" style="margin-top: 15px;">
                     <i class="fa-solid fa-shield-halved" style="margin-right:10px; color:#d62828;"></i>
                     Keamanan
                 </h4>
-                
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Password Lama</label>
@@ -135,7 +137,7 @@
                 let baseUrl = (typeof API_URL !== 'undefined') ? API_URL : '';
                 baseUrl = baseUrl.replace(/\/$/, "");
 
-                const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
                 if (!token) return;
 
                 const meRes = await fetch(`${baseUrl}/api/me`, {
@@ -153,11 +155,11 @@
                 const meJson = await meRes.json();
                 const user = meJson.user || {};
                 const roles = meJson.roles || [];
-                
+
                 // 1. RENDER NAMA & FORM (Instan)
                 const nameEl = document.getElementById('profile_name_display');
                 if (nameEl) nameEl.innerText = user.name || 'User';
-                
+
                 document.getElementById('profile_name').value = user.name || '';
                 document.getElementById('profile_phone').value = user.phone || '-';
                 document.getElementById('profile_email').value = user.email || '';
@@ -169,23 +171,24 @@
                     if (roles && roles.length > 0) {
                         // Ambil role asli (misal: "requester")
                         const rawRole = roles[0].toString();
-                        
+
                         // Hanya ubah huruf pertama jadi besar (Capitalize)
                         // requester -> Requester
                         displayRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
                     }
                     roleEl.innerText = displayRole;
                 }
-                
+
                 // 3. RENDER AVATAR
                 const avatarImg = document.getElementById('profile_avatar');
                 const avatarLoading = document.getElementById('avatar_loading');
                 if (avatarImg) {
                     const avatarName = encodeURIComponent(user.name || 'User');
-                    avatarImg.src = `https://ui-avatars.com/api/?name=${avatarName}&background=d62828&color=fff&size=256&bold=true`;
+                    avatarImg.src =
+                        `https://ui-avatars.com/api/?name=${avatarName}&background=d62828&color=fff&size=256&bold=true`;
                     // Sembunyikan loading spinner avatar saat gambar termuat
                     avatarImg.onload = function() {
-                        if(avatarLoading) avatarLoading.style.display = 'none';
+                        if (avatarLoading) avatarLoading.style.display = 'none';
                         avatarImg.style.display = 'block';
                     }
                 }
@@ -194,12 +197,12 @@
                 if (token) {
                     try {
                         const ticketsRes = await fetch(`${baseUrl}/api/my-tickets`, {
-                            headers: { 
+                            headers: {
                                 'Authorization': `Bearer ${token}`,
-                                'Accept': 'application/json' 
+                                'Accept': 'application/json'
                             }
                         });
-                        
+
                         if (ticketsRes.ok) {
                             const json = await ticketsRes.json();
                             const items = json.data?.data ? json.data.data : (json.data || []);
@@ -225,18 +228,27 @@
 
                         const showMsg = (type, title, text) => {
                             if (typeof Swal !== 'undefined') {
-                                Swal.fire({ icon: type, title: title, text: text, confirmButtonColor: '#d62828' });
+                                Swal.fire({
+                                    icon: type,
+                                    title: title,
+                                    text: text,
+                                    confirmButtonColor: '#d62828'
+                                });
                             } else {
                                 alert(title + ': ' + text);
                             }
                         };
 
-                        if (!oldPass) return showMsg('warning', 'Peringatan', 'Password lama wajib diisi');
-                        if (!pass || pass.length < 8) return showMsg('warning', 'Peringatan', 'Password baru minimal 8 karakter');
-                        if (pass !== conf) return showMsg('error', 'Error', 'Konfirmasi password tidak cocok');
+                        if (!oldPass) return showMsg('warning', 'Peringatan',
+                            'Password lama wajib diisi');
+                        if (!pass || pass.length < 8) return showMsg('warning', 'Peringatan',
+                            'Password baru minimal 8 karakter');
+                        if (pass !== conf) return showMsg('error', 'Error',
+                            'Konfirmasi password tidak cocok');
 
                         const originalBtnText = saveBtn.innerHTML;
-                        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+                        saveBtn.innerHTML =
+                            '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
                         saveBtn.disabled = true;
 
                         try {

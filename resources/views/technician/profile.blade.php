@@ -61,7 +61,7 @@
                     </div>
                 </div>
 
-                <div class="section-title" style="margin-top: 40px;"><i class="fa-solid fa-shield-halved"></i> Keamanan Akun
+                <div class="section-title" style="margin-top: 15px;"><i class="fa-solid fa-shield-halved"></i> Keamanan Akun
                 </div>
 
                 <div class="form-grid">

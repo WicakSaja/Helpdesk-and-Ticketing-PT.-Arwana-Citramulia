@@ -245,15 +245,16 @@
     function closeCreateModal() {
       const el = document.getElementById("createSuccessModal");
       if (el) el.style.display = "none";
-    }
-
-    function resetCreateForm() {
+      // Reset form inputs to prevent stale data and double submissions
       const subj = document.getElementById("subject");
       if (subj) subj.value = "";
       const desc = document.getElementById("description");
       if (desc) desc.value = "";
       const cat = document.getElementById("category_id");
       if (cat) cat.selectedIndex = 0;
+    }
+
+    function resetCreateForm() {
       closeCreateModal();
     }
 

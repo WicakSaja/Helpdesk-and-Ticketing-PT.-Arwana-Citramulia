@@ -26,36 +26,35 @@
 
 @section('scripts')
     <script>
-    
-    // Fetch dashboard data from API
-    async function loadDashboard() {
-        try {
-            const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-            
-            // Tampilkan loading dulu
-            document.getElementById('dashboardContent').innerHTML = `
+        // Fetch dashboard data from API
+        async function loadDashboard() {
+            try {
+                const token = sessionStorage.getItem('auth_token');
+
+                // Tampilkan loading dulu
+                document.getElementById('dashboardContent').innerHTML = `
                 <div class="loading">
                     <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
                     <p style="margin-top:10px;">Mengambil data terbaru...</p>
                 </div>
             `;
 
-            const response = await fetch('{{ url("/api/dashboard") }}', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            });
+                const response = await fetch('{{ url('/api/dashboard') }}', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
 
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-            const result = await response.json();
-            const data = result.data;
+                const result = await response.json();
+                const data = result.data;
 
-            // Build HTML
-            let html = `
+                // Build HTML
+                let html = `
                 <div class="stats-grid">
                     <div class="stat-card card-red">
                         <div class="stat-info"><p>Belum Di-Assign</p><h3>${data.summary.unassigned}</h3></div>
@@ -106,15 +105,17 @@
                         <tbody>
             `;
 
-            if (data.unassigned_tickets && data.unassigned_tickets.length > 0) {
-                data.unassigned_tickets.forEach(ticket => {
-                    // Logic warna kategori sederhana
-                    const catLower = (ticket.category || '').toLowerCase();
-                    let badgeClass = 'dept-other';
-                    if (catLower.includes('hardware') || catLower.includes('jaringan')) badgeClass = 'dept-hardware';
-                    if (catLower.includes('akun') || catLower.includes('akses')) badgeClass = 'dept-account';
+                if (data.unassigned_tickets && data.unassigned_tickets.length > 0) {
+                    data.unassigned_tickets.forEach(ticket => {
+                        // Logic warna kategori sederhana
+                        const catLower = (ticket.category || '').toLowerCase();
+                        let badgeClass = 'dept-other';
+                        if (catLower.includes('hardware') || catLower.includes('jaringan')) badgeClass =
+                            'dept-hardware';
+                        if (catLower.includes('akun') || catLower.includes('akses')) badgeClass =
+                        'dept-account';
 
-                    html += `
+                        html += `
                         <tr>
                             <td><span style="font-family:monospace; font-weight:700;">${ticket.ticket_number}</span></td>
                             <td>
@@ -130,9 +131,9 @@
                             </td>
                         </tr>
                     `;
-                });
-            } else {
-                html += `
+                    });
+                } else {
+                    html += `
                     <tr>
                         <td colspan="5">
                             <div class="empty-state">
@@ -142,33 +143,33 @@
                         </td>
                     </tr>
                 `;
-            }
+                }
 
-            html += `   </tbody>
+                html += `   </tbody>
                     </table>
                 </div>`;
 
-            document.getElementById('dashboardContent').innerHTML = html;
-            // Initialize charts after content is rendered
-            initCharts(data);
-        } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('dashboardContent').innerHTML = `
+                document.getElementById('dashboardContent').innerHTML = html;
+                // Initialize charts after content is rendered
+                initCharts(data);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('dashboardContent').innerHTML = `
                 <div style="text-align:center; padding:40px; color:#ef4444;">
                     <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i><br>
                     <strong>Gagal memuat dashboard.</strong><br>
                     <small>${error.message}</small>
                 </div>
             `;
+            }
         }
-    }
 
-    // Load dashboard on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        loadDashboard();
-    });
+        // Load dashboard on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
 
-     function initCharts(data) {
+        function initCharts(data) {
             // 1. CHART TREN TIKET (Line Chart - Modern)
             const ctxTrend = document.getElementById('trendChart');
             if (ctxTrend) {

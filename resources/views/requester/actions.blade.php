@@ -133,7 +133,7 @@
         });
 
         async function fetchWithAuth(url, options = {}) {
-            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
             if (!token) {
                 window.location.href = "{{ route('login') }}";
                 return null;

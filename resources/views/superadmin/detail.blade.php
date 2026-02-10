@@ -160,7 +160,7 @@
                 confirmButtonText: 'Ya, Hapus!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                    const token = sessionStorage.getItem('auth_token');
                     fetch(`${API_URL_BASE}/${TICKET_ID}`, {
                             method: 'DELETE',
                             headers: {

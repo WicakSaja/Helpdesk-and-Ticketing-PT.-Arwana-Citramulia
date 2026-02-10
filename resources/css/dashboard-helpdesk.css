@@ -318,7 +318,40 @@
         box-shadow: 0 8px 20px -5px rgba(249, 115, 22, 0.5);
     }
 
+    /* --- CHART & TABLE RESPONSIVE --- */
+    .charts-wrapper {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .chart-card {
+        padding: 15px;
+    }
+
+    .chart-title {
+        font-size: 14px;
+    }
+
     .table-container {
         padding: 15px;
+    }
+
+    .section-title {
+        font-size: 15px;
+    }
+
+    .urgent-table {
+        font-size: 12px;
+    }
+
+    .urgent-table th {
+        font-size: 10px;
+        padding: 8px 5px;
+    }
+
+    .urgent-table td {
+        padding: 10px 5px;
+        font-size: 12px;
     }
 }

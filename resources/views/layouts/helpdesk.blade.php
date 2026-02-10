@@ -116,7 +116,7 @@
                 requireHelpdeskRole();
             } else {
                 // Fallback: Cek login standar
-                const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+                const token = sessionStorage.getItem('auth_token');
                 if (!token) window.location.href = '/login';
             }
         });
@@ -127,7 +127,7 @@
         document.addEventListener('DOMContentLoaded', async function() {
             if (window.SKIP_PENDING_COUNT_FETCH) return;
 
-            const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
+            const token = sessionStorage.getItem('auth_token');
             const badge = document.getElementById('pendingCount');
 
             if (token && badge) {
