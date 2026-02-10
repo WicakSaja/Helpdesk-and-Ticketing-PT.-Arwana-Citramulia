@@ -34,17 +34,21 @@ class AuthQueryService
      */
     public function getCurrentUser(User $user): array
     {
+        // Load department relation
+        $user->load('department');
+        
         return [
-            'user' => $user->only([
-                'id',
-                'name',
-                'email',
-                'phone',
-                'department_id',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ]),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'department_id' => $user->department_id,
+                'department_name' => $user->department?->name ?? null,
+                'is_active' => $user->is_active,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+            ],
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ];

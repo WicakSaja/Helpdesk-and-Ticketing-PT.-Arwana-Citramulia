@@ -12,7 +12,7 @@
     <div class="welcome-banner">
         <div>
             <h2>Dashboard Overview</h2>
-            <p>Selamat Datang, {{ auth()->user() ? auth()->user()->name : 'Administrator' }}! 👋</p>
+            <p>Selamat Datang, <span id="userName">...</span>! 👋</p>
         </div>
         <div style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; font-size: 13px;">
             📅 {{ date('d F Y') }}
@@ -28,6 +28,22 @@
 
 @section('scripts')
     <script>
+        // Set user name from sessionStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = sessionStorage.getItem('auth_user');
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    const userNameEl = document.getElementById('userName');
+                    if (userNameEl && user.name) {
+                        userNameEl.textContent = user.name;
+                    }
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                }
+            }
+        });
+
         // Fetch dashboard data from API
         async function loadDashboard() {
             try {
@@ -116,15 +132,15 @@
                                 </thead>
                                 <tbody>
                                     ${data.latest_tickets.map(ticket => `
-                                                <tr>
-                                                    <td><strong>${ticket.ticket_number}</strong></td>
-                                                    <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
-                                                    <td>${ticket.requester?.name || 'Unknown'}</td>
-                                                    <td>${ticket.category}</td>
-                                                    <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
-                                                    <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
-                                                </tr>
-                                            `).join('')}
+                                                    <tr>
+                                                        <td><strong>${ticket.ticket_number}</strong></td>
+                                                        <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
+                                                        <td>${ticket.requester?.name || 'Unknown'}</td>
+                                                        <td>${ticket.category}</td>
+                                                        <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
+                                                        <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
+                                                    </tr>
+                                                `).join('')}
                                 </tbody>
                             </table>
                         </div>

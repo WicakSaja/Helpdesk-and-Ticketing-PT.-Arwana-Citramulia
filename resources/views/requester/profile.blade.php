@@ -67,9 +67,15 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Alamat Email</label>
-                    <input type="email" id="profile_email" class="form-input" disabled>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Alamat Email</label>
+                        <input type="email" id="profile_email" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Divisi</label>
+                        <input type="text" id="profile_dept_input" class="form-input" disabled>
+                    </div>
                 </div>
 
                 <h4 class="form-section-title" style="margin-top: 15px;">
@@ -163,6 +169,7 @@
                 document.getElementById('profile_name').value = user.name || '';
                 document.getElementById('profile_phone').value = user.phone || '-';
                 document.getElementById('profile_email').value = user.email || '';
+                document.getElementById('profile_dept_input').value = user.department_name || '-';
 
                 // 2. RENDER ROLE (DATA ASLI DARI DATABASE)
                 const roleEl = document.getElementById('profile_role');
@@ -172,9 +179,14 @@
                         // Ambil role asli (misal: "requester")
                         const rawRole = roles[0].toString();
 
-                        // Hanya ubah huruf pertama jadi besar (Capitalize)
-                        // requester -> Requester
-                        displayRole = rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
+                        // Map role ke label yang lebih user-friendly
+                        const roleLabels = {
+                            'master-admin': 'Super Admin',
+                            'helpdesk': 'Helpdesk',
+                            'technician': 'Teknisi',
+                            'requester': 'Requester'
+                        };
+                        displayRole = roleLabels[rawRole] || rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
                     }
                     roleEl.innerText = displayRole;
                 }

@@ -7,16 +7,23 @@
 
 @section('content')
     <div class="page-header">
-        <div>
+        <div class="header-left">
             <h1 class="page-title">Riwayat Pekerjaan</h1>
             <p class="page-subtitle">Daftar tiket yang telah diselesaikan.</p>
         </div>
-        <div class="filter-controls">
-            <select id="statusFilter" onchange="loadHistory()">
-                <option value="">Semua Status</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-            </select>
+        <div class="header-right">
+            <div class="stats-badge pending-badge">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span id="pendingCountNum">0</span>
+                <span class="badge-text">Tiket Perlu Dikerjakan</span>
+            </div>
+            <div class="filter-dropdown">
+                <select id="statusFilter" onchange="loadHistory()">
+                    <option value="">Semua Status</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
         </div>
     </div>
 

@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const nameInput = document.getElementById("profile_name");
       const emailInput = document.getElementById("profile_email");
       const phoneInput = document.getElementById("profile_phone");
+      const deptInput = document.getElementById("profile_dept");
 
       if (nameDisplay) nameDisplay.textContent = user.name || "-";
       if (roleDisplay)
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (nameInput) nameInput.value = user.name || "";
       if (emailInput) emailInput.value = user.email || "";
       if (phoneInput) phoneInput.value = user.phone || "";
+      if (deptInput) deptInput.value = user.department_name || "-";
 
       // Fetch resolved tickets count from API
       try {

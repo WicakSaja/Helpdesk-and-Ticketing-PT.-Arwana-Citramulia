@@ -48,6 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
         totalPages = result.pagination.last_page;
         renderPagination(result.pagination);
       }
+
+      // Load pending tickets count separately
+      loadPendingCount();
     } catch (error) {
       console.error("Error loading history:", error);
       tbody.innerHTML = `
@@ -89,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const categoryName = ticket.category?.name || "-";
 
         return `
-                <tr>
+                <tr data-ticket-id="${ticket.id}" onclick="goToDetail(${ticket.id})" title="Klik untuk melihat detail">
                     <td><b>${escapeHtml(ticket.ticket_number)}</b></td>
                     <td>${escapeHtml(ticket.subject)}</td>
                     <td>
@@ -207,4 +210,42 @@ document.addEventListener("DOMContentLoaded", function () {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  function updateCompletedCount(total) {
+    const countEl = document.getElementById("completedCountNum");
+    if (countEl) {
+      countEl.textContent = total || 0;
+    }
+  }
+
+  async function loadPendingCount() {
+    try {
+      const token =
+        localStorage.getItem("auth_token") ||
+        sessionStorage.getItem("auth_token");
+      if (!token) return;
+
+      const response = await fetch(`/api/technician/tickets?per_page=1`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const countEl = document.getElementById("pendingCountNum");
+        if (countEl && result.pagination) {
+          countEl.textContent = result.pagination.total || 0;
+        }
+      }
+    } catch (error) {
+      console.error("Error loading pending count:", error);
+    }
+  }
+
+  // Expose goToDetail to global scope
+  window.goToDetail = function (ticketId) {
+    window.location.href = `/technician/tickets/${ticketId}`;
+  };
 });
