@@ -44,9 +44,13 @@
                 <div class="section-title"><i class="fa-regular fa-id-card"></i> Informasi Pribadi</div>
 
                 <div class="form-grid">
-                    <div class="form-group full-width">
+                    <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
                         <input type="text" class="form-input" id="profile_name" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Divisi</label>
+                        <input type="text" class="form-input" id="profile_dept" disabled>
                     </div>
                 </div>
 

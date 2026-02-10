@@ -25,10 +25,62 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Pattern Background Halus */
-            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-            background-size: 24px 24px;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+
+            /* Abstract Background Pattern */
+            background:
+                /* Floating circles */
+                radial-gradient(circle at 10% 20%, rgba(214, 40, 40, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(214, 40, 40, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 107, 107, 0.05) 0%, transparent 60%),
+                radial-gradient(circle at 30% 70%, rgba(214, 40, 40, 0.06) 0%, transparent 35%),
+                /* Geometric dots pattern */
+                radial-gradient(circle, rgba(214, 40, 40, 0.12) 1px, transparent 1px),
+                /* Base gradient */
+                linear-gradient(135deg, #f8f9fc 0%, #eef1f5 50%, #f4f6f9 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 30px 30px, 100% 100%;
+            background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+        }
+
+        /* Abstract floating shapes */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -150px;
+            right: -150px;
+            width: 450px;
+            height: 450px;
+            background: linear-gradient(135deg, rgba(214, 40, 40, 0.12) 0%, rgba(255, 107, 107, 0.05) 100%);
+            border-radius: 50%;
+            z-index: 0;
+            animation: floatShape 15s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -120px;
+            left: -120px;
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(45deg, rgba(214, 40, 40, 0.1) 0%, rgba(255, 200, 200, 0.05) 100%);
+            border-radius: 50%;
+            z-index: 0;
+            animation: floatShape 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatShape {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-25px, 25px) scale(1.08);
+            }
         }
 
         a {
@@ -37,16 +89,21 @@
 
         /* --- CARD CONTAINER (Satu Kotak untuk Semua) --- */
         .landing-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             width: 100%;
             max-width: 480px;
             /* Ukuran pas, tidak terlalu lebar */
             padding: 50px 40px;
             border-radius: 24px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
             position: relative;
             overflow: hidden;
+            z-index: 1;
             animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
@@ -152,7 +209,7 @@
             top: -10px;
             left: 50%;
             transform: translateX(-50%);
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 0 10px;
             font-size: 11px;
             color: #aaa;
@@ -187,6 +244,164 @@
             margin-top: 30px;
             font-size: 11px;
             color: #bbb;
+        }
+
+        /* ============================================= */
+        /* RESPONSIVE MEDIA QUERIES */
+        /* ============================================= */
+
+        /* Tablet Portrait (768px and below) */
+        @media screen and (max-width: 768px) {
+            .landing-card {
+                padding: 45px 35px;
+                max-width: 420px;
+                border-radius: 22px;
+            }
+
+            .logo-img {
+                width: 130px;
+            }
+
+            .app-title {
+                font-size: 20px;
+            }
+
+            .app-desc {
+                font-size: 13px;
+                margin-bottom: 30px;
+            }
+
+            body::before {
+                width: 350px;
+                height: 350px;
+                top: -120px;
+                right: -120px;
+            }
+
+            body::after {
+                width: 250px;
+                height: 250px;
+                bottom: -100px;
+                left: -100px;
+            }
+        }
+
+        /* Mobile Large (576px and below) */
+        @media screen and (max-width: 576px) {
+            body {
+                padding: 15px;
+            }
+
+            .landing-card {
+                padding: 35px 25px;
+                border-radius: 18px;
+                max-width: 100%;
+            }
+
+            .logo-img {
+                width: 110px;
+                margin-bottom: 20px;
+            }
+
+            .app-title {
+                font-size: 18px;
+                margin-bottom: 8px;
+            }
+
+            .app-desc {
+                font-size: 12px;
+                margin-bottom: 25px;
+            }
+
+            .btn-group {
+                gap: 12px;
+            }
+
+            .btn-primary,
+            .btn-outline {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .features-divider {
+                margin: 28px 0 20px;
+            }
+
+            .features-list {
+                gap: 10px;
+            }
+
+            .feature-item {
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+
+            .copyright {
+                margin-top: 25px;
+                font-size: 10px;
+            }
+
+            body::before {
+                width: 250px;
+                height: 250px;
+                top: -100px;
+                right: -100px;
+            }
+
+            body::after {
+                width: 180px;
+                height: 180px;
+                bottom: -70px;
+                left: -70px;
+            }
+        }
+
+        /* Mobile Small (400px and below) */
+        @media screen and (max-width: 400px) {
+            body {
+                padding: 10px;
+            }
+
+            .landing-card {
+                padding: 30px 20px;
+                border-radius: 16px;
+            }
+
+            .logo-img {
+                width: 90px;
+                margin-bottom: 15px;
+            }
+
+            .app-title {
+                font-size: 16px;
+            }
+
+            .app-desc {
+                font-size: 11px;
+                margin-bottom: 20px;
+            }
+
+            .btn-primary,
+            .btn-outline {
+                padding: 11px;
+                font-size: 13px;
+                border-radius: 40px;
+            }
+
+            .features-list {
+                gap: 8px;
+            }
+
+            .feature-item {
+                font-size: 9px;
+                padding: 4px 8px;
+                border-radius: 6px;
+            }
+
+            body::before,
+            body::after {
+                display: none;
+            }
         }
     </style>
 </head>

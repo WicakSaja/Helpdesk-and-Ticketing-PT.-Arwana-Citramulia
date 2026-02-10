@@ -17,7 +17,7 @@
                 <h2 class="page-title d-flex align-items-center gap-2">
                     <span class="text-truncate">Detail Tiket</span>
                     <span class="text-muted fw-normal" id="ticket-id-display"
-                        style="font-size: 0.8em; opacity: 0.7;">#Loading</span>
+                        style="font-size: 0.8em; opacity: 0.7;">Loading</span>
                 </h2>
                 <div class="text-muted small mt-1">Informasi lengkap permasalahan dan riwayat penanganan.</div>
             </div>
