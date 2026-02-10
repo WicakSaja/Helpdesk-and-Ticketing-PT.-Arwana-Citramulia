@@ -151,6 +151,7 @@ window.TokenManager = window.TokenManager || {
     async validateRoles() {
         const token = this.getToken();
         const sessionRoles = this.getRoles();
+        const sessionUser = this.getUser();
         
         if (!token) {
             console.warn('No token found in session');
@@ -176,6 +177,7 @@ window.TokenManager = window.TokenManager || {
 
             const data = await response.json();
             const apiRoles = data.roles || [];
+            const apiUser = data.user || null;
 
             // Convert to role names for comparison
             const sessionRoleNames = sessionRoles.map(r => r.name || r).sort();
@@ -184,12 +186,16 @@ window.TokenManager = window.TokenManager || {
             // Check if roles match
             const rolesMatch = JSON.stringify(sessionRoleNames) === JSON.stringify(apiRoleNames);
 
-            if (!rolesMatch) {
-                console.warn('Roles mismatch detected');
+            const sessionUserId = sessionUser && sessionUser.id != null ? String(sessionUser.id) : null;
+            const apiUserId = apiUser && apiUser.id != null ? String(apiUser.id) : null;
+            const userMatch = !!sessionUserId && !!apiUserId && sessionUserId === apiUserId;
+
+            if (!rolesMatch || !userMatch) {
+                console.warn('Roles or user mismatch detected');
                 this.clearAuth();
             }
 
-            return rolesMatch;
+            return rolesMatch && userMatch;
         } catch (error) {
             console.error('Error validating roles:', error);
             return false;

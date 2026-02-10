@@ -168,7 +168,7 @@ class TicketController extends Controller
             $sortOrder,
             $page,
             $perPage,
-            ['closed'],
+            ['closed', 'resolved'],
             null
         );
 
@@ -374,7 +374,12 @@ class TicketController extends Controller
     public function solve(SolveTicketRequest $request, Ticket $ticket)
     {
         $validated = $request->validated();
-        $result = $this->crudService->solveTicket($ticket, $request->user()->id, $validated['solution']);
+        $result = $this->crudService->solveTicket(
+            $ticket,
+            $request->user()->id,
+            $validated['solution'],
+            $validated['resolved_at']
+        );
 
         if (isset($result['error'])) {
             return response()->json(['message' => $result['error']], $result['status']);

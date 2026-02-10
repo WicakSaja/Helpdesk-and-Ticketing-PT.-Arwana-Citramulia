@@ -26,7 +26,13 @@ class TicketQueryService
      */
     public function listTickets(User $user, ?string $status = null, ?int $categoryId = null, ?int $assignedTo = null, ?string $search = null, string $sortBy = 'created_at', string $sortOrder = 'desc', int $page = 1, int $perPage = 15, ?array $excludeStatus = null, ?array $includeStatus = null, ?string $startDate = null, ?string $endDate = null)
     {
-        $query = Ticket::with(['status', 'category', 'requester.department', 'assignment.technician']);
+        $query = Ticket::with([
+            'status',
+            'category',
+            'requester.department',
+            'assignment.technician',
+            'solution'
+        ]);
 
         // Role-based filtering
         if ($user->hasRole('requester')) {

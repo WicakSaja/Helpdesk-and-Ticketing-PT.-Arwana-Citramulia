@@ -117,6 +117,12 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
 }
 
+.chart-card canvas {
+    display: block;
+    width: 100% !important;
+    height: 280px !important;
+}
+
 .chart-header {
     display: flex;
     justify-content: space-between;
@@ -242,6 +248,7 @@
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .charts-wrapper { grid-template-columns: 1fr; gap: 20px; }
     .chart-card { padding: 20px; }
+    .chart-card canvas { height: 240px !important; }
 }
 
 @media (max-width: 576px) {
@@ -327,6 +334,10 @@
 
     .chart-card {
         padding: 15px;
+    }
+
+    .chart-card canvas {
+        height: 200px !important;
     }
 
     .chart-title {

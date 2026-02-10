@@ -519,7 +519,7 @@
                 "solve"
               ]
             },
-            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.resolve (technician)\n\nWorkflow:\n- Ticket status: In Progress → Resolved\n- Hanya technician yang di-assign yang bisa resolve\n\nNotes:\n- Ticket harus sudah di-confirm (status In Progress)\n- Creates ticket solution record dengan solved_at timestamp\n\nRequired:\n- solution: Deskripsi solusi yang diberikan (min 10 char)"
+            "description": "Resolve/solve ticket dengan memberikan solution.\n\nPermission: ticket.resolve (technician)\n\nWorkflow:\n- Ticket status: In Progress → Resolved\n- Hanya technician yang di-assign yang bisa resolve\n\nNotes:\n- Ticket harus sudah di-confirm (status In Progress)\n- Creates ticket solution record dengan solved_at timestamp\n\nRequired:\n- solution: Deskripsi solusi yang diberikan (min 10 char)\n- resolved_at: Tanggal dan waktu selesai (format: YYYY-MM-DD HH:mm:ss)"
           },
           "response": []
         },
@@ -1716,37 +1716,37 @@
   },
   "variable": [
     {
-      "id": "f0c2d0ac-885b-4aca-b14c-e72ecb2e4054",
+      "id": "bafb7ba4-260f-4e1b-978e-7ee1df4a93d7",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "9eed066d-1b52-4348-b3ad-c5e0e88c9868",
+      "id": "6e03b453-6189-4753-97f1-31d5732b7efd",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "060d1d8e-9c81-4cf3-ab05-b53e0cf89c57",
+      "id": "ee39d05d-4e8b-4595-955d-336dbb55aff3",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "43e1fafb-0f47-4b32-bb49-33d132abba2b",
+      "id": "1fbf8164-375d-4b4d-bb03-0ba966e6559c",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "5e35a404-70b7-41c3-931b-d2555671cdbd",
+      "id": "8117d728-8dba-499e-82b2-fcccce736a0e",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "eb161806-9fd5-473d-a5a9-9b2c8cc4e314",
+      "id": "2183b5cc-cc33-4bbc-94ea-a3c407202bc4",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

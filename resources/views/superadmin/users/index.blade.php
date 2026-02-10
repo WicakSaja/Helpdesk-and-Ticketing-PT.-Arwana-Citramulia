@@ -122,6 +122,7 @@
                     <div class="form-group">
                         <label class="form-label">Role (Hak Akses)</label>
                         <select class="form-select" id="uRole">
+                            <option value="requester">Requester</option>
                             <option value="technician">Technician</option>
                             <option value="helpdesk">Helpdesk</option>
                         </select>

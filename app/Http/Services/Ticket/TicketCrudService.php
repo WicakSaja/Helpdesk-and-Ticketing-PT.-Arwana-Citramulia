@@ -3,6 +3,7 @@
 namespace App\Http\Services\Ticket;
 
 use App\Models\Ticket;
+use Carbon\Carbon;
 use App\Models\TicketAssignment;
 use App\Models\TicketLog;
 use App\Models\TicketSolution;
@@ -202,7 +203,7 @@ class TicketCrudService
     /**
      * Technician solves ticket
      */
-    public function solveTicket(Ticket $ticket, int $technicianId, string $solutionText): array
+    public function solveTicket(Ticket $ticket, int $technicianId, string $solutionText, string $resolvedAt): array
     {
         $ticket->load(['assignment', 'status']);
 
@@ -218,20 +219,22 @@ class TicketCrudService
             return ['error' => 'Ticket must be in in progress status to be resolved', 'status' => 422];
         }
 
-        DB::transaction(function () use ($ticket, $technicianId, $solutionText) {
+        $resolvedAtTime = Carbon::createFromFormat('Y-m-d H:i:s', $resolvedAt, config('app.timezone'));
+
+        DB::transaction(function () use ($ticket, $technicianId, $solutionText, $resolvedAtTime) {
             TicketSolution::updateOrCreate(
                 ['ticket_id' => $ticket->id],
                 [
                     'solution_text' => $solutionText,
                     'solved_by' => $technicianId,
-                    'solved_at' => now(),
+                    'solved_at' => $resolvedAtTime,
                 ]
             );
 
             TechnicianTicketHistory::create([
                 'ticket_id' => $ticket->id,
                 'technician_id' => $technicianId,
-                'resolved_at' => now(),
+                'resolved_at' => $resolvedAtTime,
                 'solution_text' => $solutionText,
             ]);
 

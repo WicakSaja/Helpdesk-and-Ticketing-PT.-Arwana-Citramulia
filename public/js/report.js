@@ -295,10 +295,11 @@
         let resolvedDate = null;
 
         if (isClosed) {
-          closedDate = formatDate(row.closed_at || row.updated_at);
+          closedDate = formatDate(row.closed_at);
         }
         if (isResolved) {
-          resolvedDate = formatDate(row.resolved_at || row.updated_at);
+          const solvedAt = row.solution?.solved_at;
+          resolvedDate = formatDate(solvedAt);
         }
 
         let techHtml = `<span class="no-tech"><i class="fa-regular fa-clock"></i> Menunggu...</span>`;

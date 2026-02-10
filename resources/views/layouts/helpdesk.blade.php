@@ -49,13 +49,14 @@
                 class="menu-item {{ Route::is('helpdesk.incoming') ? 'active' : '' }}">
                 <i class="fa-solid fa-inbox"></i> Tiket Masuk
                 {{-- Badge Counter (Optional) --}}
-                <span class="menu-badge" id="pendingCount" style="display: none;">0</span>
+                <span class="menu-badge" id="openCount" style="display: none;">0</span>
             </a>
 
             {{-- Action (Reject/Close) --}}
             <a href="{{ route('helpdesk.actions') }}"
                 class="menu-item {{ Route::is('helpdesk.actions') ? 'active' : '' }}">
                 <i class="fa-solid fa-check-double"></i> Tiket Selesai
+                <span class="menu-badge" id="resolvedCount" style="display: none;">0</span>
             </a>
 
             {{-- MENU MANAJEMEN KATEGORI --}}
@@ -128,26 +129,47 @@
             if (window.SKIP_PENDING_COUNT_FETCH) return;
 
             const token = sessionStorage.getItem('auth_token');
-            const badge = document.getElementById('pendingCount');
+            const openBadge = document.getElementById('openCount');
+            const resolvedBadge = document.getElementById('resolvedCount');
 
-            if (token && badge) {
+            if (token) {
                 try {
-                    const response = await fetch('/api/tickets/count?status=open', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Accept': 'application/json'
-                        }
-                    });
+                    const [openResponse, resolvedResponse] = await Promise.all([
+                        fetch('/api/tickets/count?status=open', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/json'
+                            }
+                        }),
+                        fetch('/api/tickets/count?status=resolved', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/json'
+                            }
+                        })
+                    ]);
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        const count = result.count || 0;
+                    if (openResponse.ok && openBadge) {
+                        const openResult = await openResponse.json();
+                        const openCount = openResult.count || 0;
 
-                        if (count > 0) {
-                            badge.innerText = count;
-                            badge.style.display = 'inline-block';
+                        if (openCount > 0) {
+                            openBadge.innerText = openCount;
+                            openBadge.style.display = 'inline-block';
                         } else {
-                            badge.style.display = 'none';
+                            openBadge.style.display = 'none';
+                        }
+                    }
+
+                    if (resolvedResponse.ok && resolvedBadge) {
+                        const resolvedResult = await resolvedResponse.json();
+                        const resolvedCount = resolvedResult.count || 0;
+
+                        if (resolvedCount > 0) {
+                            resolvedBadge.innerText = resolvedCount;
+                            resolvedBadge.style.display = 'inline-block';
+                        } else {
+                            resolvedBadge.style.display = 'none';
                         }
                     }
                 } catch (error) {

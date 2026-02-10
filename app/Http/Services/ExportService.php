@@ -110,7 +110,7 @@ class ExportService
             // This will be handled in formatting methods
         }
 
-        return $query->orderBy('created_at', 'desc');
+        return $query->orderBy('created_at', 'asc');
     }
 
     /**
