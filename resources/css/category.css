@@ -49,7 +49,7 @@
 }
 
 .cat-table th {
-    text-align: left;
+    text-align: center;
     color: #888;
     padding: 15px;
     border-bottom: 2px solid #f0f0f0;
@@ -239,6 +239,7 @@
    RESPONSIVE MOBILE (SIMPLE LIST VIEW)
    ========================================================= */
 @media (max-width: 768px) {
+
     /* 1. Sembunyikan Header Tabel */
     .cat-table thead {
         display: none;
@@ -246,21 +247,24 @@
 
     /* 2. Ubah Baris (TR) menjadi Flexbox (Kiri-Kanan) */
     .cat-table tr {
-        display: flex; /* Aktifkan Flexbox */
-        justify-content: space-between; /* Jarak maksimal antara Nama & Aksi */
-        align-items: center; /* Vertikal tengah */
-        
+        display: flex;
+        /* Aktifkan Flexbox */
+        justify-content: space-between;
+        /* Jarak maksimal antara Nama & Aksi */
+        align-items: center;
+        /* Vertikal tengah */
+
         background: white;
         margin-bottom: 10px;
         padding: 15px 20px;
         border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
         border: 1px solid #f0f0f0;
     }
 
     /* 3. SEMBUNYIKAN KOLOM YANG TIDAK PERLU */
     /* Kolom 1 (No) & Kolom 3 (Deskripsi) di-hidden */
-    .cat-table td:nth-of-type(1), 
+    .cat-table td:nth-of-type(1),
     .cat-table td:nth-of-type(3) {
         display: none;
     }
@@ -270,7 +274,8 @@
         padding: 0;
         border: none;
         text-align: left;
-        flex: 1; /* Mengambil sisa ruang */
+        flex: 1;
+        /* Mengambil sisa ruang */
     }
 
     /* Hapus label otomatis (jika ada sisa css lama) */
@@ -315,13 +320,13 @@
         background: transparent;
         box-shadow: none;
     }
-    
+
     .page-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
     }
-    
+
     .btn-add {
         width: 100%;
         justify-content: center;

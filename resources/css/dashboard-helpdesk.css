@@ -51,6 +51,13 @@
     box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2);
 }
 
+/* Styling untuk stat-card yang merupakan link */
+.stat-link {
+    text-decoration: none;
+    cursor: pointer;
+    color: white;
+}
+
 /* Typography Card Desktop */
 .stat-info {
     z-index: 2;
@@ -245,10 +252,22 @@
    4. MEDIA QUERIES (TAMPILAN HP: SIDE-BY-SIDE VIBRANT)
    ========================================================= */
 @media (max-width: 992px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .charts-wrapper { grid-template-columns: 1fr; gap: 20px; }
-    .chart-card { padding: 20px; }
-    .chart-card canvas { height: 240px !important; }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-wrapper {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .chart-card {
+        padding: 20px;
+    }
+
+    .chart-card canvas {
+        height: 240px !important;
+    }
 }
 
 @media (max-width: 576px) {

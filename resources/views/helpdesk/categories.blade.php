@@ -20,7 +20,7 @@
                     <th style="width: 60px;">No.</th>
                     <th style="width: 25%;">Nama Kategori</th>
                     <th>Deskripsi</th>
-                    <th style="text-align: right; width: 120px;">Aksi</th>
+                    <th style="width: 120px;">Aksi</th>
                 </tr>
             </thead>
             <tbody id="table-body">

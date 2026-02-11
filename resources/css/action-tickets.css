@@ -8,10 +8,20 @@
     align-items: center;
     margin-bottom: 25px;
     width: 100%;
+    gap: 15px;
 }
 
 .header-title-box {
     text-align: left !important;
+    flex: 1;
+    min-width: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 .header-wrapper .page-title {
@@ -26,6 +36,41 @@
     color: #666;
     font-size: 14px;
     margin: 0;
+}
+
+/* --- SEARCH INPUT --- */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 10px 16px 10px 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 250px;
+    outline: none;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-input:focus {
+    border-color: #d62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #999;
+    font-size: 14px;
+    pointer-events: none;
 }
 
 /* --- 2. TOMBOL REFRESH --- */
@@ -58,7 +103,7 @@
 /* --- 3. TABLE STYLING (konsisten dengan halaman lain) --- */
 .table-container {
     background: white;
-    padding: 25px;
+    padding: 20px;
     border-radius: 16px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
     border: 1px solid #f3f4f6;
@@ -79,8 +124,8 @@
 }
 
 .custom-table th {
-    text-align: left;
-    padding: 15px;
+    text-align: center;
+    padding: 12px;
     color: #888;
     font-size: 12px;
     font-weight: 700;
@@ -91,7 +136,7 @@
 }
 
 .custom-table td {
-    padding: 15px;
+    padding: 12px;
     border-bottom: 1px solid #f9f9f9;
     font-size: 14px;
     color: #333;
@@ -100,6 +145,20 @@
 
 .custom-table tr:hover td {
     background-color: #fcfcfc;
+}
+
+.custom-table tbody tr {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .custom-table tr:last-child td {
@@ -151,15 +210,16 @@
     background: white;
     border: 1px solid #eee;
     color: #666;
-    padding: 8px 14px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.2s;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    white-space: nowrap;
 }
 
 .btn-action:hover {
@@ -168,7 +228,7 @@
     color: #d62828;
 }
 
-/* --- 7. MODAL --- */
+/* --- 7. MODAL (PROFESSIONAL STYLE) --- */
 .modal-box {
     border-radius: 16px;
     overflow: hidden;
@@ -177,50 +237,140 @@
 }
 
 .modal-box .modal-header {
-    background: #f8fafc;
-    padding: 20px 25px;
-    border-bottom: 1px solid #f1f5f9;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 22px 25px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-box .modal-title {
-    font-weight: 700;
-    color: #334155;
+    font-weight: 600;
+    color: #1e293b;
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    letter-spacing: -0.3px;
 }
 
 .modal-box .modal-body {
     padding: 25px;
+    background: white;
 }
 
 .ticket-summary-box {
-    background: #f8fafc;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 15px;
+    border-radius: 12px;
+    padding: 18px;
     margin-bottom: 20px;
 }
 
 .summary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.summary-row:last-child {
+    margin-bottom: 0;
 }
 
 .summary-label {
     color: #64748b;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .summary-val {
-    color: #1e293b;
-    font-weight: 600;
+    color: #334155;
+    font-weight: 500;
     text-align: right;
+    font-size: 14px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    font-size: 12px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #1e293b;
+    background: white;
+    transition: all 0.2s ease;
 }
 
 .form-control:focus {
-    border-color: #206bc4;
-    box-shadow: 0 0 0 2px rgba(32, 107, 196, 0.1);
+    border-color: #d62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #cbd5e1;
+}
+
+.modal-button-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.modal-button-group .btn {
+    flex: 1;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.modal-box .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 12px 16px;
+    border: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-outline-danger {
+    background: #d62828;
+    color: white;
+    border: none;
+}
+
+.btn-outline-danger:hover {
+    background: #b71c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(214, 40, 40, 0.4);
 }
 
 /* --- 8. PAGINATION (TEMA ARWANA) --- */
@@ -291,8 +441,31 @@
 
 /* --- 9. RESPONSIVE --- */
 @media (max-width: 768px) {
+    .header-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .search-input {
+        width: 100%;
+        flex: 1;
+        min-width: 150px;
+    }
+
     .table-container {
         padding: 15px;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        padding: 10px;
     }
 
     .pagination-container {
@@ -323,13 +496,22 @@
 
 @media (max-width: 576px) {
     .header-wrapper {
-        flex-direction: row;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         margin-bottom: 20px;
     }
 
     .header-title-box {
         flex: 1;
+        width: 100%;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
     }
 
     .header-wrapper .page-title {

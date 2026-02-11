@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const techSelect = document.getElementById("technicianSelect");
   const techLoading = document.getElementById("technicianLoading");
   const refreshBtn = document.getElementById("refreshTicketsBtn");
+  const searchInput = document.getElementById("searchInput");
 
   let _techniciansCache = null;
   // Pending preselection when ticket detail loads before tech list
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Pagination / State
   let currentPage = 1;
+  let _currentSearch = "";
   const PER_PAGE = 15;
   const API_URL = typeof window.API_URL !== "undefined" ? window.API_URL : ""; // Fallback
 
@@ -63,6 +65,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener("input", (e) => {
+      _currentSearch = e.target.value.trim();
+      clearTimeout(searchTimeout);
+      // Debounce search for 300ms
+      searchTimeout = setTimeout(() => {
+        currentPage = 1; // Reset to first page when searching
+        loadTickets(1);
+      }, 300);
+    });
+  }
+
   document.addEventListener("click", function (e) {
     if (e.target && e.target.id === "assignCancelBtn") closeAssignModal();
     if (e.target && e.target.id === "assignSaveBtn") saveAssignment();
@@ -76,17 +91,31 @@ document.addEventListener("DOMContentLoaded", function () {
       '<tr><td colspan="5" style="text-align:center; padding:40px 0; color:#666">Memuat tiket...</td></tr>';
 
     try {
-      // Single fetch to tickets endpoint with complete data
-      const ticketsUrl = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}?status=open&per_page=${PER_PAGE}&page=${page}`;
+      // Fetch tanpa search parameter - akan filter client-side
+      let ticketsUrl = `${window.TICKET_API_BASE || API_URL + "/api/tickets"}?status=open&per_page=${PER_PAGE}&page=${page}`;
       console.debug("loadTickets: fetching from", ticketsUrl);
       const res = await fetchWithAuth(ticketsUrl);
       if (!res || !res.ok) throw new Error("Gagal load data tiket");
 
       const json = await res.json();
-      const tickets = json.data || [];
+      let tickets = json.data || [];
       const pagination = json.pagination || json.meta || null;
 
-      // Update badge count
+      // Filter client-side berdasarkan search term (subject, ticket number, atau requester name)
+      if (_currentSearch) {
+        const searchLower = _currentSearch.toLowerCase();
+        tickets = tickets.filter(t => {
+          const subject = (t.subject || t.title || "").toLowerCase();
+          const ticketNum = (t.ticket_number || t.ticketNumber || "").toLowerCase();
+          const requesterName = (t.requester?.name || t.requester_name || "").toLowerCase();
+
+          return subject.includes(searchLower) ||
+                 ticketNum.includes(searchLower) ||
+                 requesterName.includes(searchLower);
+        });
+      }
+
+      // Update badge count (gunakan pagination total jika ada)
       const totalTickets = pagination?.total || tickets.length;
       updateBadgeCount(totalTickets);
       if (window.updateOpenUnassignedCount) {
@@ -94,10 +123,16 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (tickets.length === 0) {
+        const emptyMsg = _currentSearch
+          ? `Tidak ada tiket yang cocok dengan pencarian "${_currentSearch}".`
+          : `Tidak ada tiket masuk saat ini.`;
+        const emptySubMsg = _currentSearch
+          ? `Coba gunakan kata kunci lain.`
+          : `Semua tiket sudah ditugaskan atau belum ada tiket baru.`;
         ticketsBody.innerHTML = `<tr><td colspan="5" class="empty-state-cell">
             <i class="fa-solid fa-inbox empty-state-icon"></i>
-            <p class="empty-state-text">Tidak ada tiket masuk saat ini.</p>
-            <p class="empty-state-sub">Semua tiket sudah ditugaskan atau belum ada tiket baru.</p>
+            <p class="empty-state-text">${emptyMsg}</p>
+            <p class="empty-state-sub">${emptySubMsg}</p>
           </td></tr>`;
         const pagContainer = document.getElementById("ticketsPagination");
         if (pagContainer) {
@@ -163,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <tr id="ticket-row-${t.id}">
         <td>
           <div class="ticket-subject">${subject}</div>
-          <div style="font-size:12px; color:#999">${ticketNum} • Requester: <span id="req-${t.id}">${requester}</span></div>
+          <div style="font-size:12px; color:#999">${ticketNum} • ${requester}</div>
         </td>
         <td><span class="badge-dept bg-blue" id="dept-${t.id}">${deptName}</span></td>
         <td>${category}</td>

@@ -96,6 +96,7 @@
 
     {{-- MAIN CONTENT --}}
     <div class="main-content">
+        @include('partials.running-text')
         @yield('content')
     </div>
 

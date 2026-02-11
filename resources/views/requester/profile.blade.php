@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="page-title">Pengaturan Profil</div>
+    {{-- <div class="page-title">Pengaturan Profil</div> --}}
 
     <div class="profile-container">
 

@@ -18,29 +18,29 @@
 
     {{-- Stats Grid --}}
     <div class="stats-grid">
-        <div class="stat-card card-blue">
+        <a href="{{ route('tickets.index') }}" class="stat-card card-blue stat-link">
             <div class="stat-info">
                 <p>Total Tiket</p>
                 <h3 id="stat-total">-</h3>
             </div>
             <div class="stat-icon"><i class="fa-solid fa-ticket"></i></div>
-        </div>
+        </a>
 
-        <div class="stat-card card-orange">
+        <a href="{{ route('tickets.index') }}?status=in%20progress" class="stat-card card-orange stat-link">
             <div class="stat-info">
                 <p>Diproses</p>
                 <h3 id="stat-process">-</h3>
             </div>
             <div class="stat-icon"><i class="fa-solid fa-spinner"></i></div>
-        </div>
+        </a>
 
-        <div class="stat-card card-green">
+        <a href="{{ route('tickets.index') }}?status=closed" class="stat-card card-green stat-link">
             <div class="stat-info">
                 <p>Selesai</p>
                 <h3 id="stat-solved">-</h3>
             </div>
             <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
-        </div>
+        </a>
     </div>
 
     <h3 class="section-title">Tiket Terbaru Anda</h3>
@@ -85,7 +85,7 @@
         async function loadDashboard() {
             try {
                 const token = sessionStorage.getItem('auth_token');
-                const response = await fetch('/api/dashboard', {
+                const response = await fetch('/api/my-tickets', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -95,13 +95,20 @@
                 if (!response.ok) throw new Error('Gagal koneksi server');
 
                 const result = await response.json();
-                const data = result?.data || {};
-                const summary = data.summary || {};
-                const tickets = Array.isArray(data.my_tickets) ? data.my_tickets : [];
+                const tickets = Array.isArray(result?.data) ? result.data : [];
 
-                document.getElementById('stat-total').textContent = summary.total ?? 0;
-                document.getElementById('stat-process').textContent = summary.process ?? 0;
-                document.getElementById('stat-solved').textContent = summary.solved ?? 0;
+                // Hitung berdasarkan status
+                const totalCount = tickets.length;
+                const inProgressCount = tickets.filter(t =>
+                    (t.status?.name || '').toLowerCase() === 'in progress'
+                ).length;
+                const closedCount = tickets.filter(t =>
+                    (t.status?.name || '').toLowerCase() === 'closed'
+                ).length;
+
+                document.getElementById('stat-total').textContent = totalCount;
+                document.getElementById('stat-process').textContent = inProgressCount;
+                document.getElementById('stat-solved').textContent = closedCount;
 
                 let html = '';
 
@@ -115,7 +122,8 @@
                             </a>
                         </div>`;
                 } else {
-                    tickets.forEach(ticket => {
+                    // Tampilkan hanya 5 tiket terbaru
+                    tickets.slice(0, 5).forEach(ticket => {
                         const catName = ticket.category?.name || 'Umum';
                         const statusName = ticket.status?.name || 'Open';
 
@@ -130,14 +138,13 @@
                                 minute: '2-digit'
                             }) : '-';
 
-                        // FIX LINK DETAIL: Menggunakan route URL yang benar
                         const detailUrl = "{{ url('tickets') }}/" + ticket.id;
 
                         html += `
                             <div class="task-card ${styles.border}">
                                 <div class="task-content">
                                     <h4>
-                                        ${ticket.subject} 
+                                        ${ticket.subject}
                                         <span class="badge-cat ${styles.badge}">${catName}</span>
                                     </h4>
                                     <div class="task-meta">

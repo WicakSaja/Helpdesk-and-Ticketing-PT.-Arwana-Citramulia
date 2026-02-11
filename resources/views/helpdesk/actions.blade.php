@@ -16,7 +16,18 @@
             <p class="page-subtitle">Verifikasi pekerjaan teknisi sebelum ditutup.</p>
         </div>
 
-        <div>
+        <div class="header-actions">
+            <div class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-input"
+                    placeholder="Cari tiket, nomor, atau nama..."
+                    autocomplete="off"
+                >
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            </div>
+
             <button class="btn-refresh" id="refreshBtn" title="Refresh Data">
                 <i class="fa-solid fa-arrows-rotate"></i>
             </button>
@@ -29,12 +40,12 @@
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th width="30%">Info Tiket</th>
-                        <th width="20%">Requester</th>
+                        <th width="35%">Info Tiket</th>
+                        <th width="15%">Kategori</th>
                         <th width="20%">Teknisi</th>
                         <th width="15%">Waktu</th>
                         <th width="10%">Status</th>
-                        <th width="5%" class="text-end">Aksi</th>
+                        <th width="5%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="ticketsBody">
@@ -47,17 +58,16 @@
                 </tbody>
             </table>
         </div>
+        {{-- Pagination --}}
+        <div class="pagination-container" id="actionPagination" style="display: none;"></div>
     </div>
-
-    {{-- Pagination --}}
-    <div class="pagination-container" id="actionPagination" style="display: none;"></div>
 
     {{-- MODAL ACTION --}}
     <div class="modal modal-blur fade" id="actionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content modal-box">
                 <div class="modal-header">
-                    <h5 class="modal-title">Validasi Penyelesaian</h5>
+                    <h5 class="modal-title">Validasi Penyelesaian Tiket</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -66,11 +76,18 @@
                     <div class="ticket-summary-box">
                         <div class="summary-row">
                             <span class="summary-label">No. Tiket</span>
-                            <span class="summary-val text-primary" id="modalTicketNo">-</span>
+                            <span class="summary-val" id="modalTicketNo">-</span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-label">Subjek</span>
-                            <span class="summary-val text-truncate" style="max-width: 200px;" id="modalSubject">-</span>
+                            <span class="summary-val" id="modalSubject">-</span>
+                        </div>
+                    </div>
+
+                    <div class="ticket-summary-box">
+                        <div class="summary-row">
+                            <span class="summary-label">Requester</span>
+                            <span class="summary-val" id="modalReqName">-</span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-label">Teknisi</span>
@@ -78,38 +95,19 @@
                         </div>
                     </div>
 
-                    <div class="ticket-summary-box" style="margin-bottom: 20px;">
-                        <div class="summary-row">
-                            <span class="summary-label">Requester</span>
-                            <span class="summary-val" id="modalReqName">-</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label">No. Telp</span>
-                            <span class="summary-val" id="modalReqPhone">-</span>
-                        </div>
-                        <div class="summary-row mb-0">
-                            <span class="summary-label">Email</span>
-                            <span class="summary-val" id="modalReqEmail">-</span>
-                        </div>
-                    </div>
-
                     <div class="mb-4">
-                        <label class="form-label fw-bold small text-uppercase text-muted mb-2">Catatan Validasi</label>
-                        <textarea class="form-control" id="modalNote" rows="3"
-                            placeholder="Berikan alasan jika menolak, atau catatan tambahan jika setuju..."></textarea>
+                        <label class="form-label">Catatan Validasi</label>
+                        <textarea class="form-control" id="modalNote" rows="4"
+                            placeholder="Tulis catatan atau alasan penolakan..."></textarea>
                     </div>
 
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-danger w-100 fw-bold" id="btnReject">
-                                <i class="fa-solid fa-xmark me-1"></i> Reject
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-success w-100 fw-bold" id="btnClose">
-                                <i class="fa-solid fa-check me-1"></i> Close
-                            </button>
-                        </div>
+                    <div class="modal-button-group">
+                        <button type="button" class="btn btn-outline-danger" id="btnReject">
+                            <i class="fa-solid fa-xmark"></i> Reject
+                        </button>
+                        <button type="button" class="btn btn-success" id="btnClose">
+                            <i class="fa-solid fa-check"></i> Close
+                        </button>
                     </div>
                 </div>
             </div>
@@ -122,12 +120,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        const LIST_API_URL = "{{ url('/api/tickets') }}";
+        // Fetch hanya tiket resolved dengan per_page besar agar semua resolved di-load
+        const LIST_API_URL = "{{ url('/api/tickets') }}?status=resolved&per_page=1000";
         const ACTION_API_URL = "{{ url('/api/tickets') }}";
         const ACTION_PAGE_SIZE = 10;
         let actionModalInstance = null;
         let _allResolved = [];
+        let _filteredTickets = [];
         let _actionCurrentPage = 1;
+        let _currentSearch = "";
+        const searchInput = document.getElementById("searchInput");
 
         document.addEventListener('DOMContentLoaded', function() {
             loadResolvedTickets();
@@ -143,9 +145,43 @@
                 });
             });
 
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener("input", (e) => {
+                    _currentSearch = e.target.value.trim();
+                    clearTimeout(searchTimeout);
+                    // Debounce search for 300ms
+                    searchTimeout = setTimeout(() => {
+                        _actionCurrentPage = 1; // Reset to first page when searching
+                        applyFilter();
+                        renderPage(_actionCurrentPage);
+                        renderActionPagination();
+                    }, 300);
+                });
+            }
+
             document.getElementById('btnClose')?.addEventListener('click', () => processTicket('close'));
             document.getElementById('btnReject')?.addEventListener('click', () => processTicket('unresolve'));
         });
+
+        function applyFilter() {
+            if (!_currentSearch) {
+                _filteredTickets = [..._allResolved];
+            } else {
+                const searchLower = _currentSearch.toLowerCase();
+                _filteredTickets = _allResolved.filter(t => {
+                    const subject = (t.subject || "").toLowerCase();
+                    const ticketNum = (t.ticket_number || "").toLowerCase();
+                    const requesterName = (t.requester?.name || t.requester || "").toLowerCase();
+                    const techName = (t.technician?.name || t.assignment?.technician?.name || "").toLowerCase();
+
+                    return subject.includes(searchLower) ||
+                           ticketNum.includes(searchLower) ||
+                           requesterName.includes(searchLower) ||
+                           techName.includes(searchLower);
+                });
+            }
+        }
 
         async function fetchWithAuth(url, options = {}) {
             const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
@@ -182,7 +218,10 @@
                     (t.status?.name || t.status || '').toUpperCase() === 'RESOLVED'
                 );
                 _actionCurrentPage = 1;
+                _currentSearch = "";
+                if (searchInput) searchInput.value = "";
 
+                applyFilter();
                 renderPage(_actionCurrentPage);
                 renderActionPagination();
 
@@ -198,7 +237,7 @@
         function renderPage(page) {
             _actionCurrentPage = page;
             const start = (page - 1) * ACTION_PAGE_SIZE;
-            const pageItems = _allResolved.slice(start, start + ACTION_PAGE_SIZE);
+            const pageItems = _filteredTickets.slice(start, start + ACTION_PAGE_SIZE);
             renderTable(pageItems);
         }
 
@@ -206,11 +245,16 @@
             const tbody = document.getElementById('ticketsBody');
 
             if (tickets.length === 0) {
+                const emptyMsg = _currentSearch
+                    ? `Tidak ada tiket yang cocok dengan pencarian "${_currentSearch}".`
+                    : `Tidak ada tiket yang perlu divalidasi.`;
+                const emptyIcon = _currentSearch ? 'fa-magnifying-glass' : 'fe fe-check-circle';
+
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <div class="text-muted mb-2"><i class="fe fe-check-circle" style="font-size: 32px; opacity: 0.3;"></i></div>
-                            <div class="text-muted small">Tidak ada tiket yang perlu divalidasi.</div>
+                            <div class="text-muted mb-2"><i class="fa-solid ${emptyIcon}" style="font-size: 32px; opacity: 0.3;"></i></div>
+                            <div class="text-muted small">${emptyMsg}</div>
                         </td>
                     </tr>`;
                 return;
@@ -220,6 +264,7 @@
             tickets.forEach(t => {
                 const reqName = t.requester?.name || t.requester || 'User';
                 const techName = t.technician?.name || t.assignment?.technician?.name || null;
+                const category = t.category?.name || t.category || '-';
                 const dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'short',
@@ -237,15 +282,15 @@
                 <tr>
                     <td>
                         <div style="min-width: 0;">
-                            <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">${t.subject}</div>
-                            <div class="small text-muted font-monospace">#${t.ticket_number}</div>
+                            <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${t.subject}</div>
+                            <div style="font-size: 12px; color: #999;">${t.ticket_number} • ${reqName}</div>
                         </div>
                     </td>
-                    <td><div class="fw-bold text-dark" style="font-size: 0.9rem;">${reqName}</div></td>
+                    <td><div style="color: #666; font-size: 13px;">${category}</div></td>
                     <td>${techHtml}</td>
-                    <td><div class="small text-muted">${dateStr}</div></td>
+                    <td><div style="font-size: 13px; color: #999;">${dateStr}</div></td>
                     <td><span class="badge-status bg-green-soft">RESOLVED</span></td>
-                    <td class="text-end">
+                    <td>
                         <button class="btn-action" onclick="openActionModal('${ticketDataSafe}')">
                             <i class="fe fe-check-square"></i> Validasi
                         </button>
@@ -258,7 +303,7 @@
         function renderActionPagination() {
             const container = document.getElementById('actionPagination');
             if (!container) return;
-            const total = _allResolved.length;
+            const total = _filteredTickets.length;
             const totalPages = Math.ceil(total / ACTION_PAGE_SIZE);
             if (totalPages <= 1) {
                 container.innerHTML = '';
@@ -333,12 +378,10 @@
             const t = JSON.parse(decodeURIComponent(ticketString));
 
             document.getElementById('modalTicketId').value = t.id;
-            document.getElementById('modalTicketNo').innerText = `#${t.ticket_number}`;
+            document.getElementById('modalTicketNo').innerText = t.ticket_number;
             document.getElementById('modalSubject').innerText = t.subject;
-            document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name || '-';
             document.getElementById('modalReqName').innerText = t.requester?.name || t.requester || '-';
-            document.getElementById('modalReqPhone').innerText = t.requester?.phone || t.requester?.no_telp || '-';
-            document.getElementById('modalReqEmail').innerText = t.requester?.email || '-';
+            document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name || '-';
             document.getElementById('modalNote').value = '';
 
             const modalEl = document.getElementById('actionModal');
@@ -352,7 +395,7 @@
             const note = document.getElementById('modalNote').value.trim();
 
             if (action === 'unresolve' && !note) {
-                Swal.fire('Catatan Wajib', 'Mohon tulis alasan penolakan agar teknisi tahu apa yang harus diperbaiki.',
+                Swal.fire('Catatan Diperlukan', 'Silakan tulis alasan penolakan agar teknisi tahu apa yang harus diperbaiki.',
                     'warning');
                 return;
             }
@@ -376,8 +419,8 @@
                     Swal.fire({
                         icon: 'success',
                         title: action === 'close' ? 'Tiket Ditutup' : 'Tiket Ditolak',
-                        text: action === 'close' ? 'Tiket berhasil divalidasi dan ditutup.' :
-                            'Tiket dikembalikan ke status Open.',
+                        text: action === 'close' ? 'Tiket berhasil ditutup.' :
+                            'Tiket dikembalikan ke status Open untuk diperbaiki.',
                         timer: 1500,
                         showConfirmButton: false
                     });

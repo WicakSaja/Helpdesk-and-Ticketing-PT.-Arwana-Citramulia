@@ -12,9 +12,21 @@
             <h1 class="page-title">Riwayat Tiket</h1>
             <p class="page-subtitle">Pantau status laporan kendala Anda disini.</p>
         </div>
-        <a href="{{ route('tickets.create') }}" class="btn-create">
-            <i class="fa-solid fa-plus-circle"></i> Buat Tiket Baru
-        </a>
+        <div class="header-actions">
+            <div class="filter-inline">
+                <select id="statusFilter" class="filter-select">
+                    <option value="">Semua Status</option>
+                    <option value="open">Open</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="in progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+            <a href="{{ route('tickets.create') }}" class="btn-create">
+                <i class="fa-solid fa-plus-circle"></i> Buat Tiket Baru
+            </a>
+        </div>
     </div>
 
     {{-- Loading state awal sebelum JS jalan --}}

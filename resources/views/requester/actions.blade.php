@@ -34,7 +34,7 @@
                         <th width="20%">Teknisi</th>
                         <th width="15%">Waktu</th>
                         <th width="10%">Status</th>
-                        <th width="5%" class="text-end">Aksi</th>
+                        <th width="5%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="ticketsBody">
@@ -230,7 +230,7 @@
                     <td>${techHtml}</td>
                     <td><div class="small text-muted">${dateStr}</div></td>
                     <td><span class="badge-status bg-green-soft">RESOLVED</span></td>
-                    <td class="text-end">
+                    <td>
                         <button class="btn-action" onclick="openActionModal('${ticketDataSafe}')">
                             <i class="fe fe-check-square"></i> Validasi
                         </button>
@@ -279,7 +279,8 @@
             }
 
             for (let i = startPage; i <= endPage; i++) {
-                html += `<button type="button" class="pagination-btn ${i === _actionCurrentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                html +=
+                    `<button type="button" class="pagination-btn ${i === _actionCurrentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
             }
 
             if (endPage < totalPages) {
@@ -321,7 +322,7 @@
             document.getElementById('modalTicketNo').innerText = `#${t.ticket_number}`;
             document.getElementById('modalSubject').innerText = t.subject;
             document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name ||
-            '-';
+                '-';
             document.getElementById('modalNote').value = '';
 
             const modalEl = document.getElementById('actionModal');

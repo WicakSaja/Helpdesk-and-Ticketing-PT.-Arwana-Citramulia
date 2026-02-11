@@ -2,7 +2,8 @@
    1. GLOBAL VARIABLES & RESET
    ========================================================= */
 :root {
-    --primary: #d62828;       /* Merah Arwana */
+    --primary: #d62828;
+    /* Merah Arwana */
     --primary-hover: #b91c1c;
     --text-dark: #1f2937;
     --text-grey: #6b7280;
@@ -19,11 +20,12 @@ body {
    ========================================================= */
 .card {
     background: #ffffff;
-    padding: 40px;
+    padding: 30px;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     border: 1px solid #f0f0f0;
 }
 
@@ -38,14 +40,14 @@ body {
 .card-header p {
     color: var(--text-grey);
     font-size: 14px;
-    margin: 0 0 30px 0;
+    margin: 0 0 20px 0;
 }
 
 /* =========================================================
    3. FORM ELEMENTS
    ========================================================= */
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
 .form-label {
@@ -81,7 +83,8 @@ body {
 .form-select {
     width: 100%;
     padding: 14px 16px;
-    padding-right: 45px; /* Space untuk ikon panah */
+    padding-right: 45px;
+    /* Space untuk ikon panah */
     border: 1px solid var(--border-color);
     border-radius: 12px;
     font-size: 14px;
@@ -91,7 +94,7 @@ body {
     font-family: inherit;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    
+
     /* Hilangkan panah bawaan browser */
     appearance: none;
     -webkit-appearance: none;
@@ -155,7 +158,10 @@ body {
    ========================================================= */
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     display: none;
@@ -178,61 +184,133 @@ body {
 }
 
 @keyframes modalPop {
-    from { transform: scale(0.95) translateY(10px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
+    from {
+        transform: scale(0.95) translateY(10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
 }
 
 .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px; border-bottom: 1px solid #f3f4f6; padding-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 15px;
 }
 
 .modal-header h3 {
-    font-size: 18px; font-weight: 800; color: var(--text-dark); margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0;
 }
 
 .btn-close {
-    background: none; border: none; font-size: 24px; color: #9ca3af;
-    cursor: pointer; line-height: 1; padding: 0; transition: 0.2s;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9ca3af;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: 0.2s;
 }
-.btn-close:hover { color: var(--primary); }
+
+.btn-close:hover {
+    color: var(--primary);
+}
 
 /* Detail Row in Modal */
-.detail-row { display: flex; margin-bottom: 12px; font-size: 14px; }
-.detail-label { width: 100px; color: var(--text-grey); font-weight: 600; flex-shrink: 0; }
-.detail-value { color: var(--text-dark); font-weight: 600; }
+.detail-row {
+    display: flex;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.detail-label {
+    width: 100px;
+    color: var(--text-grey);
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.detail-value {
+    color: var(--text-dark);
+    font-weight: 600;
+}
 
 .detail-desc {
-    background: #f9fafb; padding: 16px; border-radius: 12px;
-    font-size: 14px; color: #4b5563; line-height: 1.6;
-    border: 1px solid #e5e7eb; margin-top: 15px;
-    max-height: 150px; overflow-y: auto;
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.6;
+    border: 1px solid #e5e7eb;
+    margin-top: 15px;
+    max-height: 150px;
+    overflow-y: auto;
 }
 
 .btn-ok {
-    background: #1f2937; color: white; width: 100%; padding: 12px;
-    border-radius: 10px; text-align: center; text-decoration: none;
-    font-weight: 700; display: block; margin-top: 25px; transition: 0.2s;
+    background: #1f2937;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    display: block;
+    margin-top: 25px;
+    transition: 0.2s;
 }
-.btn-ok:hover { background: black; }
+
+.btn-ok:hover {
+    background: black;
+}
 
 /* =========================================================
    6. RESPONSIVE MOBILE
    ========================================================= */
 @media (max-width: 640px) {
     .card {
-        padding: 25px 20px;
-        border-radius: 20px;
+        padding: 20px;
+        border-radius: 16px;
         margin-top: 10px;
+        width: 100%;
     }
 
-    .card-header h2 { font-size: 20px; }
-    .card-header p { font-size: 13px; margin-bottom: 20px; }
+    .card-header h2 {
+        font-size: 20px;
+    }
 
-    .btn-submit { padding: 14px; font-size: 15px; }
+    .card-header p {
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
 
-    .modal-box { padding: 25px 20px; }
-    
-    .detail-label { width: 85px; font-size: 13px; }
-    .detail-value { font-size: 13px; }
+    .btn-submit {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .modal-box {
+        padding: 25px 20px;
+    }
+
+    .detail-label {
+        width: 85px;
+        font-size: 13px;
+    }
+
+    .detail-value {
+        font-size: 13px;
+    }
 }

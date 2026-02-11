@@ -10,7 +10,7 @@
 @section('content')
     <div class="header-welcome">
         <div class="user-info">
-            <h2>Halo, Tim Helpdesk! 👋</h2>
+            <h2>Halo, <span id="user-name">...</span>! 👋</h2>
             <p>Pantau aktivitas tiket dan distribusi tugas teknisi hari ini.</p>
         </div>
     </div>
@@ -19,13 +19,20 @@
         <div class="loading">
             <p>Loading dashboard data...</p>
         </div>
-    </div>
-
-
-@endsection
+</div>@endsection
 
 @section('scripts')
     <script>
+        // Load user name from sessionStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const authUser = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
+            const userName = authUser.name || 'Helpdesk';
+            document.getElementById('user-name').textContent = userName;
+
+            // Load dashboard
+            loadDashboard();
+        });
+
         // Fetch dashboard data from API
         async function loadDashboard() {
             try {
@@ -56,10 +63,10 @@
                 // Build HTML
                 let html = `
                 <div class="stats-grid">
-                    <div class="stat-card card-red">
+                    <a href="{{ url('/helpdesk/incoming') }}" class="stat-card card-red stat-link">
                         <div class="stat-info"><p>Belum Di-Assign</p><h3>${data.summary.unassigned}</h3></div>
                         <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    </div>
+                    </a>
                     <div class="stat-card card-orange">
                         <div class="stat-info"><p>Assign Hari Ini</p><h3>${data.summary.assigned_today}</h3></div>
                         <div class="stat-icon"><i class="fa-solid fa-list-ul"></i></div>
@@ -68,10 +75,10 @@
                         <div class="stat-info"><p>Total Minggu Ini</p><h3>${data.summary.this_week}</h3></div>
                         <div class="stat-icon"><i class="fa-solid fa-calendar-week"></i></div>
                     </div>
-                    <div class="stat-card card-purple">
+                    <a href="{{ url('/helpdesk/technicians') }}" class="stat-card card-purple stat-link">
                         <div class="stat-info"><p>Teknisi Ready</p><h3>${data.summary.technicians}</h3></div>
                         <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                    </div>
+                    </a>
                 </div>
                 <div class="charts-wrapper">
                     <div class="chart-card">
@@ -113,7 +120,7 @@
                         if (catLower.includes('hardware') || catLower.includes('jaringan')) badgeClass =
                             'dept-hardware';
                         if (catLower.includes('akun') || catLower.includes('akses')) badgeClass =
-                        'dept-account';
+                            'dept-account';
 
                         html += `
                         <tr>
@@ -163,11 +170,6 @@
             `;
             }
         }
-
-        // Load dashboard on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboard();
-        });
 
         function initCharts(data) {
             // 1. CHART TREN TIKET (Line Chart - Modern)

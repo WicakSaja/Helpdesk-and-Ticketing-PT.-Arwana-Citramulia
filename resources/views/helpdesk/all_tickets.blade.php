@@ -32,7 +32,7 @@
                         <th>Departemen</th>
                         <th>Teknisi</th>
                         <th>Status</th>
-                        <th class="text-end">Aksi</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="ticketTableBody">

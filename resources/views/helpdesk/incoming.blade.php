@@ -14,6 +14,12 @@
         </div>
 
         <div class="header-right">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari tiket, nomor, atau requester..."
+                    autocomplete="off">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            </div>
+
             <div class="alert-badge">
                 <i class="fa-solid fa-bell"></i>
                 <span id="pendingCountNum">0</span>

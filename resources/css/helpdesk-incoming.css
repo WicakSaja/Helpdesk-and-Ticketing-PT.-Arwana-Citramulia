@@ -141,7 +141,7 @@
 }
 
 .custom-table th {
-    text-align: left;
+    text-align: center;
     color: #888;
     padding: 15px;
     border-bottom: 2px solid #f0f0f0;
@@ -488,6 +488,65 @@
     margin: 0;
 }
 
+/* --- SEARCH INPUT --- */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 10px 16px 10px 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 250px;
+    outline: none;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-input:focus {
+    border-color: #d62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: #999;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* --- WHATSAPP BUTTON --- */
+.btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #25d366;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.btn-whatsapp:hover {
+    background: #25d366;
+    color: white;
+    border-color: #25d366;
+    box-shadow: 0 2px 8px rgba(37, 211, 102, 0.2);
+}
+
 /* --- REJECT BUTTON --- */
 .action-buttons {
     display: flex;
@@ -521,9 +580,27 @@
    ========================================================= */
 @media (max-width: 992px) {
 
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
     /* Layout Header Mobile */
     .page-title {
         font-size: 18px;
+    }
+
+    .header-right {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .search-input {
+        width: 100%;
+        flex: 1;
+        min-width: 150px;
     }
 
     /* --- UBAH TAMPILAN BADGE JADI LONCENG KOTAK --- */
