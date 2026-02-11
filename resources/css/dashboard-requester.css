@@ -87,6 +87,12 @@ body {
     box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2);
 }
 
+/* Styling untuk stat-card sebagai link */
+.stat-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .stat-info {
     z-index: 2;
 }

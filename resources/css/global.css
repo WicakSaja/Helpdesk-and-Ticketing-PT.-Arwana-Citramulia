@@ -188,7 +188,8 @@ a {
     margin-left: 260px;
     /* Default Desktop Margin */
     padding: 30px 40px;
-    width: 100%;
+    width: calc(100% - 260px);
+    /* Lebar viewport dikurangi sidebar agar tidak meluber */
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -240,6 +241,7 @@ a {
     /* --- B. MAIN CONTENT --- */
     .main-content {
         margin-left: 0 !important;
+        width: 100% !important;
         padding: 80px 20px 40px 20px;
         /* Padding atas 80px biar gak ketutup header */
     }
@@ -338,4 +340,74 @@ a.menu-item {
 
 .sidebar .menu-item.active {
     color: white !important;
+}
+
+/* =========================================================
+   6. RUNNING TEXT / SAFETY BANNER
+   ========================================================= */
+.running-text-banner {
+    background: linear-gradient(135deg, #1a7a45, #22a95c, #1a7a45);
+    overflow: hidden;
+    padding: 12px 0;
+    white-space: nowrap;
+    position: relative;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    cursor: default;
+    user-select: none;
+    box-shadow: 0 2px 8px rgba(26, 122, 69, 0.2);
+}
+
+.running-text-track {
+    display: inline-flex;
+    animation: runningTextScroll 30s linear infinite;
+    will-change: transform;
+}
+
+.running-text-banner:hover .running-text-track,
+.running-text-banner:active .running-text-track {
+    animation-play-state: paused;
+}
+
+.running-text-item {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0 50px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+}
+
+.running-text-separator {
+    color: rgba(255, 255, 255, 0.4);
+    padding: 0;
+    font-size: 14px;
+    user-select: none;
+}
+
+@keyframes runningTextScroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@media (max-width: 992px) {
+    .running-text-banner {
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 10px 0;
+    }
+
+    .running-text-item {
+        font-size: 12px;
+        padding: 0 30px;
+    }
+
+    .running-text-separator {
+        font-size: 12px;
+    }
 }

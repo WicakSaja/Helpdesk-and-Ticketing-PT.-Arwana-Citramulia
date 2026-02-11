@@ -16,19 +16,16 @@
         <div class="card-body">
             <form id="ticketCreateForm">
                 <div class="form-group">
-                    <label class="form-label">Subjek / Judul Masalah</label>
+                    <label class="form-label">Subjek / Judul Kendala</label>
                     <input type="text" id="subject" name="subject" class="form-control"
                         placeholder="Contoh: Internet di Ruang Meeting Mati" required autofocus>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Kategori Masalah</label>
+                    <label class="form-label">Kategori Kendala</label>
                     <div style="position: relative;">
                         <select id="category_id" name="category_id" class="form-select" required>
                             <option value="" disabled selected>-- Pilih Kategori --</option>
-                            <option value="1">Hardware (Perangkat Keras)</option>
-                            <option value="2">Software (Aplikasi/Windows)</option>
-                            <option value="3">Network (Jaringan/Internet)</option>
                             <option value="4">Lainnya</option>
                         </select>
                     </div>
@@ -37,12 +34,12 @@
                 <div class="form-group">
                     <label class="form-label">Deskripsi Lengkap</label>
                     <textarea id="description" name="description" class="form-textarea"
-                        placeholder="Jelaskan kronologi masalahnya secara detail. Contoh: Saat menyalakan PC, layar tetap hitam..."
+                        placeholder="Jelaskan kronologi kendala secara detail. Contoh: Saat menyalakan PC, layar tb2..."
                         required></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit" id="btnSubmitTicket">
-                    <i class="fa-solid fa-paper-plane"></i> KIRIM TIKET SEKARANG
+                    <i class="fa-solid fa-paper-plane"></i> BUAT TIKET SEKARANG
                 </button>
             </form>
         </div>

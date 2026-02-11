@@ -5,8 +5,10 @@
       : window.location.origin.replace(/\/$/, "");
 
   const TICKET_PAGE_SIZE = 10;
-  let _myTickets = [];
+  let _allTickets = []; // Semua tiket dari API
+  let _myTickets = []; // Tiket setelah filter
   let _currentTicketPage = 1;
+  let _currentStatusFilter = "";
 
   async function loadMyTickets() {
     const tbody = document.getElementById("ticketTableBody");
@@ -31,22 +33,50 @@
       const json = await res.json();
       const items = json.data || (Array.isArray(json) ? json : []);
 
-      // Cache and render first page
-      _myTickets = items || [];
+      // Cache all tickets
+      _allTickets = items || [];
 
-      if (_myTickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="loading-cell"><i class="fa-solid fa-inbox" style="font-size:24px; color:#ddd; margin-bottom:10px;"></i><p>Belum ada tiket.</p></td></tr>`;
-        const pag = document.getElementById("ticketPagination");
-        if (pag) pag.innerHTML = "";
-        return;
-      }
-
-      renderTicketsPage(1);
-      renderTicketPagination();
+      // Apply current filter immediately (no delay)
+      applyStatusFilter();
     } catch (err) {
       console.error("loadMyTickets error", err);
       tbody.innerHTML = `<tr><td colspan="5" class="loading-cell" style="color:#d62828;"><i class="fa-solid fa-circle-exclamation" style="font-size:24px; margin-bottom:10px;"></i><p>Gagal memuat riwayat tiket.</p></td></tr>`;
     }
+  }
+
+  function applyStatusFilter() {
+    const tbody = document.getElementById("ticketTableBody");
+    if (!tbody) return;
+
+    // Filter tickets by status (case-insensitive, exact match)
+    if (_currentStatusFilter) {
+      _myTickets = _allTickets.filter((ticket) => {
+        const status =
+          (ticket.status && (ticket.status.name || ticket.status)) || "";
+        return status.toLowerCase() === _currentStatusFilter.toLowerCase();
+      });
+    } else {
+      _myTickets = [..._allTickets];
+    }
+
+    // Reset to page 1 when filter changes
+    _currentTicketPage = 1;
+
+    if (_myTickets.length === 0) {
+      const filterText = _currentStatusFilter
+        ? ` dengan status "${_currentStatusFilter}"`
+        : "";
+      tbody.innerHTML = `<tr><td colspan="5" class="loading-cell"><i class="fa-solid fa-inbox" style="font-size:24px; color:#ddd; margin-bottom:10px;"></i><p>Belum ada tiket${filterText}.</p></td></tr>`;
+      const pag = document.getElementById("ticketPagination");
+      if (pag) {
+        pag.innerHTML = "";
+        pag.style.display = "none";
+      }
+      return;
+    }
+
+    renderTicketsPage(1);
+    renderTicketPagination();
   }
 
   function renderTicketsPage(page) {
@@ -231,6 +261,25 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    // Get status filter from URL query parameter BEFORE loading tickets
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusFromUrl = urlParams.get("status");
+
+    // Setup status filter dropdown and set value if present in URL
+    const statusFilter = document.getElementById("statusFilter");
+    if (statusFilter) {
+      if (statusFromUrl) {
+        statusFilter.value = statusFromUrl;
+        _currentStatusFilter = statusFromUrl;
+      }
+
+      statusFilter.addEventListener("change", function () {
+        _currentStatusFilter = this.value;
+        applyStatusFilter();
+      });
+    }
+
+    // Load tickets AFTER filter is configured
     loadMyTickets();
   });
 })();

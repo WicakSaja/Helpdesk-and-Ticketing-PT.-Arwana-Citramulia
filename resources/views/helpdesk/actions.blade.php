@@ -122,7 +122,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        const LIST_API_URL = "{{ url('/api/tickets') }}";
+        // Fetch hanya tiket resolved dengan per_page besar agar semua resolved di-load
+        const LIST_API_URL = "{{ url('/api/tickets') }}?status=resolved&per_page=1000";
         const ACTION_API_URL = "{{ url('/api/tickets') }}";
         const ACTION_PAGE_SIZE = 10;
         let actionModalInstance = null;

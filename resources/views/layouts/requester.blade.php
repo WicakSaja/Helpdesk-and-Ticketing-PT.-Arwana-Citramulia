@@ -48,6 +48,7 @@
             <a href="{{ route('tickets.actions') }}"
                 class="menu-item {{ Route::is('tickets.actions') ? 'active' : '' }}">
                 <i class="fa-solid fa-check-double"></i> Tiket Selesai
+                <span class="menu-badge" id="resolved-badge" style="display: none;">0</span>
             </a>
 
             <a href="{{ route('tickets.index') }}"
@@ -69,6 +70,7 @@
     </div>
 
     <div class="main-content">
+        @include('partials.running-text')
         @yield('content')
     </div>
 
@@ -117,7 +119,40 @@
             if (overlay) {
                 overlay.addEventListener('click', closeSidebar);
             }
+
+            // Load resolved ticket count badge
+            loadResolvedBadge();
         });
+
+        async function loadResolvedBadge() {
+            try {
+                const token = sessionStorage.getItem('auth_token');
+                const response = await fetch('/api/my-tickets', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) return;
+
+                const result = await response.json();
+                const tickets = Array.isArray(result?.data) ? result.data : [];
+
+                // Hitung tiket yang statusnya "resolved"
+                const resolvedCount = tickets.filter(ticket =>
+                    (ticket.status?.name || '').toLowerCase() === 'resolved'
+                ).length;
+
+                const badge = document.getElementById('resolved-badge');
+                if (badge && resolvedCount > 0) {
+                    badge.textContent = resolvedCount;
+                    badge.style.display = 'inline-block';
+                }
+            } catch (error) {
+                console.error('Failed to load resolved badge:', error);
+            }
+        }
     </script>
 
     @yield('scripts')
