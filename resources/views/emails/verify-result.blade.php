@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hasil Verifikasi - Arwana Helpdesk</title>
     <link rel="icon" type="image/png" href="{{ asset('images/arwanamerah.jpg') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -68,9 +70,12 @@
         }
 
         @keyframes floatShape {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) scale(1);
             }
+
             50% {
                 transform: translate(30px, -30px) scale(1.1);
             }
@@ -81,7 +86,11 @@
             position: relative;
             z-index: 1000;
             width: 100%;
-            max-width: 900px;
+            height: 100vh;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             animation: slideUp 0.4s ease-out;
         }
 
@@ -94,6 +103,8 @@
             display: flex;
             align-items: center;
             gap: 60px;
+            width: 90%;
+            max-width: 900px;
         }
 
         /* --- ICON SECTION (LEFT) --- */
@@ -175,11 +186,21 @@
         }
 
         .detail-item i {
-            color: #d62828;
+            color: #10b981;
             font-size: 16px;
             min-width: 20px;
             margin-top: 2px;
             flex-shrink: 0;
+        }
+
+        /* Success detail items - hijau */
+        .result-details.success .detail-item i {
+            color: #10b981;
+        }
+
+        /* Error detail items - merah */
+        .result-details.error .detail-item i {
+            color: #d62828;
         }
 
         /* --- BUTTONS --- */
@@ -233,6 +254,7 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -316,7 +338,8 @@
         <div class="result-card">
             <!-- Icon Section -->
             <div class="result-icon-section">
-                <div class="result-icon" id="resultIcon" style="background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); color: white;">
+                <div class="result-icon" id="resultIcon"
+                    style="background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); color: white;">
                     <i class="fa-solid fa-spinner fa-spin"></i>
                 </div>
                 <div class="logo-brand">Arwana Helpdesk</div>
@@ -344,7 +367,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async function () {
+        document.addEventListener('DOMContentLoaded', async function() {
             const params = new URLSearchParams(window.location.search);
             const verifyUrl = params.get('verify_url');
 
@@ -358,9 +381,14 @@
                 showError(
                     'Link Tidak Valid',
                     'URL verifikasi tidak ditemukan. Pastikan Anda menggunakan link yang benar dari email.',
-                    [
-                        { icon: 'fa-solid fa-exclamation-triangle', text: 'Parameter verifikasi tidak ditemukan di URL' },
-                        { icon: 'fa-solid fa-envelope', text: 'Pastikan klik link langsung dari email verifikasi' },
+                    [{
+                            icon: 'fa-solid fa-exclamation-triangle',
+                            text: 'Parameter verifikasi tidak ditemukan di URL'
+                        },
+                        {
+                            icon: 'fa-solid fa-envelope',
+                            text: 'Pastikan klik link langsung dari email verifikasi'
+                        },
                     ]
                 );
                 return;
@@ -382,10 +410,18 @@
                     showError(
                         'Verifikasi Gagal',
                         data.message || 'Tautan verifikasi tidak valid atau sudah kedaluwarsa.',
-                        [
-                            { icon: 'fa-solid fa-exclamation-circle', text: data.message || 'Verifikasi gagal' },
-                            { icon: 'fa-solid fa-clock', text: 'Tautan verifikasi memiliki masa berlaku terbatas' },
-                            { icon: 'fa-solid fa-redo', text: 'Silakan minta tautan verifikasi baru' },
+                        [{
+                                icon: 'fa-solid fa-exclamation-circle',
+                                text: data.message || 'Verifikasi gagal'
+                            },
+                            {
+                                icon: 'fa-solid fa-clock',
+                                text: 'Tautan verifikasi memiliki masa berlaku terbatas'
+                            },
+                            {
+                                icon: 'fa-solid fa-redo',
+                                text: 'Silakan minta tautan verifikasi baru'
+                            },
                         ]
                     );
                 }
@@ -394,19 +430,27 @@
                 showError(
                     'Terjadi Kesalahan',
                     'Tidak dapat menghubungi server. Periksa koneksi internet Anda dan coba lagi.',
-                    [
-                        { icon: 'fa-solid fa-wifi', text: 'Periksa koneksi internet Anda' },
-                        { icon: 'fa-solid fa-redo', text: 'Coba muat ulang halaman ini' },
+                    [{
+                            icon: 'fa-solid fa-wifi',
+                            text: 'Periksa koneksi internet Anda'
+                        },
+                        {
+                            icon: 'fa-solid fa-redo',
+                            text: 'Coba muat ulang halaman ini'
+                        },
                     ]
                 );
             }
 
             function showSuccess(message) {
+                resultIcon.removeAttribute('style');
                 resultIcon.className = 'result-icon success';
                 resultIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
                 resultTitle.textContent = 'Email Terverifikasi!';
-                resultMessage.textContent = message || 'Terima kasih telah memverifikasi email Anda. Akun Anda sekarang sudah aktif dan siap digunakan.';
+                resultMessage.textContent = message ||
+                    'Terima kasih telah memverifikasi email Anda. Akun Anda sekarang sudah aktif dan siap digunakan.';
 
+                resultDetails.className = 'result-details success';
                 resultDetails.innerHTML = `
                     <div class="detail-item">
                         <i class="fa-solid fa-circle-check"></i>
@@ -424,23 +468,25 @@
 
                 buttonGroup.style.display = 'flex';
                 buttonGroup.innerHTML = `
+                    <a href="{{ route('home') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Kembali
+                    </a>
                     <a href="{{ route('login') }}" class="btn btn-primary">
                         <i class="fa-solid fa-right-to-bracket"></i>
                         Login Sekarang
-                    </a>
-                    <a href="{{ route('home') }}" class="btn btn-secondary">
-                        <i class="fa-solid fa-home"></i>
-                        Kembali ke Beranda
                     </a>
                 `;
             }
 
             function showError(title, message, details) {
+                resultIcon.removeAttribute('style');
                 resultIcon.className = 'result-icon error';
                 resultIcon.innerHTML = '<i class="fa-solid fa-times"></i>';
                 resultTitle.textContent = title;
                 resultMessage.textContent = message;
 
+                resultDetails.className = 'result-details error';
                 resultDetails.innerHTML = details.map(d => `
                     <div class="detail-item">
                         <i class="${d.icon}"></i>
@@ -450,13 +496,13 @@
 
                 buttonGroup.style.display = 'flex';
                 buttonGroup.innerHTML = `
+                    <a href="{{ route('home') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Kembali
+                    </a>
                     <a href="{{ route('login') }}" class="btn btn-primary">
                         <i class="fa-solid fa-right-to-bracket"></i>
                         Login & Kirim Ulang
-                    </a>
-                    <a href="{{ route('home') }}" class="btn btn-secondary">
-                        <i class="fa-solid fa-home"></i>
-                        Kembali ke Beranda
                     </a>
                 `;
             }

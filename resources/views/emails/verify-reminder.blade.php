@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Verifikasi Email - Arwana Helpdesk</title>
     <link rel="icon" type="image/png" href="{{ asset('images/arwanamerah.jpg') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -68,9 +70,12 @@
         }
 
         @keyframes floatShape {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) scale(1);
             }
+
             50% {
                 transform: translate(30px, -30px) scale(1.1);
             }
@@ -81,7 +86,11 @@
             position: relative;
             z-index: 1000;
             width: 100%;
-            max-width: 900px;
+            height: 100vh;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             animation: slideUp 0.4s ease-out;
         }
 
@@ -94,6 +103,8 @@
             display: flex;
             align-items: center;
             gap: 60px;
+            width: 90%;
+            max-width: 900px;
         }
 
         /* --- ICON SECTION (LEFT) --- */
@@ -205,14 +216,14 @@
         .button-group {
             display: flex;
             gap: 12px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .btn {
-            padding: 14px 32px;
+            padding: 14px 24px;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -221,6 +232,7 @@
             justify-content: center;
             gap: 8px;
             text-decoration: none;
+            flex: 1;
             white-space: nowrap;
         }
 
@@ -276,6 +288,7 @@
                 opacity: 0;
                 transform: translateY(40px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -415,6 +428,10 @@
                 </div>
 
                 <div class="button-group">
+                    <button type="button" class="btn btn-logout" id="btnLogout">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Kembali
+                    </button>
                     <button type="button" class="btn btn-primary" id="btnResend">
                         <i class="fa-solid fa-paper-plane"></i>
                         Kirim Ulang Email Verifikasi
@@ -422,10 +439,6 @@
                     <button type="button" class="btn btn-secondary" id="btnCheckStatus">
                         <i class="fa-solid fa-circle-check"></i>
                         Sudah Verifikasi
-                    </button>
-                    <button type="button" class="btn btn-logout" id="btnLogout">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        Logout
                     </button>
                 </div>
 
@@ -435,7 +448,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const token = TokenManager.getToken();
             const user = TokenManager.getUser();
 
@@ -501,7 +514,8 @@
                         clearInterval(cooldownInterval);
                         btnResend.disabled = false;
                         countdownEl.style.display = 'none';
-                        btnResend.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Ulang Email Verifikasi';
+                        btnResend.innerHTML =
+                            '<i class="fa-solid fa-paper-plane"></i> Kirim Ulang Email Verifikasi';
                     } else {
                         countdownEl.textContent = `Dapat mengirim ulang dalam ${cooldown} detik`;
                         btnResend.innerHTML = `<i class="fa-solid fa-clock"></i> Tunggu ${cooldown}s`;
@@ -510,7 +524,7 @@
             }
 
             // Kirim ulang email verifikasi
-            btnResend.addEventListener('click', async function () {
+            btnResend.addEventListener('click', async function() {
                 if (btnResend.disabled) return;
 
                 btnResend.disabled = true;
@@ -531,11 +545,13 @@
                             const updatedUser = TokenManager.getUser();
                             if (updatedUser) {
                                 updatedUser.email_verified_at = new Date().toISOString();
-                                sessionStorage.setItem(TokenManager.STORAGE_USER, JSON.stringify(updatedUser));
+                                sessionStorage.setItem(TokenManager.STORAGE_USER, JSON.stringify(
+                                    updatedUser));
                             }
                             setTimeout(() => TokenManager.redirectToDashboard(), 1500);
                         } else {
-                            showAlert('success', data.message || 'Email verifikasi telah dikirim ulang. Cek inbox Anda.');
+                            showAlert('success', data.message ||
+                                'Email verifikasi telah dikirim ulang. Cek inbox Anda.');
                             startCooldown(60);
                         }
                     } else if (response.status === 429) {
@@ -544,18 +560,20 @@
                     } else {
                         showAlert('error', data.message || 'Gagal mengirim email verifikasi.');
                         btnResend.disabled = false;
-                        btnResend.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Ulang Email Verifikasi';
+                        btnResend.innerHTML =
+                            '<i class="fa-solid fa-paper-plane"></i> Kirim Ulang Email Verifikasi';
                     }
                 } catch (error) {
                     console.error('Resend error:', error);
                     showAlert('error', 'Terjadi kesalahan jaringan. Coba lagi.');
                     btnResend.disabled = false;
-                    btnResend.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Kirim Ulang Email Verifikasi';
+                    btnResend.innerHTML =
+                        '<i class="fa-solid fa-paper-plane"></i> Kirim Ulang Email Verifikasi';
                 }
             });
 
             // Cek status verifikasi
-            btnCheckStatus.addEventListener('click', async function () {
+            btnCheckStatus.addEventListener('click', async function() {
                 btnCheckStatus.disabled = true;
                 btnCheckStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...';
 
@@ -572,8 +590,10 @@
                         // Update sessionStorage
                         const updatedUser = TokenManager.getUser();
                         if (updatedUser) {
-                            updatedUser.email_verified_at = data.email_verified_at || new Date().toISOString();
-                            sessionStorage.setItem(TokenManager.STORAGE_USER, JSON.stringify(updatedUser));
+                            updatedUser.email_verified_at = data.email_verified_at || new Date()
+                                .toISOString();
+                            sessionStorage.setItem(TokenManager.STORAGE_USER, JSON.stringify(
+                                updatedUser));
                         }
                         setTimeout(() => TokenManager.redirectToDashboard(), 1500);
                     } else {
@@ -584,12 +604,13 @@
                     showAlert('error', 'Gagal memeriksa status. Coba lagi.');
                 } finally {
                     btnCheckStatus.disabled = false;
-                    btnCheckStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Sudah Verifikasi';
+                    btnCheckStatus.innerHTML =
+                        '<i class="fa-solid fa-circle-check"></i> Sudah Verifikasi';
                 }
             });
 
             // Logout
-            btnLogout.addEventListener('click', async function () {
+            btnLogout.addEventListener('click', async function() {
                 try {
                     await fetch('/api/logout', {
                         method: 'POST',
@@ -604,4 +625,5 @@
         });
     </script>
 </body>
+
 </html>

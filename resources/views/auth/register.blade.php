@@ -7,7 +7,7 @@
     <div style="text-align: center; margin-bottom: 25px;">
         <img src="{{ asset('images/logo_arwana.png') }}" alt="Logo Arwana" style="width: 150px; margin-bottom: 10px;">
 
-        <h3 style="color: #333; font-weight: 700; font-size: 18px; margin-bottom: 5px;">REGISTRASI BARU</h3>
+        <h3 style="color: #333; font-weight: 700; font-size: 18px; margin-bottom: 5px;">REGISTRASI AKUN</h3>
         <p style="color: #777; font-size: 14px;">Isi data diri Anda untuk membuat akun</p>
     </div>
 

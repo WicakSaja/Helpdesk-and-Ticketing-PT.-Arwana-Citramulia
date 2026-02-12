@@ -438,7 +438,7 @@
         </div>
 
         <div class="copyright">
-            &copy; 2026 IT Department - Arwana Plant 5
+            &copy; 2026 IT Department - ITN Malang Internship Program
         </div>
     </div>
 
