@@ -135,6 +135,24 @@
     border-left-color: #1976d2;
 }
 
+/* =========================================================
+   STATUS-BASED BORDER COLORS
+   ========================================================= */
+/* Assigned = Orange */
+.bd-assigned {
+    border-left-color: #f97316 !important;
+}
+
+/* In Progress = Blue */
+.bd-in-progress {
+    border-left-color: #1976d2 !important;
+}
+
+/* Resolved = Green */
+.bd-resolved {
+    border-left-color: #2e7d32 !important;
+}
+
 .task-content h4 {
     font-size: 16px;
     font-weight: 600;
@@ -164,6 +182,8 @@
     margin-left: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    background: #f3e8ff;
+    color: #7c3aed;
 }
 
 .badge-mech {

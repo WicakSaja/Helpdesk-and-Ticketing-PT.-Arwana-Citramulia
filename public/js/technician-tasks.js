@@ -1,25 +1,93 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // === Real-time polling for notification badge ===
+  let notifInterval = setInterval(() => {
+    loadPendingCount(currentFilter);
+  }, 5000); // 5 detik polling
   const API_BASE = window.location.origin;
 
-  loadTechnicianTasks();
+  // State variables for pagination and filtering
+  let currentPage = 1;
+  let perPage = 15;
+  let currentFilter = "all";
+  let currentSearch = ""; // Add search state
+  let allTickets = [];
+  let hasMoreData = true;
+  let totalTickets = 0; // Total from API
 
-  async function loadTechnicianTasks() {
+  loadTechnicianTasks();
+  loadPendingCount("all"); // Load notification badge count with "all" filter initially
+
+  // Search input event listener with debounce
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener("input", function (e) {
+      currentSearch = e.target.value.trim();
+      clearTimeout(searchTimeout);
+      // Debounce search for 300ms
+      searchTimeout = setTimeout(() => {
+        currentPage = 1;
+        allTickets = [];
+        loadTechnicianTasks();
+      }, 300);
+    });
+  }
+
+  // Filter button event listeners
+  document.querySelectorAll(".filter-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      // Update active state
+      document
+        .querySelectorAll(".filter-btn")
+        .forEach((b) => b.classList.remove("active"));
+      this.classList.add("active");
+
+      // Update filter and reload
+      currentFilter = this.getAttribute("data-status");
+      currentPage = 1;
+      allTickets = [];
+      totalTickets = 0; // Reset total
+      loadTechnicianTasks();
+      loadPendingCount(currentFilter); // Update notification count based on filter
+    });
+  });
+
+  // Load more link event listener (now <a> tag)
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      currentPage++;
+      loadTechnicianTasks(true); // true = append mode
+    });
+  }
+
+  async function loadTechnicianTasks(appendMode = false) {
     const token =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
 
+    // Build API URL with filter parameter
+    let apiUrl = `${API_BASE}/api/technician/tickets?page=${currentPage}&per_page=${perPage}`;
+    if (currentFilter !== "all") {
+      const statusParam =
+        currentFilter === "in_progress" ? "In Progress" : "Assigned";
+      apiUrl += `&status=${encodeURIComponent(statusParam)}`;
+    }
+    // Add search parameter if exists
+    if (currentSearch) {
+      apiUrl += `&search=${encodeURIComponent(currentSearch)}`;
+    }
+
     try {
-      const response = await fetch(
-        `${API_BASE}/api/technician/tickets?page=1&per_page=15`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -27,10 +95,54 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const result = await response.json();
       const tickets = result.data || [];
-      document.getElementById("taskTitle").innerText =
-        `Daftar Tugas (${tickets.length})`;
+      const pagination = result.pagination || {};
 
-      renderTasks(tickets);
+      // Get total from pagination object (NOT result.total)
+      totalTickets = pagination.total || tickets.length;
+
+      // Update hasMoreData based on result
+      hasMoreData = tickets.length === perPage;
+
+      if (appendMode) {
+        // Append new tickets to existing list
+        allTickets = allTickets.concat(tickets);
+      } else {
+        // Replace tickets
+        allTickets = tickets;
+      }
+
+      // Update title without count - just "Daftar Tugas"
+      document.getElementById("taskTitle").innerText = `Daftar Tugas`;
+
+      // Update info counter and load more button visibility
+      const bottomActions = document.getElementById("bottomActions");
+      const taskInfoCounter = document.getElementById("taskInfoCounter");
+      const taskCounterText = document.getElementById("taskCounterText");
+      const loadMoreContainer = document.getElementById("loadMoreContainer");
+
+      if (allTickets.length > 0) {
+        // Update counter text
+        if (allTickets.length < totalTickets) {
+          taskCounterText.innerText = `Menampilkan ${allTickets.length} dari ${totalTickets} data`;
+        } else {
+          taskCounterText.innerText = `Menampilkan semua data`;
+        }
+
+        // Show/hide load more button
+        if (hasMoreData) {
+          loadMoreContainer.style.display = "block";
+        } else {
+          loadMoreContainer.style.display = "none";
+        }
+
+        // Show bottom actions
+        bottomActions.style.display = "flex";
+      } else {
+        // Hide bottom actions when no data
+        bottomActions.style.display = "none";
+      }
+
+      renderTasks(allTickets);
     } catch (error) {
       document.getElementById("taskList").innerHTML = `
                 <div class="task-card">
@@ -40,19 +152,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </div>
             `;
+      document.getElementById("bottomActions").style.display = "none";
     }
   }
 
   function renderTasks(tickets) {
     if (!tickets.length) {
+      const emptyMsg = currentSearch
+        ? `Tidak ada tiket yang cocok dengan pencarian "${currentSearch}"`
+        : "Tidak ada tugas";
+      const emptySubMsg = currentSearch
+        ? "Coba gunakan kata kunci lain."
+        : "Belum ada ticket yang di-assign ke Anda.";
+
       document.getElementById("taskList").innerHTML = `
                 <div class="task-card">
                     <div class="task-body">
-                        <h3>Tidak ada tugas</h3>
-                        <p>Belum ada ticket yang di-assign ke Anda.</p>
+                        <h3>${emptyMsg}</h3>
+                        <p>${emptySubMsg}</p>
                     </div>
                 </div>
             `;
+      // Hide bottom actions when empty
+      document.getElementById("bottomActions").style.display = "none";
       return;
     }
 
@@ -65,11 +187,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const createdAt = formatDate(ticket.created_at);
         const statusLower = statusName.toLowerCase();
 
-        // Card border class: resolved gets green, otherwise category color
-        let cardClass = getCategoryClass(categoryName);
-        if (statusLower === "resolved") {
-          cardClass = "bd-resolved";
-        }
+        // Card border class based on status: assigned=orange, in progress=blue, resolved=green
+        let cardClass = getCardBorderClass(statusLower);
 
         // Status badge class
         const statusBadgeClass = getStatusBadgeClass(statusLower);
@@ -84,11 +203,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     </a>
                     <button class="btn-action btn-confirm"
                         onclick="confirmTicket(${ticket.id}, '${escapeHtml(ticket.ticket_number)}')">
-                        <i class="fa-solid fa-check"></i> Konfirmasi
+                        <i class="fa-solid fa-check"></i> Accept
                     </button>
                     <button class="btn-action btn-reject"
                         onclick="rejectTicket(${ticket.id}, '${escapeHtml(ticket.ticket_number)}')">
-                        <i class="fa-solid fa-times"></i> Tolak
+                        <i class="fa-solid fa-times"></i> Reject
                     </button>
                 `;
         } else if (statusLower === "in progress") {
@@ -98,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </a>
                     <button class="btn-action btn-update"
                         onclick="openResolve(${ticket.id}, '${escapeHtml(ticket.ticket_number)}', '${escapeHtml(ticket.subject)}')">
-                        <i class="fa-solid fa-check-circle"></i> Selesaikan Tiket
+                        <i class="fa-solid fa-check-circle"></i> Resolve Ticket
                     </button>
                 `;
         } else {
@@ -152,6 +271,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (name.includes("hardware") || name.includes("mechanical"))
       return "bd-mech";
     if (name.includes("it") || name.includes("software")) return "bd-it";
+    return "";
+  }
+
+  // Get card border class based on status (orange = assigned, blue = in progress, green = resolved)
+  function getCardBorderClass(status) {
+    if (status === "assigned") return "bd-assigned";
+    if (status === "in progress") return "bd-in-progress";
+    if (status === "resolved") return "bd-resolved";
     return "";
   }
 
@@ -236,6 +363,7 @@ document.addEventListener("DOMContentLoaded", function () {
           confirmButtonColor: "#2e7d32",
         });
         loadTechnicianTasks();
+        loadPendingCount(currentFilter); // Update notification count with current filter
       } else {
         throw new Error(result.message || "Gagal konfirmasi tiket");
       }
@@ -291,6 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
           confirmButtonColor: "#2e7d32",
         });
         loadTechnicianTasks();
+        loadPendingCount(currentFilter); // Update notification count with current filter
       } else {
         throw new Error(result.message || "Gagal menolak tiket");
       }
@@ -384,6 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
             confirmButtonColor: "#2e7d32",
           });
           loadTechnicianTasks();
+          loadPendingCount(currentFilter); // Refresh notif real-time setelah resolve
         } else {
           throw new Error(result.message || "Gagal menyelesaikan tiket");
         }
@@ -396,6 +526,41 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     });
+
+  // === Load Pending Count for Notification Badge ===
+  async function loadPendingCount(filterStatus = "all") {
+    try {
+      const token =
+        localStorage.getItem("auth_token") ||
+        sessionStorage.getItem("auth_token");
+      if (!token) return;
+
+      // Build API URL with filter if not "all"
+      let apiUrl = `${API_BASE}/api/technician/tickets?per_page=1`;
+      if (filterStatus !== "all") {
+        const statusParam =
+          filterStatus === "in_progress" ? "In Progress" : "Assigned";
+        apiUrl += `&status=${encodeURIComponent(statusParam)}`;
+      }
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const countEl = document.getElementById("pendingCountNum");
+        if (countEl && result.pagination) {
+          countEl.textContent = result.pagination.total || 0;
+        }
+      }
+    } catch (error) {
+      console.error("Error loading pending count:", error);
+    }
+  }
 
   // Close modal on overlay click
   window.onclick = function (event) {

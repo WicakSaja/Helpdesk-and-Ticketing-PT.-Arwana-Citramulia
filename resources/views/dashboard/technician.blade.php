@@ -8,8 +8,7 @@
 @section('content')
     <div class="header-welcome">
         <div class="user-info">
-            <h2>Semangat Pagi, Teknisi! 🛠️</h2>
-            <p>Prioritas: Menjaga Operasional Mesin & IT.</p>
+            <h2>Haloo, <span id="user-name"></span> 🛠️</h2>
         </div>
     </div>
 
@@ -24,6 +23,16 @@
 @section('scripts')
     <script>
         // === Dashboard Logic (Technician) ===
+
+        // Load user name from sessionStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const authUser = JSON.parse(sessionStorage.getItem('auth_user') || '{}');
+            const userName = authUser.name || 'Teknisi';
+            document.getElementById('user-name').textContent = userName;
+
+            // Load dashboard
+            loadDashboard();
+        });
 
         async function loadDashboard() {
             try {
@@ -68,16 +77,15 @@
 
                 if (data.my_tickets && data.my_tickets.length > 0) {
                     data.my_tickets.forEach(ticket => {
-                        const categoryClass = ticket.category.toLowerCase().includes('hardware') ? 'cat-mech' :
-                            'cat-it';
-                        const categoryBadgeClass = ticket.category.toLowerCase().includes('hardware') ?
-                            'badge-mech' : 'badge-it';
+                        const statusLower = ticket.status.toLowerCase();
+                        // Card border based on status: assigned=orange, in progress=blue, resolved=green
+                        const cardBorderClass = getCardBorderClass(statusLower);
                         const statusBadgeClass = getStatusBadgeClass(ticket.status);
 
                         html += `
-                            <div class="task-card ${categoryClass}">
+                            <div class="task-card ${cardBorderClass}">
                                 <div class="task-content">
-                                    <h4>${ticket.subject} <span class="badge-cat ${categoryBadgeClass}">${ticket.category}</span></h4>
+                                    <h4>${ticket.subject} <span class="badge-cat">${ticket.category}</span></h4>
                                     <div class="task-meta">
                                         <span><i class="fa-solid fa-ticket"></i> ${ticket.ticket_number}</span>
                                         <span><i class="fa-solid fa-user"></i> ${ticket.requester}</span>
@@ -123,9 +131,13 @@
             return statusMap[status] || 'open';
         }
 
-        // Load dashboard on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadDashboard();
-        });
+        // Get card border class based on status (orange = assigned, blue = in progress, green = resolved)
+        function getCardBorderClass(status) {
+            const statusLower = status.toLowerCase();
+            if (statusLower === 'assigned') return 'bd-assigned';
+            if (statusLower === 'in progress') return 'bd-in-progress';
+            if (statusLower === 'resolved') return 'bd-resolved';
+            return '';
+        }
     </script>
 @endsection

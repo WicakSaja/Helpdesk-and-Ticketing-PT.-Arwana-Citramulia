@@ -8,6 +8,22 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    gap: 20px;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.header-right {
+    flex-shrink: 0;
 }
 
 .page-title {
@@ -18,15 +34,216 @@
 }
 
 /* =========================================================
+   STATS BADGE (Notification)
+   ========================================================= */
+.stats-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.stats-badge i {
+    font-size: 16px;
+}
+
+.stats-badge .badge-text {
+    color: inherit;
+}
+
+.pending-badge {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: 1px solid #ffd54f;
+    color: #f57c00;
+}
+
+.pending-badge:hover {
+    background: linear-gradient(135deg, #ffecb3 0%, #ffe082 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 124, 0, 0.15);
+}
+
+#pendingCountNum {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+/* =========================================================
+   SEARCH BAR
+   ========================================================= */
+.search-bar {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 45px 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* =========================================================
+   FILTER CONTAINER
+   ========================================================= */
+.filter-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Filter All - Red Gradient */
+.filter-all.active {
+    background: linear-gradient(135deg, #d62828 0%, #c41e1e 100%);
+    color: white;
+    border-color: #d62828;
+}
+
+.filter-all:not(.active):hover {
+    border-color: #d62828;
+    color: #d62828;
+    background: #fff5f5;
+}
+
+/* Filter Assigned - Orange Gradient */
+.filter-assigned.active {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    border-color: #ff9800;
+}
+
+.filter-assigned:not(.active):hover {
+    border-color: #ff9800;
+    color: #ff9800;
+    background: #fff8f0;
+}
+
+/* Filter In Progress - Blue Gradient */
+.filter-in-progress.active {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: white;
+    border-color: #2196f3;
+}
+
+.filter-in-progress:not(.active):hover {
+    border-color: #2196f3;
+    color: #2196f3;
+    background: #f0f7ff;
+}
+
+.filter-btn i {
+    font-size: 12px;
+}
+
+/* =========================================================
+   BOTTOM ACTIONS (Info Counter + Load More Button)
+   ========================================================= */
+.bottom-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 15px 0;
+    gap: 20px;
+}
+
+/* =========================================================
+   TASK INFO COUNTER
+   ========================================================= */
+.task-info-counter {
+    flex: 1;
+    text-align: left;
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.task-info-counter span {
+    padding: 8px 16px;
+    background: #f4f6f9;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* =========================================================
+   LOAD MORE BUTTON
+   ========================================================= */
+.load-more-container {
+    flex-shrink: 0;
+}
+
+
+.load-more-link {
+    font-size: 13px;
+    color: #2e7d32;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.load-more-link:hover {
+    color: #14591d;
+    text-decoration: underline;
+}
+
+/* =========================================================
    TASK CARD
    ========================================================= */
 .task-card {
     background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-    margin-bottom: 20px;
-    border-left: 5px solid #ccc;
+    border: 1px solid #e0e0e0;
+    border-left: 4px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
     transition: 0.3s;
     position: relative;
 }
@@ -167,30 +384,39 @@
 }
 
 .btn-update {
-    background: #2e7d32;
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
     color: white;
+    border: 1px solid #4caf50;
 }
 
 .btn-update:hover {
-    background: #1b5e20;
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
 }
 
 .btn-confirm {
-    background: #1976d2;
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
     color: white;
+    border: 1px solid #2196f3;
 }
 
 .btn-confirm:hover {
-    background: #0d47a1;
+    background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 .btn-reject {
-    background: #d32f2f;
+    background: linear-gradient(135deg, #d62828 0%, #c41e1e 100%);
     color: white;
+    border: 1px solid #d62828;
 }
 
 .btn-reject:hover {
-    background: #b71c1c;
+    background: linear-gradient(135deg, #c41e1e 0%, #b71c1c 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(214, 40, 40, 0.3);
 }
 
 /* =========================================================
@@ -210,6 +436,19 @@
 
 .txt-it {
     color: #1976d2;
+}
+
+/* =========================================================
+   STATUS-BASED BORDER COLORS
+   ========================================================= */
+/* Assigned = Orange */
+.bd-assigned {
+    border-left-color: #f97316 !important;
+}
+
+/* In Progress = Blue */
+.bd-in-progress {
+    border-left-color: #1976d2 !important;
 }
 
 /* Resolved Card = Green Arwana */
@@ -323,11 +562,100 @@
     .page-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-left {
+        width: 100%;
+    }
+
+    .title-with-badge {
+        width: 100%;
+        justify-content: space-between;
         gap: 10px;
+    }
+
+    .header-right {
+        width: 100%;
     }
 
     .page-title {
         font-size: 20px;
+    }
+
+    /* Stats badge on mobile - smaller */
+    .stats-badge {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .stats-badge i {
+        font-size: 14px;
+    }
+
+    #pendingCountNum {
+        font-size: 14px;
+    }
+
+    /* Filter buttons on mobile - full width */
+    .filter-container {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 12px;
+        justify-content: center;
+    }
+
+    .filter-btn i {
+        font-size: 12px;
+    }
+
+    /* Search bar on mobile */
+    .search-bar {
+        margin-bottom: 15px;
+    }
+
+    .search-input {
+        padding: 10px 40px 10px 12px;
+        font-size: 13px;
+    }
+
+    .search-icon {
+        font-size: 14px;
+        right: 12px;
+    }
+
+    /* Task info counter on mobile */
+
+    .bottom-actions {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .task-info-counter {
+        text-align: left;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .load-more-container {
+        width: 100%;
+    }
+
+    /* Load more button on mobile */
+    .load-more-link {
+        width: 100%;
+        padding: 12px 0;
+        text-align: left;
+        display: block;
     }
 
     .task-card {
@@ -368,7 +696,35 @@
     }
 }
 
+@media (max-width: 576px) {
+
+    /* Hide badge text on very small screens */
+    .stats-badge .badge-text {
+        display: none;
+    }
+
+    .stats-badge {
+        padding: 8px 12px;
+    }
+
+    /* Filter buttons - show only icons on small screens */
+    .filter-container {
+        gap: 6px;
+    }
+
+    .filter-btn {
+        padding: 8px 12px;
+        font-size: 0;
+        gap: 0;
+    }
+
+    .filter-btn i {
+        font-size: 14px;
+    }
+}
+
 @media (max-width: 480px) {
+
     .action-group {
         flex-direction: column;
     }

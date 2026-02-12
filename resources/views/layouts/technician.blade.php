@@ -43,6 +43,7 @@
             <a href="{{ route('technician.tasks') }}"
                 class="menu-item {{ Route::is('technician.tasks') ? 'active' : '' }}">
                 <i class="fa-solid fa-screwdriver-wrench"></i> Tugas Saya
+                <span class="menu-badge" id="taskCount" style="display: none;">0</span>
             </a>
 
             <a href="{{ route('technician.history') }}"
@@ -81,7 +82,45 @@
         // Protect technician pages
         document.addEventListener('DOMContentLoaded', function() {
             requireTechnicianRole();
+            // Load task count for badge
+            loadTaskBadge();
         });
+
+        // Fetch assigned ticket count for badge
+        async function loadTaskBadge() {
+            const token = sessionStorage.getItem('auth_token');
+            const taskBadge = document.getElementById('taskCount');
+
+            if (!token || !taskBadge) return;
+
+            try {
+                const response = await fetch('/api/technician/tickets?per_page=100', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const tickets = result.data || [];
+                    // Count tickets that are not resolved/closed (active tasks)
+                    const activeCount = tickets.filter(t => {
+                        const status = (t.status?.name || '').toLowerCase();
+                        return status === 'assigned' || status === 'in progress';
+                    }).length;
+
+                    if (activeCount > 0) {
+                        taskBadge.textContent = activeCount;
+                        taskBadge.style.display = 'inline-block';
+                    } else {
+                        taskBadge.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading task badge:', error);
+            }
+        }
     </script>
 
     {{-- Mobile Sidebar Script --}}

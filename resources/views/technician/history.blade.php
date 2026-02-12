@@ -12,17 +12,17 @@
             <p class="page-subtitle">Daftar tiket yang telah diselesaikan.</p>
         </div>
         <div class="header-right">
-            <div class="stats-badge pending-badge">
-                <i class="fa-solid fa-clipboard-list"></i>
-                <span id="pendingCountNum">0</span>
-                <span class="badge-text">Tiket Perlu Dikerjakan</span>
-            </div>
-            <div class="filter-dropdown">
-                <select id="statusFilter" onchange="loadHistory()">
-                    <option value="">Semua Status</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
-                </select>
+            <!-- Filter Status -->
+            <div class="filter-container">
+                <button class="filter-btn filter-all active" data-status="all">
+                    <i class="fa-solid fa-list"></i> Semua
+                </button>
+                <button class="filter-btn filter-resolved" data-status="resolved">
+                    <i class="fa-solid fa-check-circle"></i> Resolved
+                </button>
+                <button class="filter-btn filter-closed" data-status="closed">
+                    <i class="fa-solid fa-lock"></i> Closed
+                </button>
             </div>
         </div>
     </div>

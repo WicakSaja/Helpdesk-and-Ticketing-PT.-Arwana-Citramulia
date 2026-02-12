@@ -6,9 +6,6 @@
 @endsection
 
 @section('content')
-    <div class="page-header">
-        <h1 class="page-title">Profil Teknisi</h1>
-    </div>
 
     <div class="profile-container">
 

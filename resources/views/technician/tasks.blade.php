@@ -8,7 +8,37 @@
 
 @section('content')
     <div class="page-header">
-        <h1 class="page-title" id="taskTitle">Daftar Tugas</h1>
+        <div class="header-left">
+            <div class="title-with-badge">
+                <h1 class="page-title" id="taskTitle">Daftar Tugas</h1>
+                <div class="stats-badge pending-badge">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span id="pendingCountNum">0</span>
+                    <span class="badge-text">Perlu Dikerjakan</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <!-- Filter Status -->
+            <div class="filter-container">
+                <button class="filter-btn filter-all active" data-status="all">
+                    <i class="fa-solid fa-list"></i> Semua
+                </button>
+                <button class="filter-btn filter-assigned" data-status="assigned">
+                    <i class="fa-solid fa-tasks"></i> Assigned
+                </button>
+                <button class="filter-btn filter-in-progress" data-status="in_progress">
+                    <i class="fa-solid fa-hourglass-half"></i> In Progress
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" class="search-input"
+            placeholder="Cari tiket berdasarkan nomor, subject, atau deskripsi..." autocomplete="off">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
     </div>
 
     <div id="taskList">
@@ -17,6 +47,20 @@
                 <h3>Loading...</h3>
                 <p>Sedang memuat daftar tugas.</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Bottom Actions (Info Counter + Load More Button) -->
+
+    <div id="bottomActions" class="bottom-actions" style="display: none;">
+        <div id="taskInfoCounter" class="task-info-counter">
+            <span id="taskCounterText">Menampilkan data</span>
+        </div>
+        <div id="loadMoreContainer" class="load-more-container">
+            <a id="loadMoreBtn" class="load-more-link" href="#"
+                style="font-size:13px; color:#2e7d32; text-decoration:underline; background:none; border:none; padding:0; cursor:pointer; display:inline;">
+                Tampilkan Lebih Banyak
+            </a>
         </div>
     </div>
 
@@ -52,7 +96,7 @@
                         style="background:white; border:1px solid #ddd; padding:10px 20px; border-radius:8px; cursor:pointer; margin-right: 10px;">Batal</button>
                     <button type="submit"
                         style="background:#2e7d32; color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:600;">
-                        <i class="fa-solid fa-check-circle"></i> Selesaikan Tiket
+                        <i class="fa-solid fa-check-circle"></i> Resolve Ticket
                     </button>
                 </div>
             </form>

@@ -23,10 +23,10 @@
                             @if (isset($message))
                                 <img src="{{ $message->embed(public_path('images/logo_arwana.png')) }}"
                                     alt="Arwana Logo"
-                                    style="width: 80px; height: auto; margin-bottom: 16px; border-radius: 12px;">
+                                    style="width: 80px; height: auto; margin-bottom: 16px; border-radius: 12px; background-color: #ffffff; padding: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                             @elseif (isset($logoUrl))
                                 <img src="{{ $logoUrl }}" alt="Arwana Logo"
-                                    style="width: 80px; height: auto; margin-bottom: 16px; border-radius: 12px;">
+                                    style="width: 80px; height: auto; margin-bottom: 16px; border-radius: 12px; background-color: #ffffff; padding: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
                             @endif
                             <h1
                                 style="margin: 0; color: #d62828; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">
@@ -116,10 +116,10 @@
                         <td
                             style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
                             <p style="margin: 0 0 8px 0; font-size: 12px; color: #9ca3af;">
-                                &copy; {{ date('Y') }} <strong>{{ $appName }}</strong>. All rights reserved.
+                                &copy; {{ date('Y') }} <strong>{{ $appName }}</strong>
                             </p>
                             <p style="margin: 0; font-size: 11px; color: #d1d5db;">
-                                PT. Arwana Citramulia | Sistem Ticketing Terpadu
+                                PT. Arwana Citramulia Tbk. | ITN Malang Internship Program
                             </p>
                         </td>
                     </tr>

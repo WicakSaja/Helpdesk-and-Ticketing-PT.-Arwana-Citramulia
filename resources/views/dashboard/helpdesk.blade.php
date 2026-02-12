@@ -114,22 +114,14 @@
 
                 if (data.unassigned_tickets && data.unassigned_tickets.length > 0) {
                     data.unassigned_tickets.forEach(ticket => {
-                        // Logic warna kategori sederhana
-                        const catLower = (ticket.category || '').toLowerCase();
-                        let badgeClass = 'dept-other';
-                        if (catLower.includes('hardware') || catLower.includes('jaringan')) badgeClass =
-                            'dept-hardware';
-                        if (catLower.includes('akun') || catLower.includes('akses')) badgeClass =
-                            'dept-account';
-
                         html += `
                         <tr>
                             <td><span style="font-family:monospace; font-weight:700;">${ticket.ticket_number}</span></td>
                             <td>
                                 <div style="font-weight:600; color:#111;">${ticket.subject}</div>
-                                <div style="font-size:12px; color:#888;">From: ${ticket.requester_name || 'User'}</div>
+                                <div style="font-size:12px; color:#888;">${ticket.requester?.name || 'User'}</div>
                             </td>
-                            <td><span class="badge-dept ${badgeClass}">${ticket.category}</span></td>
+                            <td>${ticket.category || '-'}</td>
                             <td>${ticket.created_at_human || ticket.created_at}</td>
                             <td>
                                 <button class="btn-assign" onclick="window.location.href = '{{ url('/helpdesk/tickets') }}/' + ${ticket.id}">

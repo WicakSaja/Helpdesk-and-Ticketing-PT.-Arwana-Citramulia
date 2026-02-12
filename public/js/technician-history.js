@@ -2,8 +2,25 @@ document.addEventListener("DOMContentLoaded", function () {
   const PAGE_SIZE = 15;
   let currentPage = 1;
   let totalPages = 1;
+  let currentFilter = "all";
 
   loadHistory();
+
+  // Filter button click handlers
+  document.querySelectorAll(".filter-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      // Remove active from all
+      document
+        .querySelectorAll(".filter-btn")
+        .forEach((b) => b.classList.remove("active"));
+      // Add active to clicked
+      this.classList.add("active");
+      // Update filter and reload
+      currentFilter = this.dataset.status;
+      currentPage = 1;
+      loadHistory();
+    });
+  });
 
   // Expose filter change to global scope
   window.loadHistory = loadHistory;
@@ -11,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
   async function loadHistory() {
     const tbody = document.getElementById("historyTableBody");
     const paginationContainer = document.getElementById("historyPagination");
-    const statusFilter = document.getElementById("statusFilter").value;
+    const statusFilter = currentFilter === "all" ? "" : currentFilter;
 
     tbody.innerHTML =
       '<tr><td colspan="6" class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</td></tr>';
@@ -48,9 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
         totalPages = result.pagination.last_page;
         renderPagination(result.pagination);
       }
-
-      // Load pending tickets count separately
-      loadPendingCount();
     } catch (error) {
       console.error("Error loading history:", error);
       tbody.innerHTML = `
@@ -215,32 +229,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const countEl = document.getElementById("completedCountNum");
     if (countEl) {
       countEl.textContent = total || 0;
-    }
-  }
-
-  async function loadPendingCount() {
-    try {
-      const token =
-        localStorage.getItem("auth_token") ||
-        sessionStorage.getItem("auth_token");
-      if (!token) return;
-
-      const response = await fetch(`/api/technician/tickets?per_page=1`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        const countEl = document.getElementById("pendingCountNum");
-        if (countEl && result.pagination) {
-          countEl.textContent = result.pagination.total || 0;
-        }
-      }
-    } catch (error) {
-      console.error("Error loading pending count:", error);
     }
   }
 
