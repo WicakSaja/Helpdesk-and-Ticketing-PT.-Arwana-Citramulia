@@ -190,7 +190,8 @@ async function handleLogout(event) {
     const token = TokenManager.getToken();
     if (token) {
       try {
-        await fetch(`${API_URL}/api/logout`, {
+        const apiUrl = typeof API_URL !== 'undefined' ? API_URL : window.location.origin;
+        await fetch(`${apiUrl}/api/logout`, {
           method: "POST",
           headers: TokenManager.getHeaders(),
         });

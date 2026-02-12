@@ -21,15 +21,4 @@ class AuthValidationService
     {
         return User::where('phone', $phone)->exists();
     }
-
-    /**
-     * Validate credentials
-     */
-    public function validateCredentials(string $loginField, string $login, string $password): bool
-    {
-        return auth()->attempt([
-            $loginField => $login,
-            'password' => $password,
-        ]);
-    }
 }

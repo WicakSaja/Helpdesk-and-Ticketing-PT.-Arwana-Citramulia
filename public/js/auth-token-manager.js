@@ -146,13 +146,12 @@ window.TokenManager = window.TokenManager || {
     },
 
     /**
-     * Validate roles in session with API
-     * @returns {Promise<boolean>} - True if roles match, false otherwise
+     * Validate and sync roles/user data with API
+     * Fetches latest user data from API and updates session (API is source of truth)
+     * @returns {Promise<boolean>} - True if valid, false otherwise
      */
     async validateRoles() {
         const token = this.getToken();
-        const sessionRoles = this.getRoles();
-        const sessionUser = this.getUser();
         
         if (!token) {
             console.warn('No token found in session');
@@ -171,7 +170,7 @@ window.TokenManager = window.TokenManager || {
             });
 
             if (!response.ok) {
-                console.warn('Failed to fetch user data from API');
+                console.warn('Failed to fetch user data from API, status:', response.status);
                 this.clearAuth();
                 return false;
             }
@@ -180,28 +179,22 @@ window.TokenManager = window.TokenManager || {
             const apiRoles = data.roles || [];
             const apiUser = data.user || null;
 
-            // Convert to role names for comparison
-            const sessionRoleNames = sessionRoles.map(r => r.name || r).sort();
-            const apiRoleNames = apiRoles.map(r => r.name || r).sort();
-
-            // Check if roles match
-            const rolesMatch = JSON.stringify(sessionRoleNames) === JSON.stringify(apiRoleNames);
-
-            const sessionUserId = sessionUser && sessionUser.id != null ? String(sessionUser.id) : null;
-            const apiUserId = apiUser && apiUser.id != null ? String(apiUser.id) : null;
-            const userMatch = !!sessionUserId && !!apiUserId && sessionUserId === apiUserId;
-
-            if (!rolesMatch || !userMatch) {
-                console.warn('Roles or user mismatch detected');
+            if (!apiUser || apiUser.id == null) {
+                console.warn('Invalid user data from API');
                 this.clearAuth();
+                return false;
             }
+
+            // API is source of truth — update session with latest data
+            sessionStorage.setItem(this.STORAGE_USER, JSON.stringify(apiUser));
+            sessionStorage.setItem(this.STORAGE_ROLES, JSON.stringify(apiRoles));
 
             // Store email verification required flag
             if (data.email_verification_required !== undefined) {
                 sessionStorage.setItem(this.STORAGE_EMAIL_VERIFICATION, JSON.stringify(data.email_verification_required));
             }
 
-            return rolesMatch && userMatch;
+            return true;
         } catch (error) {
             console.error('Error validating roles:', error);
             return false;

@@ -3,6 +3,8 @@
  * Handles form validation and submission for login and register forms
  */
 
+const AUTH_API_URL = typeof API_URL !== 'undefined' ? API_URL : window.location.origin;
+
 /**
  * Show loading state on button
  */
@@ -80,7 +82,7 @@ async function handleRegister(event) {
     setButtonLoading(btn, true);
 
     try {
-        const response = await fetch(`${API_URL}/api/register`, {
+        const response = await fetch(`${AUTH_API_URL}/api/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -154,7 +156,7 @@ async function handleLogin(event) {
     setButtonLoading(btn, true);
 
     try {
-        const response = await fetch(`${API_URL}/api/login`, {
+        const response = await fetch(`${AUTH_API_URL}/api/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -236,7 +238,7 @@ async function loadDepartments() {
     if (!selectElement) return;
 
     try {
-        const response = await fetch(`${API_URL}/api/departments`);
+        const response = await fetch(`${AUTH_API_URL}/api/departments`);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

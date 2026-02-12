@@ -1,8 +1,9 @@
 // Global badge updater for Helpdesk sidebar + header
 window.updateOpenUnassignedCount = async function () {
   try {
+    const apiUrl = typeof API_URL !== 'undefined' ? API_URL : window.location.origin;
     const res = await fetchWithAuth(
-      `${API_URL}/api/tickets?status=open&per_page=100`,
+      `${apiUrl}/api/tickets?status=open&per_page=100`,
     );
     if (!res || !res.ok) return;
     const json = await res.json();

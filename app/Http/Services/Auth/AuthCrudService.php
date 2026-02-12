@@ -31,6 +31,8 @@ class AuthCrudService
      */
     public function logoutUser($token): void
     {
-        $token->delete();
+        if ($token && method_exists($token, 'delete')) {
+            $token->delete();
+        }
     }
 }

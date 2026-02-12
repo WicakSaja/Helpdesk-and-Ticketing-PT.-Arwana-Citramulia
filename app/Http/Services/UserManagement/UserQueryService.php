@@ -15,6 +15,11 @@ class UserQueryService
     {
         $query = User::query();
 
+        // Kecualikan master-admin dari daftar users
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'master-admin');
+        });
+
         if ($request->filled('role')) {
             $query->role($request->role);
         }

@@ -28,7 +28,6 @@
         <div class="filters-right" id="filtersRight">
             <select class="filter-select" id="filterRole">
                 <option value="">Semua Role</option>
-                <option value="master-admin">Master Admin</option>
                 <option value="helpdesk">Helpdesk</option>
                 <option value="technician">Technician</option>
                 <option value="requester">Requester</option>

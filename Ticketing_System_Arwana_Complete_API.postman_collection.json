@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "aeeeb612-22c1-4c93-abaf-22ccce771097",
     "name": "Ticketing System Arwana - Complete API Collection",
-    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Validate Token, Change Password)\n- Email Verification (Verify Email, Resend Verification, Check Status)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary, Assigned Tickets)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Register atau Login untuk dapatkan token\n2. Verifikasi email (cek inbox, klik link verifikasi)\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth\n\nNote:\n- Semua endpoint kecuali Auth, Email Verification, Departments & Categories (GET) memerlukan email terverifikasi.\n- Email verification bisa di-bypass untuk development dengan set EMAIL_VERIFICATION_ENABLED=false di .env",
+    "description": "Complete API collection untuk Ticketing System PT Arwana.\n\nIncludes:\n- Authentication (Register, Login, Logout, Me, Validate Token, Change Password)\n- Email Verification (Verify Email, Resend Verification, Check Status)\n- Ticket Management (Create, List, View, Assign, Confirm, Reject, Solve, Unresolve, Close)\n- My Tickets & History (Get Own Tickets, View Completion History, View Technician Resolved Tickets)\n- User Management - Master Admin (List, View, Create, Update, Reset Password)\n- User Access Control (Get by Role, Roles Summary, Assigned Tickets)\n- Department Management (List, Create, Update, Delete)\n- Category Management (List, Create, Update, Delete)\n\nSetup:\n1. Register atau Login untuk dapatkan token\n2. Verifikasi email (cek inbox, klik link verifikasi)\n3. Token akan otomatis digunakan di semua request yang membutuhkan auth\n\nNote:\n- Semua endpoint kecuali Auth, Email Verification, Departments & Categories (GET) memerlukan email terverifikasi.\n- Email verification bisa di-bypass untuk development dengan set EMAIL_VERIFICATION_ENABLED=false di .env\n- Notifikasi ticket baru otomatis dikirim ke semua helpdesk aktif saat ticket dibuat (configurable via TICKET_NOTIFICATION_ENABLED)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -399,7 +399,7 @@
                 "tickets"
               ]
             },
-            "description": "Create ticket baru.\n\nPermission: ticket.create (requester role)\n\nRequired:\n- subject: Judul ticket (max 255 char)\n- description: Deskripsi lengkap masalah\n- category_id: ID kategori ticket\n- channel: Saluran pelaporan (web, mobile, email)\n\nOptional:\n- attachments: File attachment (jika ada)"
+            "description": "Create ticket baru.\n\nPermission: ticket.create (requester role)\n\nRequired:\n- subject: Judul ticket (max 255 char)\n- description: Deskripsi lengkap masalah\n- category_id: ID kategori ticket\n- channel: Saluran pelaporan (web, mobile, email)\n\nOptional:\n- attachments: File attachment (jika ada)\n\nNotifikasi:\n- Setelah ticket berhasil dibuat, notifikasi email otomatis dikirim ke semua helpdesk aktif via Queue\n- Berisi detail ticket (nomor, subject, deskripsi, kategori, channel, requester, tanggal) + link ke detail ticket\n- Bisa di-disable via TICKET_NOTIFICATION_ENABLED=false di .env"
           },
           "response": []
         },
@@ -883,7 +883,7 @@
         }
       ],
       "id": "d2825526-10a5-48e5-bfa9-78b571ff0e31",
-      "description": "Endpoint untuk ticket management:\n\nWorkflow:\n1. Requester: Create ticket (status: Open)\n2. Helpdesk: Assign ticket ke technician (status: Assigned)\n3. Technician: Confirm atau Reject ticket\n   - Confirm: status → In Progress\n   - Reject: status → Open (assignment dihapus)\n4. Technician: Resolve ticket (status: Resolved)\n5. Helpdesk: Close atau Unresolve ticket\n   - Close: status → Closed (final)\n   - Unresolve: status → In Progress (untuk dicek ulang)\n\nEndpoints:\n- Create ticket\n- List tickets dengan filter\n- View ticket detail\n- Assign ke technician\n- Confirm ticket (technician)\n- Reject ticket (technician)\n- Resolve ticket (technician)\n- Unresolve ticket (helpdesk)\n- Close ticket (helpdesk)"
+      "description": "Endpoint untuk ticket management:\n\nWorkflow:\n1. Requester: Create ticket (status: Open) → notifikasi dikirim ke semua helpdesk aktif\n2. Helpdesk: Assign ticket ke technician (status: Assigned)\n3. Technician: Confirm atau Reject ticket\n   - Confirm: status → In Progress\n   - Reject: status → Open (assignment dihapus)\n4. Technician: Resolve ticket (status: Resolved)\n5. Helpdesk: Close atau Unresolve ticket\n   - Close: status → Closed (final)\n   - Unresolve: status → In Progress (untuk dicek ulang)\n\nNotifikasi:\n- Ticket baru: Email ke semua helpdesk aktif (via Queue, configurable via TICKET_NOTIFICATION_ENABLED)\n\nEndpoints:\n- Create ticket\n- List tickets dengan filter\n- View ticket detail\n- Assign ke technician\n- Confirm ticket (technician)\n- Reject ticket (technician)\n- Resolve ticket (technician)\n- Unresolve ticket (helpdesk)\n- Close ticket (helpdesk)"
     },
     {
       "name": "4. User Management",
@@ -1803,37 +1803,37 @@
   },
   "variable": [
     {
-      "id": "a16f05fe-0b1a-4d6c-909f-96c4d8206534",
+      "id": "0f1a13e3-8fd7-4dc8-96a6-3012df52b877",
       "key": "base_url",
       "value": "http://localhost:8000",
       "type": "string"
     },
     {
-      "id": "97a14fc1-bde9-425c-978c-0f0f656fddcc",
+      "id": "ce9fd795-208f-4ed6-bbec-aa133b38039b",
       "key": "auth_token",
       "value": "",
       "type": "string"
     },
     {
-      "id": "2ac585c6-8723-4df7-8a7d-419cb4cf4ce4",
+      "id": "a63ed26d-a516-426c-854a-d66519b3a220",
       "key": "user_id",
       "value": "",
       "type": "string"
     },
     {
-      "id": "ea7be2f3-bdbf-40dc-931b-62e6549fa681",
+      "id": "baab1ba6-c23f-4035-a116-46e0ea2f4ad2",
       "key": "ticket_id",
       "value": "1",
       "type": "string"
     },
     {
-      "id": "3e58b495-8dbb-4499-a84c-762925093d2c",
+      "id": "4b4f4588-a307-45f9-89ec-e73f269aa246",
       "key": "master_admin_email",
       "value": "admin@arwana.com",
       "type": "string"
     },
     {
-      "id": "775571d8-3ae6-40b4-a489-a06d88a967b8",
+      "id": "a6b89b28-06f1-459a-99ed-50c287eb81de",
       "key": "master_admin_password",
       "value": "password123",
       "type": "string"

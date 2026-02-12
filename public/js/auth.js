@@ -88,7 +88,7 @@ const Auth = {
             window.location.href = '/dashboard/requester';
         } else {
             // Default ke requester dashboard
-            window.location.href = '/dashboard/requester';
+            window.location.href = '/login';
         }
     },
 

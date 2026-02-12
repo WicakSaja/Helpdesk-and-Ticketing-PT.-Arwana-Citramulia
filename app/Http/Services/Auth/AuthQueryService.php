@@ -3,6 +3,7 @@
 namespace App\Http\Services\Auth;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthQueryService
 {
@@ -11,14 +12,13 @@ class AuthQueryService
      */
     public function authenticateUser(string $loginField, string $login, string $password): ?User
     {
-        if (!auth()->attempt([
-            $loginField => $login,
-            'password' => $password,
-        ])) {
+        $user = User::where($loginField, $login)->first();
+
+        if (!$user || !Hash::check($password, $user->password)) {
             return null;
         }
 
-        return User::where($loginField, $login)->first();
+        return $user;
     }
 
     /**

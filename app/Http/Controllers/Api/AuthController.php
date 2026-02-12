@@ -42,10 +42,13 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $userData = $this->queryService->getCurrentUser($user);
 
         return response()->json([
             'message' => 'Register success',
-            'user' => $user,
+            'user' => $userData['user'],
+            'roles' => $userData['roles'],
+            'permissions' => $userData['permissions'],
             'token' => $token,
         ], 201);
     }
@@ -64,7 +67,6 @@ class AuthController extends Controller
         }
 
         if (!$this->queryService->isUserActive($user)) {
-            auth()->logout();
             return response()->json([
                 'message' => 'Your account has been deactivated. Please contact administrator.'
             ], 403);

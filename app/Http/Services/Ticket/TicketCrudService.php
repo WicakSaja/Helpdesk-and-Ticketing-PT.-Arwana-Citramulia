@@ -9,7 +9,10 @@ use App\Models\TicketLog;
 use App\Models\TicketSolution;
 use App\Models\TicketStatus;
 use App\Models\TechnicianTicketHistory;
+use App\Models\User;
+use App\Notifications\NewTicketNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class TicketCrudService
 {
@@ -40,6 +43,9 @@ class TicketCrudService
             'open',
             'Ticket dibuat dan berstatus open'
         );
+
+        // Kirim notifikasi ke semua helpdesk aktif
+        $this->notifyHelpdesk($ticket);
 
         return $ticket;
     }
@@ -271,5 +277,25 @@ class TicketCrudService
         $year = date('Y');
         $number = str_pad($ticketId, 5, '0', STR_PAD_LEFT);
         return "TKT-{$year}-{$number}";
+    }
+
+    /**
+     * Kirim notifikasi ticket baru ke semua helpdesk aktif.
+     */
+    private function notifyHelpdesk(Ticket $ticket): void
+    {
+        if (!config('ticketnotification.enabled')) {
+            return;
+        }
+
+        $ticket->loadMissing(['requester', 'category', 'status']);
+
+        $helpdeskUsers = User::role('helpdesk')
+            ->where('is_active', true)
+            ->get();
+
+        if ($helpdeskUsers->isNotEmpty()) {
+            Notification::send($helpdeskUsers, new NewTicketNotification($ticket));
+        }
     }
 }

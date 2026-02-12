@@ -23,7 +23,8 @@ const LogoutHandler = {
 
             try {
                 // Hit logout endpoint
-                const response = await fetch(`${API_URL}/api/logout`, {
+                const apiUrl = typeof API_URL !== 'undefined' ? API_URL : window.location.origin;
+                const response = await fetch(`${apiUrl}/api/logout`, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
