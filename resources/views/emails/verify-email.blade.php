@@ -16,25 +16,24 @@
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0"
                     style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 20px 60px rgba(214, 40, 40, 0.15); overflow: hidden; max-width: 600px;">
 
-                    {{-- Header with Arwana Red Gradient + Logo --}}
+                    {{-- Header with White Background + Logo --}}
                     <tr>
                         <td
-                            style="background: linear-gradient(135deg, #d62828 0%, #ff6b6b 100%); padding: 40px; text-align: center;">
+                            style="background-color: #ffffff; padding: 40px; text-align: center; border-bottom: 3px solid #d62828;">
                             @if (isset($message))
                                 <img src="{{ $message->embed(public_path('images/logo_arwana.png')) }}"
                                     alt="Arwana Logo"
                                     style="width: 80px; height: auto; margin-bottom: 16px; border-radius: 12px;">
                             @elseif (isset($logoUrl))
-                                <img src="{{ $logoUrl }}"
-                                    alt="Arwana Logo"
+                                <img src="{{ $logoUrl }}" alt="Arwana Logo"
                                     style="width: 80px; height: auto; margin-bottom: 16px; border-radius: 12px;">
                             @endif
                             <h1
-                                style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">
+                                style="margin: 0; color: #d62828; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">
                                 Ticketing Helpdesk Arwana
                             </h1>
                             <p
-                                style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.85); font-size: 13px; font-weight: 400; letter-spacing: 0.3px;">
+                                style="margin: 8px 0 0 0; color: #b91c1c; font-size: 13px; font-weight: 400; letter-spacing: 0.3px;">
                                 PT. Arwana Citramulia Tbk.
                             </p>
                         </td>
@@ -78,16 +77,16 @@
                                 <div
                                     style="margin-bottom: 12px; font-size: 14px; color: #475569; display: flex; gap: 12px;">
                                     <span style="color: #d62828; font-size: 16px;">🔒</span>
-                                    <span> Verifikasi email meningkatkan keamanan akun Anda</span>
+                                    <span>Verifikasi email meningkatkan keamanan akun Anda</span>
                                 </div>
                                 <div
                                     style="margin-bottom: 12px; font-size: 14px; color: #475569; display: flex; gap: 12px;">
                                     <span style="color: #d62828; font-size: 16px;">⏱️</span>
-                                    <span> Link verifikasi berlaku selama {{ $expirationMinutes }} menit</span>
+                                    <span>Link verifikasi berlaku selama {{ $expirationMinutes }} menit</span>
                                 </div>
                                 <div style="font-size: 14px; color: #475569; display: flex; gap: 12px;">
                                     <span style="color: #d62828; font-size: 16px;">✓</span>
-                                    <span> Setelah verifikasi, Anda dapat langsung menggunakan semua fitur</span>
+                                    <span>Setelah verifikasi, Anda dapat langsung menggunakan semua fitur</span>
                                 </div>
                             </div>
 
