@@ -58,7 +58,7 @@
         </div>
         <div id="loadMoreContainer" class="load-more-container">
             <a id="loadMoreBtn" class="load-more-link" href="#"
-                style="font-size:13px; color:#2e7d32; text-decoration:underline; background:none; border:none; padding:0; cursor:pointer; display:inline;">
+                style="font-size:13px; color:#2e7d32; text-decoration:none; background:none; border:none; padding:0; cursor:pointer; display:inline;">
                 Tampilkan Lebih Banyak
             </a>
         </div>

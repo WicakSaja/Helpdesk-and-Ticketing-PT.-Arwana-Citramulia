@@ -104,14 +104,24 @@ document.addEventListener("DOMContentLoaded", function () {
       // Filter client-side berdasarkan search term (subject, ticket number, atau requester name)
       if (_currentSearch) {
         const searchLower = _currentSearch.toLowerCase();
-        tickets = tickets.filter(t => {
+        tickets = tickets.filter((t) => {
           const subject = (t.subject || t.title || "").toLowerCase();
-          const ticketNum = (t.ticket_number || t.ticketNumber || "").toLowerCase();
-          const requesterName = (t.requester?.name || t.requester_name || "").toLowerCase();
+          const ticketNum = (
+            t.ticket_number ||
+            t.ticketNumber ||
+            ""
+          ).toLowerCase();
+          const requesterName = (
+            t.requester?.name ||
+            t.requester_name ||
+            ""
+          ).toLowerCase();
 
-          return subject.includes(searchLower) ||
-                 ticketNum.includes(searchLower) ||
-                 requesterName.includes(searchLower);
+          return (
+            subject.includes(searchLower) ||
+            ticketNum.includes(searchLower) ||
+            requesterName.includes(searchLower)
+          );
         });
       }
 
@@ -198,11 +208,22 @@ document.addEventListener("DOMContentLoaded", function () {
       <tr id="ticket-row-${t.id}">
         <td>
           <div class="ticket-subject">${subject}</div>
-          <div style="font-size:12px; color:#999">${ticketNum} • ${requester}</div>
+          <div style="font-size:12px; color:#999">
+            <i class="fa-solid fa-ticket-alt" style="margin-right:3px;color:#bbb;"></i>${ticketNum}
+            &nbsp;•&nbsp;
+            <i class="fa-solid fa-user" style="margin-right:3px;color:#bbb;"></i>${requester}
+          </div>
         </td>
-        <td><span class="badge-dept bg-blue" id="dept-${t.id}">${deptName}</span></td>
-        <td>${category}</td>
-        <td>${date}</td>
+        <td style="text-align:left;min-width:90px;">
+          <i class="fa-solid fa-building" style="margin-right:3px;color:#bbb;"></i>
+          <span class="badge-dept bg-blue" id="dept-${t.id}">${deptName}</span>
+        </td>
+        <td>
+          <i class="fa-solid fa-tags" style="margin-right:3px;color:#bbb;"></i>${category}
+        </td>
+        <td>
+          <i class="fa-solid fa-clock" style="margin-right:3px;color:#bbb;"></i>${date}
+        </td>
         <td>
           <div class="action-buttons">
             <button class="btn-assign" data-ticket-id="${t.id}" data-subject="${subject}" data-ticket-number="${ticketNum}">
