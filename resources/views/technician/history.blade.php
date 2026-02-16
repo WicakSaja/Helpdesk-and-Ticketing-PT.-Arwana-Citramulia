@@ -32,9 +32,9 @@
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>ID Tiket</th>
+                        <th>No Tiket</th>
                         <th>Judul Masalah</th>
-                        <th>Requester / Divisi</th>
+                        <th>Requester</th>
                         <th>Kategori</th>
                         <th>Tanggal</th>
                         <th>Status</th>

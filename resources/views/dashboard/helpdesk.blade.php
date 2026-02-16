@@ -89,7 +89,7 @@
                     </div>
                     <div class="chart-card">
                         <div class="chart-header">
-                            <div class="chart-title">📊 Tren Masalah - sebulan terakhir</div>
+                            <div class="chart-title">📊 Tren Kendala - sebulan terakhir</div>
                         </div>
                             <canvas id="categoryChart" style="height: 300px; width: 100%;"></canvas>
                     </div>
@@ -116,13 +116,25 @@
                     data.unassigned_tickets.forEach(ticket => {
                         html += `
                         <tr>
-                            <td><span style="font-family:monospace; font-weight:700;">${ticket.ticket_number}</span></td>
+                            <td>
+                                <i class="fa-solid fa-ticket" style="color:#888;margin-right:4px;"></i>
+                                <span style="font-family:monospace; font-weight:700;">${ticket.ticket_number}</span>
+                            </td>
                             <td>
                                 <div style="font-weight:600; color:#111;">${ticket.subject}</div>
-                                <div style="font-size:12px; color:#888;">${ticket.requester?.name || 'User'}</div>
+                                <div style="font-size:12px; color:#888;">
+                                    <i class="fa-solid fa-user" style="margin-right:3px;color:#bbb;"></i>
+                                    ${ticket.requester?.name || 'User'}
+                                </div>
                             </td>
-                            <td>${ticket.category || '-'}</td>
-                            <td>${ticket.created_at_human || ticket.created_at}</td>
+                            <td>
+                                <i class="fa-solid fa-tags" style="margin-right:3px;color:#bbb;"></i>
+                                ${ticket.category || '-'}
+                            </td>
+                            <td>
+                                <i class="fa-solid fa-clock" style="margin-right:3px;color:#bbb;"></i>
+                                ${ticket.created_at_human || ticket.created_at}
+                            </td>
                             <td>
                                 <button class="btn-assign" onclick="window.location.href = '{{ url('/helpdesk/tickets') }}/' + ${ticket.id}">
                                     Detail <i class="fa-solid fa-arrow-right"></i>

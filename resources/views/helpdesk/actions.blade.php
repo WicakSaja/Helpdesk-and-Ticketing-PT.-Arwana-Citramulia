@@ -18,13 +18,8 @@
 
         <div class="header-actions">
             <div class="search-container">
-                <input
-                    type="text"
-                    id="searchInput"
-                    class="search-input"
-                    placeholder="Cari tiket, nomor, atau nama..."
-                    autocomplete="off"
-                >
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari tiket, nomor, atau nama..."
+                    autocomplete="off">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
             </div>
 
@@ -97,8 +92,7 @@
 
                     <div class="mb-4">
                         <label class="form-label">Catatan Validasi</label>
-                        <textarea class="form-control" id="modalNote" rows="4"
-                            placeholder="Tulis catatan atau alasan penolakan..."></textarea>
+                        <textarea class="form-control" id="modalNote" rows="4" placeholder="Tulis catatan atau alasan penolakan..."></textarea>
                     </div>
 
                     <div class="modal-button-group">
@@ -176,9 +170,9 @@
                     const techName = (t.technician?.name || t.assignment?.technician?.name || "").toLowerCase();
 
                     return subject.includes(searchLower) ||
-                           ticketNum.includes(searchLower) ||
-                           requesterName.includes(searchLower) ||
-                           techName.includes(searchLower);
+                        ticketNum.includes(searchLower) ||
+                        requesterName.includes(searchLower) ||
+                        techName.includes(searchLower);
                 });
             }
         }
@@ -245,9 +239,9 @@
             const tbody = document.getElementById('ticketsBody');
 
             if (tickets.length === 0) {
-                const emptyMsg = _currentSearch
-                    ? `Tidak ada tiket yang cocok dengan pencarian "${_currentSearch}".`
-                    : `Tidak ada tiket yang perlu divalidasi.`;
+                const emptyMsg = _currentSearch ?
+                    `Tidak ada tiket yang cocok dengan pencarian "${_currentSearch}".` :
+                    `Tidak ada tiket yang perlu divalidasi.`;
                 const emptyIcon = _currentSearch ? 'fa-magnifying-glass' : 'fe fe-check-circle';
 
                 tbody.innerHTML = `
@@ -283,12 +277,16 @@
                     <td>
                         <div style="min-width: 0;">
                             <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${t.subject}</div>
-                            <div style="font-size: 12px; color: #999;">${t.ticket_number} • ${reqName}</div>
+                            <div style="font-size: 12px; color: #999;">
+                                <i class='fa-solid fa-ticket' style='margin-right:2px;'></i>${t.ticket_number}
+                                &nbsp;•&nbsp;
+                                <i class='fa-solid fa-user' style='margin-right:2px;'></i>${reqName}
+                            </div>
                         </div>
                     </td>
                     <td><div style="color: #666; font-size: 13px;">${category}</div></td>
                     <td>${techHtml}</td>
-                    <td><div style="font-size: 13px; color: #999;">${dateStr}</div></td>
+                    <td><div style="font-size: 13px; color: #999;"><i class='fa-regular fa-clock' style='margin-right:2px;'></i>${dateStr}</div></td>
                     <td><span class="badge-status bg-green-soft">RESOLVED</span></td>
                     <td>
                         <button class="btn-action" onclick="openActionModal('${ticketDataSafe}')">
@@ -339,7 +337,8 @@
             }
 
             for (let i = startPage; i <= endPage; i++) {
-                html += `<button type="button" class="pagination-btn ${i === _actionCurrentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+                html +=
+                    `<button type="button" class="pagination-btn ${i === _actionCurrentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
             }
 
             if (endPage < totalPages) {
@@ -381,7 +380,8 @@
             document.getElementById('modalTicketNo').innerText = t.ticket_number;
             document.getElementById('modalSubject').innerText = t.subject;
             document.getElementById('modalReqName').innerText = t.requester?.name || t.requester || '-';
-            document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name || '-';
+            document.getElementById('modalTechName').innerText = t.technician?.name || t.assignment?.technician?.name ||
+            '-';
             document.getElementById('modalNote').value = '';
 
             const modalEl = document.getElementById('actionModal');
@@ -395,7 +395,8 @@
             const note = document.getElementById('modalNote').value.trim();
 
             if (action === 'unresolve' && !note) {
-                Swal.fire('Catatan Diperlukan', 'Silakan tulis alasan penolakan agar teknisi tahu apa yang harus diperbaiki.',
+                Swal.fire('Catatan Diperlukan',
+                    'Silakan tulis alasan penolakan agar teknisi tahu apa yang harus diperbaiki.',
                     'warning');
                 return;
             }

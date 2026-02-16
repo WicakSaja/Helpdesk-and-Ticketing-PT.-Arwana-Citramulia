@@ -118,22 +118,22 @@
       // --- PERUBAHAN DISINI: MENGGUNAKAN <A HREF> BUKAN BUTTON ONCLICK ---
       html += `
         <tr>
-            <td>
-                <div class="subject-wrapper">
-                    <div class="ticket-no-mobile">${escapeHtml(number)}</div>
-                    <div class="ticket-subject-text">${escapeHtml(subject)}</div>
-                </div>
-            </td>
-            <td>${escapeHtml(category)}</td>
-            <td><span class="status-badge ${stClass}">${escapeHtml(status)}</span></td>
-            <td>${escapeHtml(updatedFormatted)}</td>
-            <td class="text-right">
-                <a href="/tickets/${ticket.id}" class="btn-detail" style="text-decoration:none;">
-                    Lihat <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 5px;"></i>
-                </a>
-            </td> 
+          <td>
+            <div class="subject-wrapper">
+              <div class="ticket-no-mobile"><i class='fa-solid fa-ticket' style='margin-right:3px;color:#888;'></i>${escapeHtml(number)}</div>
+              <div class="ticket-subject-text">${escapeHtml(subject)}</div>
+            </div>
+          </td>
+          <td>${escapeHtml(category)}</td>
+          <td><span class="status-badge ${stClass}">${escapeHtml(status)}</span></td>
+          <td><i class='fa-regular fa-clock' style='margin-right:3px;color:#bbb;'></i>${escapeHtml(updatedFormatted)}</td>
+          <td class="text-end">
+            <a href="/tickets/${ticket.id}" class="btn-detail" style="text-decoration:none;">
+              Lihat <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin-left: 5px;"></i>
+            </a>
+          </td> 
         </tr>
-      `;
+        `;
     });
     tbody.innerHTML = html;
   }

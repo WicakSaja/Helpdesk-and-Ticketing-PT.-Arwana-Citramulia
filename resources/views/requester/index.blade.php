@@ -37,8 +37,8 @@
                     <th width="30%">Subjek</th>
                     <th width="20%">Kategori</th>
                     <th width="15%">Status</th>
-                    <th width="20%">Update Terakhir</th>
-                    <th width="15%" class="text-right">Aksi</th>
+                    <th width="20%"><i class="fa-regular fa-clock"></i> Update Terakhir</th>
+                    <th width="15%" class="text-end">Detail</th>
                 </tr>
             </thead>
             <tbody id="ticketTableBody">

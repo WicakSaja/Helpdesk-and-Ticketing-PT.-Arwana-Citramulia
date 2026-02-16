@@ -106,20 +106,31 @@ document.addEventListener("DOMContentLoaded", function () {
         const categoryName = ticket.category?.name || "-";
 
         return `
-                <tr data-ticket-id="${ticket.id}" onclick="goToDetail(${ticket.id})" title="Klik untuk melihat detail">
-                    <td><b>${escapeHtml(ticket.ticket_number)}</b></td>
-                    <td>${escapeHtml(ticket.subject)}</td>
-                    <td>
-                        <div class="requester-info">
-                            <div class="requester-name">${escapeHtml(requesterName)}</div>
-                            <div class="requester-dept">${escapeHtml(requesterDept)}</div>
-                        </div>
-                    </td>
-                    <td>${escapeHtml(categoryName)}</td>
-                    <td>${formatDate(ticket.updated_at)}</td>
-                    <td><span class="${badgeClass}">${escapeHtml(statusLabel)}</span></td>
-                </tr>
-            `;
+            <tr data-ticket-id="${ticket.id}" onclick="goToDetail(${ticket.id})" title="Klik untuk melihat detail">
+              <td>
+                <i class="fa-solid fa-ticket" style="margin-right:3px;color:#888;"></i>
+                <b>${escapeHtml(ticket.ticket_number)}</b>
+              </td>
+              <td>${escapeHtml(ticket.subject)}</td>
+              <td>
+                <div class="requester-info">
+                  <div class="requester-name">
+                    <i class='fa-solid fa-user' style='margin-right:3px;color:#bbb;'></i>${escapeHtml(requesterName)}
+                  </div>
+                  <div class="requester-dept">${escapeHtml(requesterDept)}</div>
+                </div>
+              </td>
+              <td>
+                <i class="fa-solid fa-tags" style="margin-right:3px;color:#bbb;"></i>
+                ${escapeHtml(categoryName)}
+              </td>
+              <td>
+                <i class="fa-solid fa-calendar" style="margin-right:3px;color:#bbb;"></i>
+                ${formatDate(ticket.updated_at)}
+              </td>
+              <td><span class="${badgeClass}">${escapeHtml(statusLabel)}</span></td>
+            </tr>
+          `;
       })
       .join("");
   }

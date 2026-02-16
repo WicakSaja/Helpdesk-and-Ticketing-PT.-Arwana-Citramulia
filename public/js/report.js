@@ -106,7 +106,7 @@
     currentPage = 1;
 
     [btnWeekly, btnMonthly, btnYearly].forEach((btn) =>
-      btn.classList.remove("active")
+      btn.classList.remove("active"),
     );
     if (type === "weekly") btnWeekly.classList.add("active");
     if (type === "monthly") btnMonthly.classList.add("active");
@@ -143,7 +143,7 @@
     const startDay = (selectedWeek - 1) * 7 + 1;
     const endDay = Math.min(
       selectedWeek * 7,
-      new Date(selectedYear, selectedMonth, 0).getDate()
+      new Date(selectedYear, selectedMonth, 0).getDate(),
     );
 
     const formatDate = (day) => {
@@ -163,7 +163,7 @@
       const startDay = (selectedWeek - 1) * 7 + 1;
       const endDay = Math.min(
         selectedWeek * 7,
-        new Date(selectedYear, selectedMonth, 0).getDate()
+        new Date(selectedYear, selectedMonth, 0).getDate(),
       );
 
       startDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(startDay).padStart(2, "0")}`;
@@ -233,7 +233,12 @@
         renderTable();
         renderPagination();
       } else {
-        console.log("Ignoring stale fetch response FetchID:", currentFetchId, "Latest FetchID:", lastFetchId);
+        console.log(
+          "Ignoring stale fetch response FetchID:",
+          currentFetchId,
+          "Latest FetchID:",
+          lastFetchId,
+        );
       }
     } catch (error) {
       console.error("Error:", error);
@@ -286,7 +291,8 @@
         const technicianName = row.assignment?.technician?.name || null;
 
         // Cek status tiket - lebih comprehensive
-        const statusName = row.status?.name || row.ticket_status?.name || row.status || "OPEN";
+        const statusName =
+          row.status?.name || row.ticket_status?.name || row.status || "OPEN";
 
         // Cek apakah tiket sudah di-close atau resolved
         const isClosed = String(statusName).toUpperCase() === "CLOSED";
@@ -310,31 +316,33 @@
         let dateHtml = `<span class="date-pending">-</span>`;
         if (closedDate) {
           // Jika tiket sudah CLOSED, tampilkan tanggal close dengan icon check (inline)
-          dateHtml = `<span class="date-done"><i class="fa-solid fa-check-circle"></i> <strong>${closedDate}</strong></span>`;
+          dateHtml = `<span class="date-done"><i class="fa-solid fa-check-circle"></i> <strong><i class='fa-solid fa-calendar' style='margin-right:3px;'></i>${closedDate}</strong></span>`;
         } else if (resolvedDate) {
           // Jika tiket RESOLVED, tampilkan status badge dan tanggal inline di tengah
           dateHtml = `<div class="status-resolved-container">
             <span class="status-resolved-badge"><i class="fa-solid fa-circle"></i> RESOLVED</span>
-            <span class="resolved-date">${resolvedDate}</span>
+            <span class="resolved-date"><i class='fa-solid fa-calendar' style='margin-right:3px;'></i>${resolvedDate}</span>
           </div>`;
         } else {
           // Jika belum selesai, tampilkan status tiket
-          const statusClass = String(statusName).toLowerCase().replace(/\s+/g, '-');
+          const statusClass = String(statusName)
+            .toLowerCase()
+            .replace(/\s+/g, "-");
           dateHtml = `<span class="status-badge status-${statusClass}"><i class="fa-solid fa-circle"></i> ${statusName}</span>`;
         }
 
         html += `
           <tr>
             <td style="text-align:center; color:#64748b;">${startIndex + index + 1}</td>
-            <td><span class="ticket-number">${ticketNumber}</span></td>
-            <td style="color:#475569; font-size:13px;">${createdAt}</td>
+            <td><span class="ticket-number"><i class='fa-solid fa-ticket' style='margin-right:3px;'></i>${ticketNumber}</span></td>
+            <td style="color:#475569; font-size:13px;"><i class='fa-solid fa-calendar' style='margin-right:3px;'></i>${createdAt}</td>
             <td>
               <div class="user-info">
-                <span data-requester="name">${requesterName}</span>
-                <span data-requester="dept">${deptName}</span>
+                <span data-requester="name"><i class='fa-solid fa-user' style='margin-right:3px;'></i>${requesterName}</span>
+                <span data-requester="dept"><i class='fa-solid fa-building' style='margin-right:3px;'></i>${deptName}</span>
               </div>
             </td>
-            <td><strong class="keluhan-utama">${subject}</strong></td>
+            <td>${subject}</td>
             <td>${techHtml}</td>
             <td>${dateHtml}</td>
           </tr>
@@ -482,8 +490,9 @@
       fetch(url, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          Authorization: `Bearer ${token}`,
+          Accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
       })
         .then((response) => {

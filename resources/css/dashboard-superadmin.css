@@ -167,7 +167,27 @@
 
 .badge.closed {
     background: #e8f5e9;
-    color: #2e7d32;
+    color:#616161;
+}
+
+.badge.assigned {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge.resolved {
+    background: #e8f5e9;
+    color:  #2e7d32;
+}
+
+.badge.in-progress {
+    background: #e1f5fe;
+    color: #0288d1;
+}
+
+.badge.rejected {
+    background: #ffebee;
+    color: #c62828;
 }
 
 /* =========================================================

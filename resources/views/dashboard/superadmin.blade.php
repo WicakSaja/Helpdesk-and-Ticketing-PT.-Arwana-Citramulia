@@ -131,16 +131,31 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.latest_tickets.map(ticket => `
-                                                    <tr>
-                                                        <td><strong>${ticket.ticket_number}</strong></td>
-                                                        <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
-                                                        <td>${ticket.requester?.name || 'Unknown'}</td>
-                                                        <td>${ticket.category}</td>
-                                                        <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
-                                                        <td>${new Date(ticket.created_at).toLocaleString('id-ID')}</td>
-                                                    </tr>
-                                                `).join('')}
+                                    ${data.latest_tickets.map(ticket => {
+                                        function formatDateAMPM(dateStr) {
+                                            if (!dateStr) return "-";
+                                            const d = new Date(dateStr);
+                                            const day = d.getDate().toString().padStart(2, '0');
+                                            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                                            const year = d.getFullYear();
+                                            let hours = d.getHours();
+                                            const minutes = d.getMinutes().toString().padStart(2, '0');
+                                            const ampm = hours >= 12 ? 'PM' : 'AM';
+                                            hours = hours % 12;
+                                            hours = hours ? hours : 12;
+                                            return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+                                        }
+                                        return `
+                                            <tr>
+                                                <td><i class="fa-solid fa-ticket" style="margin-right:3px;"></i>${ticket.ticket_number}</td>
+                                                <td>${ticket.subject.substring(0, 30)}${ticket.subject.length > 30 ? '...' : ''}</td>
+                                                <td><i class="fa-solid fa-user" style="margin-right:3px;"></i>${ticket.requester?.name || 'Unknown'}</td>
+                                                <td>${ticket.category}</td>
+                                                <td><span class="badge ${getStatusBadgeClass(ticket.status)}">${ticket.status}</span></td>
+                                                <td><i class="fa-solid fa-calendar" style="margin-right:3px;"></i>${formatDateAMPM(ticket.created_at)}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
                                 </tbody>
                             </table>
                         </div>
@@ -163,14 +178,14 @@
         }
 
         function getStatusBadgeClass(status) {
-            const statusMap = {
-                'Open': 'open',
-                'Assigned': 'assigned',
-                'In Progress': 'in-progress',
-                'Resolved': 'resolved',
-                'Closed': 'closed'
-            };
-            return statusMap[status] || 'open';
+            const s = String(status).toLowerCase();
+            if (s.includes('open')) return 'open';
+            if (s.includes('assigned')) return 'assigned';
+            if (s.includes('progress')) return 'in-progress';
+            if (s.includes('resolved')) return 'resolved';
+            if (s.includes('closed')) return 'closed';
+            if (s.includes('reject')) return 'rejected';
+            return 'open';
         }
 
         function initCharts(data) {

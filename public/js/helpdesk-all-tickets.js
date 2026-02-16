@@ -120,27 +120,30 @@ document.addEventListener("DOMContentLoaded", function () {
       else if (s.includes("close")) statusClass = "status-closed";
       else if (s.includes("reject")) statusClass = "status-rejected";
 
-      const techDisplay = t.tech_dept ? `${t.tech} (${t.tech_dept})` : t.tech;
+      // Teknisi badge (fa-screwdriver-wrench)
+      const techDisplay = t.tech_dept
+        ? `<i class='fa-solid fa-screwdriver-wrench' style='margin-right:4px;'></i>${escapeHtml(t.tech)} <span style='color:#888;font-size:11px;'>(<i class='fa-solid fa-building' style='margin-right:4px;'></i> ${escapeHtml(t.tech_dept)})</span>`
+        : `<i class='fa-solid fa-screwdriver-wrench' style='margin-right:4px;'></i>${escapeHtml(t.tech)}`;
 
       const row = `
-                <tr id="row-${t.id}">
-                    <td><strong>${escapeHtml(t.ticket_number)}</strong></td>
-                    <td>
-                        <div style="font-weight:600; color:#333;">${escapeHtml(t.subject)}</div>
-                        <div style="font-size:12px; color:#888;">
-                            Oleh: ${escapeHtml(t.requester)}
-                        </div>
-                    </td>
-                    <td>${escapeHtml(t.dept)}</td>
-                    <td>${escapeHtml(techDisplay)}</td>
-                    <td><span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span></td>
-                    <td style="text-align: right;">
-                        <button class="btn-view" onclick="openDetailById(${t.id})" title="Lihat Detail">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
+            <tr id="row-${t.id}">
+              <td><i class='fa-solid fa-ticket' style='margin-right:4px;'></i>${escapeHtml(t.ticket_number)}</td>
+              <td>
+                <div style="font-weight:600; color:#333;">${escapeHtml(t.subject)}</div>
+                <div style="font-size:12px; color:#888;">
+                  <i class='fa-solid fa-user' style='margin-right:4px;'></i>${escapeHtml(t.requester)}
+                </div>
+              </td>
+              <td><i class='fa-solid fa-building' style='margin-right:4px;'></i>${escapeHtml(t.dept)}</td>
+              <td>${techDisplay}</td>
+              <td><span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span></td>
+              <td style="text-align: right;">
+                <button class="btn-view" onclick="openDetailById(${t.id})" title="Lihat Detail">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+          `;
       tableBody.innerHTML += row;
     });
 

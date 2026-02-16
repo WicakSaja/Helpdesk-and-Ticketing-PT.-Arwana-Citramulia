@@ -143,7 +143,7 @@
 .custom-table th {
     text-align: center;
     color: #888;
-    padding: 15px;
+    padding: 8px 6px;
     border-bottom: 2px solid #f0f0f0;
     font-size: 12px;
     font-weight: 700;
@@ -151,7 +151,18 @@
 }
 
 .custom-table td {
-    padding: 15px;
+    padding: 8px 6px;
+
+    /* Truncate subject in ticket info */
+    .ticket-subject {
+        font-weight: 600;
+        color: #111;
+        max-width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     border-bottom: 1px solid #f9f9f9;
     font-size: 14px;
     color: #333;

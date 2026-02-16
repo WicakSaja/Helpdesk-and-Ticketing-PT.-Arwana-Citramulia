@@ -1,3 +1,34 @@
+/* Restore card appearance for task-card on desktop */
+.task-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
+    margin-bottom: 18px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 18px;
+    transition: box-shadow 0.2s;
+}
+
+.task-card:hover {
+    box-shadow: 0 6px 24px rgba(214, 40, 40, 0.08);
+    border-color: #e5e7eb;
+}
+
+.task-content {
+    flex: 1 1 0%;
+}
+
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+}
+
 /* =========================================================
    1. GLOBAL & VARS
    ========================================================= */
@@ -148,24 +179,51 @@ body {
     padding-left: 0;
 }
 
-.task-card {
-    background: white;
-    padding: 18px 20px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    border: 1px solid #f3f4f6;
-    border-left-width: 4px;
-    /* Garis kategori */
-    transition: transform 0.2s, box-shadow 0.2s;
+.badge-cat {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f3f4f6;
+    color: #444;
+    margin-left: 4px;
 }
 
-.task-card:hover {
-    transform: translateX(5px);
-    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.05);
+/* Status badge warna seperti kategori sebelumnya */
+.status-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+.status-open {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-assigned {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-in-progress {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-resolved {
+    background: #bbf7d0;
+    color: #166534;
+}
+
+.status-closed {
+    background: #e5e7eb;
+    color: #374151;
 }
 
 .cat-mech {

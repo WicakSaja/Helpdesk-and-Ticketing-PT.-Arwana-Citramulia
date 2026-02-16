@@ -1,7 +1,7 @@
 (function() {
     // === CONFIG ===
     const DEPT_API_URL = '/api/departments';
-    const DEPT_PER_PAGE = 5;
+    const DEPT_PER_PAGE = 10;
 
     // === AUTHENTICATION (Ambil Token) ===
     const authToken = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');

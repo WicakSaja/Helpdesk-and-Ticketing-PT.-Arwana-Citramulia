@@ -223,12 +223,22 @@
                     <td>
                         <div style="min-width: 0;">
                             <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">${t.subject}</div>
-                            <div class="small text-muted font-monospace">#${t.ticket_number}</div>
+                            <div class="small text-muted font-monospace">
+                                <i class='fa-solid fa-ticket' style='margin-right:3px;color:#888;'></i>${t.ticket_number}
+                            </div>
                         </div>
                     </td>
-                    <td><div class="fw-bold text-dark" style="font-size: 0.9rem;">${reqName}</div></td>
+                    <td>
+                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">
+                            <i class='fa-solid fa-user' style='margin-right:3px;color:#bbb;'></i>${reqName}
+                        </div>
+                    </td>
                     <td>${techHtml}</td>
-                    <td><div class="small text-muted">${dateStr}</div></td>
+                    <td>
+                        <div class="small text-muted">
+                            <i class='fa-regular fa-clock' style='margin-right:3px;color:#bbb;'></i>${dateStr}
+                        </div>
+                    </td>
                     <td><span class="badge-status bg-green-soft">RESOLVED</span></td>
                     <td>
                         <button class="btn-action" onclick="openActionModal('${ticketDataSafe}')">

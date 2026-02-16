@@ -127,7 +127,6 @@
                         const catName = ticket.category?.name || 'Umum';
                         const statusName = ticket.status?.name || 'Open';
 
-                        const styles = getCategoryStyle(catName);
                         const statusClass = getStatusClass(statusName);
 
                         const date = ticket.created_at ? new Date(ticket.created_at).toLocaleDateString(
@@ -141,16 +140,16 @@
                         const detailUrl = "{{ url('tickets') }}/" + ticket.id;
 
                         html += `
-                            <div class="task-card ${styles.border}">
+                            <div class="task-card">
                                 <div class="task-content">
                                     <h4>
                                         ${ticket.subject}
-                                        <span class="badge-cat ${styles.badge}">${catName}</span>
+                                        <span class="status-badge status-${statusClass}">${statusName}</span>
+                                        <span class="badge-cat">${catName}</span>
                                     </h4>
                                     <div class="task-meta">
-                                        <span><i class="fa-solid fa-hashtag"></i> ${ticket.ticket_number}</span>
+                                        <span><i class="fa-solid fa-ticket" style="color:#888;"></i> ${ticket.ticket_number}</span>
                                         <span><i class="fa-regular fa-clock"></i> ${date}</span>
-                                        <span class="status-text ${statusClass}">${statusName}</span>
                                     </div>
                                 </div>
                                 <a href="${detailUrl}" class="btn-detail">
