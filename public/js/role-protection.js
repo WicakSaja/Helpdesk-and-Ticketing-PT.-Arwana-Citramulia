@@ -9,26 +9,7 @@
  * Checks both token AND role data to prevent redirect loops when session is partial/corrupted.
  */
 function requireGuestSync() {
-    // Detect redirect loop: if page loaded too many times in a short period, force clear
-    const now = Date.now();
-    const lastRedirect = parseInt(sessionStorage.getItem('_login_redirect_ts') || '0', 10);
-    const redirectCount = parseInt(sessionStorage.getItem('_login_redirect_count') || '0', 10);
-
-    if (now - lastRedirect < 3000) {
-        // Loaded within 3 seconds — possible loop
-        if (redirectCount >= 3) {
-            console.warn('Redirect loop detected! Force clearing all session data.');
-            sessionStorage.clear();
-            return true; // Show login page
-        }
-        sessionStorage.setItem('_login_redirect_count', String(redirectCount + 1));
-    } else {
-        // Reset counter — enough time has passed, this is a normal page load
-        sessionStorage.setItem('_login_redirect_count', '1');
-    }
-    sessionStorage.setItem('_login_redirect_ts', String(now));
-
-    // Check token AND role — if token exists but role is missing/invalid, clear auth keys only
+    // Check token AND role — if token exists but role is missing/invalid, clear auth data only
     if (TokenManager.hasToken()) {
         const activeRole = TokenManager.getActiveRole();
         const knownRoles = ['master-admin', 'helpdesk', 'technician', 'requester'];

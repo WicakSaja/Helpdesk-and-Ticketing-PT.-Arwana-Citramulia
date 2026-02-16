@@ -122,16 +122,10 @@ window.TokenManager = window.TokenManager || {
                 }
             });
 
-            if (response.status === 401 || response.status === 403) {
-                // Token explicitly rejected by server - clear auth
-                console.warn('Token rejected by server, status:', response.status);
-                this.clearAuth();
-                return false;
-            }
-
             if (!response.ok) {
-                // Server error (5xx, etc.) - don't clear session, just report failure
-                console.warn('Token validation failed with status:', response.status, '(session preserved)');
+                // Token invalid or expired - clear session
+                console.warn('Token validation failed with status:', response.status);
+                this.clearAuth();
                 return false;
             }
 
@@ -146,9 +140,9 @@ window.TokenManager = window.TokenManager || {
                 return false;
             }
         } catch (error) {
-            // Network error (server unreachable, timeout, etc.) - DON'T clear session
-            // The token might still be valid, server is just temporarily unavailable
-            console.error('Token validation network error (session preserved):', error.message);
+            console.error('Token validation error:', error);
+            // Clear session on network error to be safe
+            this.clearAuth();
             return false;
         }
     },
@@ -202,16 +196,9 @@ window.TokenManager = window.TokenManager || {
                 }
             });
 
-            if (response.status === 401 || response.status === 403) {
-                // Token explicitly rejected - clear auth
-                console.warn('User data fetch rejected, status:', response.status);
-                this.clearAuth();
-                return false;
-            }
-
             if (!response.ok) {
-                // Server error - don't clear session, just report failure
-                console.warn('Failed to fetch user data, status:', response.status, '(session preserved)');
+                console.warn('Failed to fetch user data from API, status:', response.status);
+                this.clearAuth();
                 return false;
             }
 
@@ -240,15 +227,14 @@ window.TokenManager = window.TokenManager || {
 
             return true;
         } catch (error) {
-            // Network error - DON'T clear session, server might be temporarily unreachable
-            console.error('Role validation network error (session preserved):', error.message);
+            console.error('Error validating roles:', error);
             return false;
         }
     },
 
     /**
      * Clear all auth data (logout)
-     * Only removes auth-specific keys to avoid wiping unrelated session data
+     * Only removes auth-specific keys so other session data is preserved
      */
     clearAuth() {
         sessionStorage.removeItem(this.STORAGE_TOKEN);

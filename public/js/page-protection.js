@@ -17,30 +17,19 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Check if user is authenticated
   const authenticated = await TokenManager.isAuthenticated();
   if (!authenticated) {
-    // Only redirect if there's no token left (cleared by 401) or never had one
-    // If token still exists, it might be a temporary network error — don't redirect
-    if (!TokenManager.hasToken()) {
-      console.log("User not authenticated, redirecting to login...");
-      window.location.href = "/login";
-      return;
-    }
-    // Token exists but validation failed (network error) — skip redirect, let page load
-    console.warn("Token validation failed but token still exists (possible network issue). Continuing...");
+    console.log("User not authenticated, redirecting to login...");
+    TokenManager.clearAuth();
+    window.location.href = "/login";
+    return;
   }
 
   // Only validate roles if token is valid (avoid wasteful API call after clearAuth)
-  if (TokenManager.hasToken()) {
-    const rolesValid = await TokenManager.validateRoles();
-    if (!rolesValid && !TokenManager.hasToken()) {
-      // Token was cleared by validateRoles (401) — redirect to login
-      console.log("User roles invalid (token revoked), redirecting to login...");
-      window.location.href = "/login";
-      return;
-    }
-    // If rolesValid is false but token still exists → network error, continue
-    if (!rolesValid) {
-      console.warn("Role validation failed but token still exists (possible network issue). Continuing...");
-    }
+  const rolesValid = await TokenManager.validateRoles();
+  if (!rolesValid) {
+    console.log("User roles invalid, redirecting to login...");
+    TokenManager.clearAuth();
+    window.location.href = "/login";
+    return;
   }
 
   // Check email verification status (skip if verification is disabled)
@@ -71,24 +60,12 @@ async function runAuthCheck() {
 
   try {
     const authenticated = await TokenManager.isAuthenticated();
+    const rolesValid = authenticated
+      ? await TokenManager.validateRoles()
+      : false;
 
-    // If token was explicitly revoked (cleared by 401), logout
-    if (!authenticated && !TokenManager.hasToken()) {
-      console.log("Auth check: token revoked, logging out...");
-      TokenManager.logout();
-      return;
-    }
-
-    // If token still exists but validation failed (network error), skip — don't logout
-    if (!authenticated && TokenManager.hasToken()) {
-      console.warn("Auth check: validation failed but token exists (possible network issue). Skipping.");
-      return;
-    }
-
-    // Token valid, now validate roles
-    const rolesValid = await TokenManager.validateRoles();
-    if (!rolesValid && !TokenManager.hasToken()) {
-      console.log("Auth check: roles invalid (token revoked), logging out...");
+    if (!authenticated || !rolesValid) {
+      console.log("Auth check failed, redirecting to login...");
       TokenManager.logout();
       return;
     }

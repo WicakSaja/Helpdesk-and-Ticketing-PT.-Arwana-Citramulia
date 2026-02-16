@@ -98,19 +98,7 @@
     <script src="{{ asset('js/role-protection.js') }}"></script>
     <script src="{{ asset('js/auth-form-handler.js') }}"></script>
     <script>
-        // Clear stale/invalid auth data to prevent refresh loops
-        (function() {
-            if (TokenManager.hasToken()) {
-                const role = TokenManager.getActiveRole();
-                const validRoles = ['master-admin', 'helpdesk', 'technician', 'requester'];
-                if (!role || !validRoles.includes(role)) {
-                    console.warn('Register page: Incomplete auth session detected, clearing auth data.');
-                    TokenManager.clearAuth();
-                }
-            }
-        })();
-
-        // Redirect to dashboard if already logged in (using sync check)
+        // Redirect to dashboard if already logged in, or clear invalid auth data
         document.addEventListener('DOMContentLoaded', function() {
             requireGuestSync();
         });
