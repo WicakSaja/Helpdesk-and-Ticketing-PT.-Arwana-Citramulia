@@ -18,7 +18,7 @@
                 <label class="form-label">Email Perusahaan</label>
                 <div class="input-wrapper">
                     <span class="icon-box"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" id="email" class="custom-input" placeholder="" required>
+                    <input type="email" id="email" class="custom-input" placeholder="nama@arwanacitra.com" required>
                 </div>
             </div>
 
@@ -26,7 +26,7 @@
                 <label class="form-label">Password</label>
                 <div class="input-wrapper">
                     <span class="icon-box"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" id="password" class="custom-input" placeholder="" required>
+                    <input type="password" id="password" class="custom-input" placeholder="masukkan password..." required>
                     <span class="toggle-password" onclick="togglePassword('password', this)">
                         <i class="fa-solid fa-eye"></i>
                     </span>
