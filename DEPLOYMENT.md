@@ -59,6 +59,7 @@ sudo apt install php8.2-fpm php8.2-cli php8.2-common \
 | `fileinfo`  | File MIME detection                                           |
 | `redis`     | Opsional, untuk cache/queue via Redis                         |
 
+
 ### C. PostgreSQL 15+ (Database)
 
 Project dikonfigurasi menggunakan PostgreSQL (bukan MySQL).
@@ -68,7 +69,7 @@ sudo apt install postgresql postgresql-contrib -y
 sudo systemctl enable postgresql
 ```
 
-Buat database & user:
+#### 1. Buat database, user, dan atur host/port
 
 ```bash
 sudo -u postgres psql
@@ -80,6 +81,52 @@ CREATE DATABASE ticketing_system OWNER arwana_user;
 GRANT ALL PRIVILEGES ON DATABASE ticketing_system TO arwana_user;
 \q
 ```
+
+#### 2. Cek/atur port dan listen address PostgreSQL
+
+- Edit file konfigurasi PostgreSQL (biasanya di `/etc/postgresql/<versi>/main/postgresql.conf`):
+    ```bash
+    sudo nano /etc/postgresql/*/main/postgresql.conf
+    ```
+- Pastikan baris berikut:
+    ```
+    listen_addresses = 'localhost'
+    port = 5432
+    ```
+- Restart PostgreSQL:
+    ```bash
+    sudo systemctl restart postgresql
+    ```
+
+#### 3. Cek port berjalan
+
+```bash
+sudo netstat -plnt | grep 5432
+# atau
+sudo ss -plnt | grep 5432
+```
+Output harus ada baris `127.0.0.1:5432` (artinya hanya menerima koneksi dari localhost).
+
+#### 4. Cek koneksi database dari server
+
+```bash
+psql -U arwana_user -h 127.0.0.1 -p 5432 -d ticketing_system -c "SELECT 1;"
+# Jika diminta password, masukkan yang tadi dibuat
+# Output:  ?column? | 1
+```
+
+#### 5. Konfigurasi di .env
+
+```dotenv
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=ticketing_system
+DB_USERNAME=arwana_user
+DB_PASSWORD=arwana
+```
+
+> Jika database di server berbeda, ganti `DB_HOST` dengan IP/hostname server database, dan pastikan port 5432 terbuka dari aplikasi ke database.
 
 ### D. Composer 2.x (PHP Dependency Manager)
 
@@ -371,19 +418,30 @@ sudo supervisorctl start ticketing-queue:*
 
 ---
 
-## 6. Konfigurasi Email Perusahaan (SMTP)
 
-Hubungi tim IT/administrator email perusahaan untuk mendapatkan informasi berikut:
+### 6. Konfigurasi Email Perusahaan (SMTP)
 
-| Parameter          | Keterangan                | Contoh                     |
-|--------------------|---------------------------|----------------------------|
-| `MAIL_HOST`        | SMTP server perusahaan    | `smtp.arwana.com`          |
-| `MAIL_PORT`        | Port SMTP                 | `587` (TLS) / `465` (SSL) |
-| `MAIL_USERNAME`    | Alamat email pengirim     | `ticketing@arwana.com`     |
-| `MAIL_PASSWORD`    | Password email tersebut   | `*****`                    |
-| `MAIL_ENCRYPTION`  | Jenis enkripsi            | `tls` atau `ssl`           |
+#### Jika menggunakan Gmail/Google Workspace:
 
-### Jika perusahaan menggunakan Microsoft 365 / Exchange:
+1. Aktifkan 2FA (Two Factor Authentication) di akun Gmail.
+2. Buat App Password di https://myaccount.google.com/apppasswords (pilih "Mail" dan device bebas).
+3. Masukkan App Password (bukan password biasa) ke `MAIL_PASSWORD` di file `.env`.
+4. Contoh konfigurasi:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=alamatgmailanda@gmail.com
+MAIL_PASSWORD=AppPasswordDariGoogle
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=alamatgmailanda@gmail.com
+MAIL_FROM_NAME="Ticketing System Arwana"
+```
+
+Tanpa App Password, pengiriman email akan SELALU gagal (error: authentication failed).
+
+#### Jika perusahaan menggunakan Microsoft 365 / Exchange:
 
 ```dotenv
 MAIL_HOST=smtp.office365.com
@@ -391,12 +449,15 @@ MAIL_PORT=587
 MAIL_ENCRYPTION=tls
 ```
 
-### Jika menggunakan Google Workspace:
+#### Jika menggunakan SMTP perusahaan:
 
 ```dotenv
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp.perusahaan.com
 MAIL_PORT=587
 MAIL_ENCRYPTION=tls
+MAIL_USERNAME=ticketing@perusahaan.com
+MAIL_PASSWORD=PasswordEmail
+MAIL_FROM_ADDRESS=ticketing@perusahaan.com
 ```
 
 ---
