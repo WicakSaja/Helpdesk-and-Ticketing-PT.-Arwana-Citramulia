@@ -56,7 +56,7 @@
             <form onsubmit="handleSave(event)">
                 <div class="form-group">
                     <label class="form-label">Nama Departemen</label>
-                    <input type="text" id="deptName" class="form-input" placeholder="Contoh: IT Support" required>
+                    <input type="text" id="deptName" class="form-input" placeholder="" required>
                 </div>
 
                 <div style="text-align: right; margin-top: 25px;">

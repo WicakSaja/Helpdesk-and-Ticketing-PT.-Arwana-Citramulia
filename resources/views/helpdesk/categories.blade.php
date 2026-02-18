@@ -57,12 +57,12 @@
             <form onsubmit="handleSave(event)">
                 <div class="form-group">
                     <label class="form-label">Nama Kategori <span style="color:red">*</span></label>
-                    <input type="text" id="catName" class="form-input" placeholder="Contoh: Hardware" required>
+                    <input type="text" id="catName" class="form-input" placeholder="" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Deskripsi</label>
-                    <textarea id="catDesc" class="form-textarea" rows="3" placeholder="Contoh: Masalah terkait perangkat keras..."></textarea>
+                    <textarea id="catDesc" class="form-textarea" rows="3" placeholder=""></textarea>
                 </div>
 
                 <div style="text-align: right; margin-top: 25px;">

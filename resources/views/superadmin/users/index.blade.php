@@ -87,18 +87,18 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" id="uName" class="form-input" placeholder="Contoh: Budi Santoso" required>
+                        <input type="text" id="uName" class="form-input" placeholder="" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Perusahaan</label>
-                        <input type="email" id="uEmail" class="form-input" placeholder="email@arwana.com" required>
+                        <input type="email" id="uEmail" class="form-input" placeholder="" required>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">No. Telepon / WA</label>
-                        <input type="text" id="uPhone" class="form-input" placeholder="08..." required>
+                        <input type="text" id="uPhone" class="form-input" placeholder="" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Password</label>

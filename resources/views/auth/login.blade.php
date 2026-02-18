@@ -26,7 +26,7 @@
                 <label class="form-label">Password</label>
                 <div class="input-wrapper">
                     <span class="icon-box"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" id="password" class="custom-input" placeholder="Masukkan password..." required>
+                    <input type="password" id="password" class="custom-input" placeholder="masukkan password..." required>
                     <span class="toggle-password" onclick="togglePassword('password', this)">
                         <i class="fa-solid fa-eye"></i>
                     </span>

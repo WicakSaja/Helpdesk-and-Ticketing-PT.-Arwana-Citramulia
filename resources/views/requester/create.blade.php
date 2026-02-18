@@ -18,7 +18,7 @@
                 <div class="form-group">
                     <label class="form-label">Subjek / Judul Kendala</label>
                     <input type="text" id="subject" name="subject" class="form-control"
-                        placeholder="Contoh: Internet di Ruang Meeting Mati" required autofocus>
+                        placeholder="" required autofocus>
                 </div>
 
                 <div class="form-group">
@@ -34,7 +34,7 @@
                 <div class="form-group">
                     <label class="form-label">Deskripsi Lengkap</label>
                     <textarea id="description" name="description" class="form-textarea"
-                        placeholder="Jelaskan kronologi kendala secara detail. Contoh: Saat menyalakan PC, layar tb2..."
+                        placeholder=""
                         required></textarea>
                 </div>
 

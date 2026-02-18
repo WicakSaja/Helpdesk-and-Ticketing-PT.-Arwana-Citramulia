@@ -92,7 +92,7 @@
 
                     <div class="mb-4">
                         <label class="form-label">Catatan Validasi</label>
-                        <textarea class="form-control" id="modalNote" rows="4" placeholder="Tulis catatan atau alasan penolakan..."></textarea>
+                        <textarea class="form-control" id="modalNote" rows="4" placeholder=""></textarea>
                     </div>
 
                     <div class="modal-button-group">

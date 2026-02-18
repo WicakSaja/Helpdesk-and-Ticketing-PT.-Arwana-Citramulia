@@ -87,7 +87,7 @@
                 <div class="form-group">
                     <label class="form-label">Solusi / Tindakan Perbaikan</label>
                     <textarea class="form-textarea" id="solutionText"
-                        placeholder="Contoh: Sudah dicek kabel power ternyata tidak terpasang dengan baik. Sudah dipasang kembali dengan benar dan komputer sudah bisa menyala normal."
+                        placeholder=""
                         required></textarea>
                 </div>
 

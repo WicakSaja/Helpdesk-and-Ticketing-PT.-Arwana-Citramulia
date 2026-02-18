@@ -101,7 +101,7 @@
 
             <div class="form-group">
                 <label class="form-label">Catatan (Opsional):</label>
-                <textarea id="assignNotes" class="form-textarea" placeholder="Contoh: Tolong segera dicek ke lokasi..."></textarea>
+                <textarea id="assignNotes" class="form-textarea" placeholder=""></textarea>
             </div>
 
             <div class="modal-footer">

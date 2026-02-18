@@ -466,7 +466,7 @@
                     </div>
                     <div class="form-group">
                         <label>Email Master Admin</label>
-                        <input type="email" id="resetEmail" value="" placeholder="Masukkan email admin" autocomplete="off">
+                        <input type="email" id="resetEmail" value="" placeholder="" autocomplete="off">
                     </div>
                     <div id="emailMatchError" style="display:none; color:#dc2626; font-size:13px; margin-top:-10px; margin-bottom:12px;">
                         <i class="fa-solid fa-circle-xmark"></i> <span></span>

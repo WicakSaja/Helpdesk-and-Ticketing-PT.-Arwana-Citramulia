@@ -29,7 +29,7 @@
                 <span class="icon-box">
                     <i class="fa-brands fa-whatsapp"></i>
                 </span>
-                <input type="number" id="phoneReg" class="custom-input" placeholder="Contoh: 0812xxxx" required>
+                <input type="number" id="phoneReg" class="custom-input" placeholder="0852xxxx" required>
             </div>
         </div>
 
@@ -76,7 +76,7 @@
                 <span class="icon-box"><i class="fa-solid fa-check-double"></i></span>
 
                 <input type="password" class="custom-input" id="passConfirm"
-                    placeholder="Ketik ulang password..." required>
+                    placeholder="" required>
 
                 <span class="toggle-password" onclick="togglePassword('passConfirm', this)">
                     <i class="fa-solid fa-eye"></i>
