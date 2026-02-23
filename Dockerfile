@@ -2,9 +2,11 @@ FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
     git curl libpq-dev libzip-dev zip unzip \
-    && docker-php-ext-install pdo pdo_pgsql zip
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_pgsql zip gd
 
-# Install Node 20 (penting untuk Vite)
+# Install Node 20 for Vite
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
@@ -16,9 +18,7 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Build Vite
-RUN npm install
-RUN npm run build
+RUN npm install && npm run build
 
 RUN php artisan storage:link \
     && php artisan config:cache \
